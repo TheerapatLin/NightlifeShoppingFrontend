@@ -1,0 +1,279 @@
+/* info_event.css */
+
+.infoCard {
+  display: flex;
+  flex-direction: column; 
+  margin-bottom: 50px;
+  margin-top: 50px;
+  box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.15);
+  border-radius: 25px;
+  backdrop-filter: blur(50px);
+}
+.flex-item01 {
+    display: flex;
+    flex-direction: row; 
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.15); 
+    transition: all 0.3s ease; 
+}
+
+
+.content { 
+    height: 100%;
+    margin: 10px 30px 30px 30px;
+}
+
+.buyticket {
+    margin-top: 0;
+    background: #EFEFEF;
+    border-radius: 100px;
+    padding: 5px;
+    width: 100%;
+    height: auto;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);/*rgba(255, 255, 255, 0.5) rgba(255, 255, 255) rgba(0, 0, 0, 0.15)*/
+    /* margin-top: auto;  */
+    margin-block: 10px;
+    display: flex;
+    flex-direction: row; 
+    align-items: center; 
+}
+
+.buyticket > div {
+    background: #E2346E;
+    border-radius: 100px;
+    padding: 5px;
+    width: 20%;
+    height: auto;
+    text-align: center;
+    margin: 20px;
+}
+.visible {
+  display: none;
+  background: #E2346E;
+  border-radius: 100px;
+  padding: 5px;
+  width: 100%;
+  height: auto;
+  text-align: center;
+  font-size: x-large;
+  box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.25);
+  margin-top: inherit;
+}
+.reservation {
+  background: #E2346E;
+  border-radius: 100px;
+  padding: 5px;
+  width: 100%;
+  height: auto;
+  text-align: center;
+  font-size: x-large;
+  box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.25);
+}
+
+.box-reservation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: #EFEFEF;
+  border-radius: 100px;
+  padding: 15px;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+}
+
+
+.imgVenues{
+    border-radius: 25px 0px 0px 25px;
+    width: 40%;
+}
+.gallery > div {
+    margin-bottom: 20px;
+}
+
+.chatEvent {
+    display: flex;
+    flex-wrap: nowrap; /* ให้รายการแสดงเป็นแถวเดียว */
+    overflow-x: auto; /* ให้เนื้อหาเลื่อนได้ แต่ไม่มีแถบสเครอล */
+    scrollbar-width: none; /* ซ่อนแถบสเครอลใน Firefox */
+    -ms-overflow-style: none; /* ซ่อนแถบสเครอลใน Internet Explorer */
+    justify-content: flex-start;
+    justify-content:flex-start;
+    align-items: center;
+    padding-left: 5px;
+}
+
+.chatEvent > .groupChat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px; 
+    margin-right: 20px; 
+}
+
+.groupChat > div {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 80px; /* ปรับขนาดตามที่ต้องการ */
+    width: 80px; /* ปรับขนาดตามที่ต้องการ */
+    border-radius: 50%;
+}
+
+.groupChat > p {
+    margin: 0;
+    padding: 0;
+}
+.groupChat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    margin-right: 20px;
+  }
+  
+  .groupChat > p.statusChat {
+    position: absolute;
+    top: 0px; /* ปรับตำแหน่งตามต้องการ */
+    right: -5px; /* ปรับตำแหน่งตามต้องการ */
+    background-color: #E2346E; /* เปลี่ยนสีตามที่ต้องการ */
+    color: white;
+    padding: 3px 9px;
+    border-radius: 100%;
+    font-size: 14px;
+  }
+  .groupChat > p.deleteChat {
+    position: absolute;
+    top: 0px; 
+    right: 55px; 
+    background-color: #5c5c5c; 
+    color: white;
+    padding: 3px 7px;
+    border-radius: 100%;
+    font-size: 14px;
+    transition: background-color 500ms ease-in;
+  }
+   p.deleteChat:hover {
+    background-color: #ff0000!important; 
+   }
+  
+
+.createGroupChat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    margin-right: 20px;
+    text-align: center;
+}
+
+.createGroupChatButton {
+    background-color: #E2346E;
+    border-radius: 50%;
+    border: 5px solid #ffffff;
+    height: 80px;
+    width: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 300ms ease-in;
+  }
+  .createGroupChatButton:hover {
+    background-color: #31ff64;
+  }
+  
+  .createGroupChatButton > i {
+    margin: 0;
+  }
+
+  /* .content {
+    flex-grow: 1;
+    padding: 25px;
+  }
+  
+  .flex-item01 {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+  }
+  
+  .buyticket > div {
+    width: 100%; 
+  }
+  
+  .gallery > div {
+    margin-bottom: 20px;
+  } */
+
+
+/* TODO: ===============RESPONSIVE */
+@media screen and (max-width: 1276px) {
+
+  .imgVenues {
+    height: auto;
+    width: 50%;
+    border-radius: 25px 0px 0px 25px;
+  }
+
+  .content {
+    width: 70%;  
+  }
+
+  .buyticket > div {
+    width: 25%;
+    margin: 10px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .flex-item01 {
+    flex-direction: column;
+  }
+
+  .imgVenues {
+    height: 25rem;
+    width: 100%;
+    border-radius: 25px 25px 0px 0px;
+  }
+  
+  .content {
+    width: auto;  
+  }
+
+  .buyticket > div {
+    width: 25%;
+    margin: 10px;
+  }
+}
+
+@media screen and (max-width: 425px) {
+  .content {
+    margin: 20px;
+    font-size: small;
+  }
+
+  .imgVenues {
+    height: 300px;
+  }
+  
+  .buyticket {
+      display: none;
+  }
+  .visible {
+    display: block;
+  }
+  /* .createGroupChat{
+    display: none;
+  } */
+}
+/* TODO: ===============RESPONSIVE END */
+  

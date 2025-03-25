@@ -1,0 +1,22 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - Oat_test  # เปลี่ยนเป็นชื่อ branch ของน้อง
+  pull_request:
+    branches:
+      - main  # เมื่อมี PR ไป main ก็ deploy ได้เช่นกัน
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to Vercel
+        run: vercel --token ${{ secrets.VERCEL_TOKEN }} --prod

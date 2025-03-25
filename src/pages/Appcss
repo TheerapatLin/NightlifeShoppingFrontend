@@ -1,0 +1,288 @@
+@import url('https://fonts.googleapis.com/css2?family=Heebo&family=Ubuntu:wght@300;400&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Heebo', sans-serif;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.App {
+    overflow: hidden;
+}
+
+.top-navigation {
+    background: linear-gradient(180deg, #D937F1 0%, #0961D8 100%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    transition: top 0.3s;
+}
+
+.top-navigation.scrolled {
+    top: -50px;
+    /* หรือค่าที่คุณต้องการให้ top-navigation หายไปเมื่อ scroll */
+}
+
+/* เพิ่มสไตล์ของ Navigation Bar ในสถานะปกติ */
+.menu-bar {
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+    transition: transform 0.3s;
+    /* ... สไตล์เพิ่มเติมที่คุณต้องการ ... */
+}
+
+.menu-bar.scrolled {
+    transform: translateY(0);
+}
+
+.menu-bar.fixed {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: linear-gradient(180deg, #D937F1 0%, #0961D8 100%);
+}
+
+
+/* เพิ่มคลาสสำหรับสถานะที่ไม่เลื่อน */
+.menu-bar.not-scrolled {
+    /* ... สไตล์ที่ไม่ใช่เลื่อน ... */
+}
+
+.item01 {
+    color: white;
+    background-color: transparent;
+    font-size: 18px;
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 15px 10px;
+    cursor: default;
+}
+
+.item01.title01 {
+    font-weight: 250;
+}
+
+/* .item01:hover{
+    border-radius: 10px;
+    background: #E2346E;
+} */
+
+.item02 {
+    color: rgb(27, 163, 0);
+    background-color: transparent;
+    font-size: 18px;
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 14px 15px;
+    cursor: default;
+}
+
+.item02.title02 {
+    font-weight: 250;
+}
+
+.item02:hover:active {
+    border-radius: 10px;
+    background: #E2346E;
+}
+
+.item02.active {
+    background-color: #E2346E;
+    border-radius: 10px;
+}
+
+.container {
+    width: 1280px;
+    margin: 0 auto;
+}
+
+.group01 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    margin-top: 10%;
+}
+
+.title-featured {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.6rem;
+    color: #ffffff;
+    height: 100px;
+}
+
+.lineneon {
+    height: 5px;
+    border-radius: 100px;
+    background-color: #ffffff;
+    -webkit-box-shadow: 0px 0px 10px 5px #E2346E;
+    -moz-box-shadow: 0px 0px 10px 5px #E2346E;
+    box-shadow: 0px 0px 10px 5px #E2346E;
+}
+
+.card:hover {
+    box-shadow: 0 0 35px 0 rgba(226, 52, 110);
+}
+
+.imgcard {
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 350px;
+
+}
+
+.box {
+    padding: 20px 10px;
+    background: rgba(64, 47, 117, 0.40);
+    border-radius: 0 0 20px 20px;
+}
+
+.item03 {
+    margin: 10px;
+    cursor: default;
+}
+
+h3 {
+    color: #E2346E;
+}
+
+p {
+    color: #ffffff;
+    cursor: default;
+}
+
+.footer {
+    background: linear-gradient(180deg, #0961D8 0%, #D937F1 100%);
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    /* position: fixed; */
+    bottom: 0;
+    width: 100%;
+}
+
+.container.eventslide {
+    position: relative;
+}
+
+/* .event .card.active {
+    border: 5px solid #ffffff;
+    box-shadow: 0 0 35px 0 rgba(226,52,110);
+  } */
+
+.prev,
+.next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    /* background: linear-gradient(180deg, #0961D8 0%, #D937F1 100%); */
+    background: #000000;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 2;
+    /* ให้ปุ่มนี้อยู่ข้างบน */
+}
+
+.prev {
+    left: 0;
+}
+
+.next {
+    right: 0;
+}
+
+.next:hover,
+.prev:hover {
+    color: #ffffff;
+    background: linear-gradient(180deg, #0961D8 0%, #D937F1 100%);
+}
+
+.event {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+    overflow: hidden;
+    padding: 50px;
+}
+
+.card {
+    transition: 0.3s;
+    width: 25%;
+    border-radius: 20px;
+    margin-inline: 10px;
+    overflow: hidden;
+    /* เพิ่มบรรทัดนี้เพื่อให้รูปภาพตัดขอบเมื่อมีขนาดที่ไม่เท่ากัน */
+}
+
+.slideshow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-container {
+    width: 1280px;
+    margin: 0 auto;
+}
+
+.footer-service {
+    display: flex;
+    /* align-items: center; */
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+
+.drawer-menu {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background-color: white;
+    transform: translateX(100%);
+    transition: transform 1s ease;
+}
+
+.drawer-menu.open {
+    transform: translateX(0);
+}
+
+@media screen and (max-width: 600px) {
+    .menu-bar .group>a {
+        display: none;
+    }
+
+    .menu-bar button {
+        display: block;
+    }
+
+    .menu-bar .item02 {
+        display: none;
+    }
+
+    .hamberger-menu {
+        display: block;
+    }
+
+    .drawer {
+        display: none;
+        z-index: 100000;
+        position: fixed;
+        top:100px;
+    }
+}

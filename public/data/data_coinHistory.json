@@ -1,0 +1,65 @@
+{
+    "coinID": "U00005C00005",
+    "history": [
+        {
+            "date": "2024-04-19",
+            "time": "10:30",
+            "amount": 50,
+            "detail": {
+                "type": "purchase",
+                "store": "Example Store",
+                "item": "Example Item"
+            }
+        },
+        {
+            "date": "2024-04-18",
+            "time": "15:45",
+            "amount": 200,
+            "detail": {
+                "type": "purchase",
+                "store": "Another Store",
+                "item": "Another Item"
+            }
+        },
+        {
+            "date": "2024-04-18",
+            "time": "15:45",
+            "amount": -50,
+            "detail": {
+                "type": "refund",
+                "store": "Previous Store",
+                "item": "Previous Item"
+            }
+        },
+        {
+            "date": "2024-04-18",
+            "time": "15:45",
+            "amount": 250,
+            "detail": {
+                "type": "refund",
+                "store": "Previous Store",
+                "item": "Previous Item"
+            }
+        },
+        {
+            "date": "2024-04-18",
+            "time": "15:45",
+            "amount": -250,
+            "detail": {
+                "type": "refund",
+                "store": "Previous Store",
+                "item": "Previous Item"
+            }
+        },
+        {
+            "date": "2024-04-18",
+            "time": "15:45",
+            "amount": 50,
+            "detail": {
+                "type": "refund",
+                "store": "Previous Store",
+                "item": "Previous Item"
+            }
+        }
+    ]
+}

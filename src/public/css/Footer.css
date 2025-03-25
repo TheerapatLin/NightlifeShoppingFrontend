@@ -1,0 +1,28 @@
+/* Footer.css */
+
+.footer {
+    background: linear-gradient(180deg, #0961D8 0%, #D937F1 100%);
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+}
+.footer-container {
+    width: 1280px;
+    margin: 0 auto;
+}  
+
+.footer-service {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.col {
+    text-align: left;
+}
+
+.container p:hover {
+    color: #E2346E;
+    cursor: pointer; 
+}

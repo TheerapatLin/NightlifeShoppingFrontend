@@ -1,0 +1,40 @@
+[
+    {
+        "eventId": "V00001-E00000001",
+        "imageUrl": "/img/Venues/venue00005.jpg",
+        "memberCount": 50,
+        "isGroupChat": true,
+        "messages": [
+          {
+              "userID": "U00001",
+              "content": "Hey everyone! Are you excited for the event?",
+              "timestamp": "2023-12-24T20:35:00Z"
+            },
+            {
+              "userID": "U00002",
+              "content": "Yes, I can't wait! It's going to be so much fun!",
+              "timestamp": "2023-12-24T20:36:00Z"
+            },
+            {
+              "userID": "U00003",
+              "content": "Me too! I heard there will be live music.",
+              "timestamp": "2023-12-24T20:37:00Z"
+            },
+            {
+              "userID": "U00004",
+              "content": "I hope the weather holds up, it's been raining a lot lately.",
+              "timestamp": "2023-12-24T20:38:00Z"
+            },
+            {
+              "userID": "U00002",
+              "content": "Looking forward to it! Can't wait to see everyone there.",
+              "timestamp": "2023-12-24T20:39:00Z"
+            },
+            {
+              "userID": "U00003",
+              "content": "I'm getting my dancing shoes ready! Let's party!",
+              "timestamp": "2023-12-24T20:40:00Z"
+            }
+        ]
+    }
+]

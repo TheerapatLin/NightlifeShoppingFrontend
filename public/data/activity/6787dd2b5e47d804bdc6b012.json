@@ -1,0 +1,119 @@
+{
+    "id": 1,
+    "name": "สำรวจสถานที่ซ่อนในกรุงเทพฯที่ออกแบบตามสั่งของ Petz",
+    "price": "1,334",
+    "video": "/video/videoId1.mp4",
+    "hostImage": "petz_profile1.avif",
+    "lastStartDate": "Sat Mar 8 2025 00:00:00 GMT+0700 (Indochina Time)",
+    "images": [
+        "1.webp",
+        "2.avif",
+        "3.avif",
+        "4.avif",
+        "5.webp"
+    ],
+    "descriptionEN": [
+        "This is Bangkok. The city of angels in Asia. Nightlife in Bangkok has nothing to compare. I will show you why Bangkok is my favorite city to party.",
+        "",
+        "We will go to 1-2 bars and 1-2 nightclubs in one night out!",
+        "You have to pay your own drink at each spot. Drinks cost 300-500 Baht.",
+        "",
+        "<b>This is our plan : </b>",
+        "",
+        "1. We will start at a nice bar which is the best selected at the time. It could be a nice sky bar view or good vibe with great music.",
+        "",
+        "During a transfer in our private vehicle, we will provide you some nice drinks to get boost up!",
+        "",
+        "2. A nice decoration bar with good live music OR a sky bar view mixed vibe with nightclub dance floor.",
+        "",
+        "3. After that we will turn it up with the first nightclub which has a dance floor and unique decoration. (We get free entrance instead of paying 300 Baht if you come by yourself)",
+        "",
+        "4. We will end up in the super club.",
+        "",
+        "Transportation to nightclub is included. But when we finish, our host will make sure you will get back home by a good taxi. But it's on you.",
+        "",
+        "<b>DRESS CODE : </b>",
+        "Men: NO shorts, tank tops, sportswear sandals or flipflops",
+        "Female: NO sandals or flipflops",
+        "",
+        "<b>Please bring your actual ID card or driving license or passport. Must be 20+.</b>"
+    ],
+    "descriptionTH": [
+        "นี่คือกรุงเทพฯ เมืองแห่งเทวดาในเอเชีย ชีวิตกลางคืนในกรุงเทพฯ ไม่มีอะไรเทียบได้ ฉันจะแสดงให้คุณเห็นว่าทำไมกรุงเทพฯ ถึงเป็นเมืองโปรดของฉันในการปาร์ตี้",
+        "",
+        "เราจะไปที่บาร์ 1-2 แห่งและไนท์คลับ 1-2 แห่งในคืนเดียว!",
+        "คุณต้องจ่ายค่าเครื่องดื่มของคุณเองในแต่ละที่ เครื่องดื่มมีราคา 300-500 บาท",
+        "",
+        "<b>นี่คือแผนของเรา : </b>",
+        "",
+        "1. เราจะเริ่มที่บาร์ดีๆ ที่ได้รับการคัดเลือกในขณะนั้น อาจจะเป็นบาร์บนดาดฟ้าที่มีวิวสวยหรือบรรยากาศดีพร้อมดนตรีเพราะ",
+        "",
+        "ระหว่างการเดินทางในรถส่วนตัวของเรา เราจะมีเครื่องดื่มดีๆ ให้คุณเพื่อเพิ่มความสนุก!",
+        "",
+        "2. บาร์ที่ตกแต่งสวยงามพร้อมดนตรีสดดีๆ หรือบาร์บนดาดฟ้าที่มีบรรยากาศผสมผสานกับฟลอร์เต้นรำของไนท์คลับ",
+        "",
+        "3. หลังจากนั้นเราจะไปที่ไนท์คลับแรกที่มีฟลอร์เต้นรำและการตกแต่งที่เป็นเอกลักษณ์ (เราจะได้เข้าฟรีแทนที่จะจ่าย 300 บาทถ้าคุณมาเอง)",
+        "",
+        "4. เราจะจบที่ซุปเปอร์คลับ",
+        "",
+        "การเดินทางไปไนท์คลับรวมอยู่แล้ว แต่เมื่อเราจบ เจ้าภาพของเราจะทำให้แน่ใจว่าคุณจะได้กลับบ้านโดยแท็กซี่ที่ดี แต่ค่าใช้จ่ายเป็นของคุณ",
+        "",
+        "<b>การแต่งกาย : </b>",
+        "ผู้ชาย: ห้ามใส่กางเกงขาสั้น เสื้อกล้าม รองเท้าแตะกีฬา หรือรองเท้าแตะ",
+        "ผู้หญิง: ห้ามใส่รองเท้าแตะ",
+        "",
+        "<b>กรุณานำบัตรประชาชน ใบขับขี่ หรือหนังสือเดินทางตัวจริงของคุณ ต้องมีอายุ 20 ปีขึ้นไป</b>"
+    ],
+    "included": [
+        {
+            "id": 1,
+            "headerTH": "เครื่องดื่ม",
+            "headerEN": "Drinks",
+            "detailTH": "เราจะมีเครื่องดื่มระหว่างการเดินทางและบางครั้งเครื่องดื่มฟรีที่บาร์แรก!",
+            "detailEN": "We will have some drinks during transfer and sometimes free drink at the first bar!",
+            "icon": "icon_drink1.png"
+        },
+        {
+            "id": 2,
+            "headerTH": "ตั๋ว",
+            "headerEN": "Tickets",
+            "detailTH": "ในวันศุกร์และวันเสาร์ คุณจะได้เข้าฟรีที่ไนท์คลับแรกซึ่งมีค่าเข้า 300 บาท",
+            "detailEN": "On Friday and Saturday, you will get free entrance of the first nightclub which is 300 Baht.",
+            "icon": "icon_ticket1.png"
+        },
+        {
+            "id": 3,
+            "headerTH": "โฮสต์มืออาชีพ",
+            "headerEN": "Host",
+            "detailTH": "โฮสต์มืออาชีพอำนวยความสะดวกและนำกิจกรรมให้สนุกสนาน",
+            "detailEN": "Professional host to facilitate and make the activity fun",
+            "icon": "icon_host1.png"
+        },
+        {
+            "id": 4,
+            "headerTH": "การเดินทาง",
+            "headerEN": "Transportation",
+            "detailTH": "แท็กซี่หรือรถตู้ปาร์ตี้ส่วนตัวขึ้นอยู่กับจำนวนคนในกลุ่มของเรา",
+            "detailEN" : "Taxi or private party van to each place (depends on number of people in our group)",
+            "icon": "icon_transportation1.png"
+        }
+    ],
+    "aboutHostHeaderTH": [
+        "รู้จักกับ Petz ผู้จัดเอ็กซ์พีเรียนซ์"
+    ],
+    "aboutHostHeaderEN": [
+        "Meet your Host, Petz"
+    ],
+    "aboutHostEN": [
+        "I’ve traveled the world and I've experienced bars and nightclubs in many cities.",
+        "I discovered Bangkok has a good value with a fun atmosphere and friendly people.",
+        "",
+        "I decided to create this experience to let travelers enjoy the nightlife in Bangkok at my favorite bars and nightclubs. All of my team members have been handpicked and trained by me. I know you will have a great time with us."
+    ],
+    "aboutHostTH": [
+        "ผมได้เดินทางไปทั่วโลกและได้สัมผัสกับบาร์และไนท์คลับในหลายเมือง",
+        "และได้ค้นพบว่ากรุงเทพฯ มีความคุ้มค่าพร้อมบรรยากาศที่สนุกสนานและผู้คนที่เป็นมิตร",
+        "",
+        "ผมจึงตัดสินใจสร้างประสบการณ์นี้เพื่อให้นักท่องเที่ยวได้เพลิดเพลินกับชีวิตกลางคืนในกรุงเทพฯ ที่บาร์และไนท์คลับที่ผมชื่นชอบ สมาชิกทุกคนในทีมของฉันได้รับการคัดเลือกและฝึกฝนมาแล้ว ผมมั่นใจว่าทุกคนจะมีช่วงเวลาที่ดีกับเราแน่นอน"
+    ]
+}

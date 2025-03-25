@@ -1,0 +1,143 @@
+/* Animation.css */
+
+.fade-enter {
+  opacity: 0.01;
+}
+
+.fade-enter.fade-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit.fade-exit-active {
+  opacity: 0.01;
+  transition: opacity 500ms ease-in;
+}
+
+/*************************************/
+
+.pageFade-enter {
+  opacity: 0;
+  transition: opacity 100ms ease-in;
+}
+
+.pageFade-enter-active {
+  opacity: 1;
+}
+
+.pageFade-exit {
+  opacity: 1;
+  
+}
+
+.pageFade-exit-active {
+  opacity: 0;
+  transition: opacity 100ms ease-in;
+}
+
+
+/************* Popup Buyticket Animation **************/
+@keyframes slideOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(50px); 
+  }
+}
+
+.popup-content.slideOut {
+  animation-name: slideOut;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes slideInPopup {
+  from {
+    opacity: 0;
+    transform: translate(0%, 50%); 
+  }
+  to {
+    opacity: 1;
+    transform: translate(0%, 0%); /* สิ้นสุดที่ตำแหน่งกลางของหน้าจอ */
+  }
+}
+.popup-content {
+  max-width: 1280px;
+  backdrop-filter: blur(40px);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 25px;
+  overflow: hidden; 
+  width: 90%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  text-align: center;
+  overflow-y: auto; 
+  animation: slideInPopup 0.5s forwards; /* เรียกใช้ animation เมื่อ popup-right ปรากฏ */
+}
+.col66 {
+  animation: slideInPopup 0.5s forwards; /* เรียกใช้ animation เมื่อ popup-right ปรากฏ */
+}
+
+/************* Popup Profile Animation **************/
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.popup-right {
+  position: fixed;
+  top: 0;
+  right: -100%; /* เริ่มต้นให้ตำแหน่งปิดของ popup-right อยู่ทางขวาของ viewport */
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  width: 50%; 
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: slideInRight 0.5s forwards; /* เรียกใช้ animation เมื่อ popup-right ปรากฏ */
+} 
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.popup-right.slideOut {
+  animation-name: slideOutRight;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes slideInContainer {
+  from {
+    opacity: 0;
+    transform: translate(0%, 50%); 
+  }
+  to {
+    opacity: 1;
+    transform: translate(0%, 0%);
+  }
+}
+/* .col99 {
+  animation: slideInContainer 0.9s forwards; 
+  animation-fill-mode: both; 
+} */
+
+
+
+

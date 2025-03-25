@@ -1,0 +1,10 @@
+.fc-daygrid-day {
+  cursor: pointer;
+}
+.fc-daygrid-day:hover{
+  color: rgb(126, 247, 93);
+}
+
+.fc .fc-daygrid-day-frame {
+  padding: 10px;
+}

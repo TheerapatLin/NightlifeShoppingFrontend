@@ -1,0 +1,45 @@
+/* My_coin.css */
+
+/* เพิ่มสไตล์เมื่อเม้าส์ hover ที่ประวัติการใช้ coins */
+.history-item:hover {
+    backdrop-filter: blur(10px);
+}
+
+/* ปรับขนาดและสีข้อความในประวัติการใช้ coins */
+.history-item p {
+    color: #fff; /* สีข้อความ */
+    font-size: 16px; /* ขนาดตัวอักษร */
+}
+
+/* ปรับระยะห่างและการจัดวางข้อความในประวัติการใช้ coins */
+.history-item {
+    display: grid;
+    grid-template-rows: 1fr;
+    gap: 10px; /* ระยะห่างระหว่างคอลัมน์ */
+    padding: 10px; /* ระยะห่างของเนื้อหาภายในประวัติการใช้ coins */
+
+}
+
+/* ปรับขนาดของรูปภาพในประวัติการใช้ coins */
+.history-item img {
+    width: 15px; /* ขนาดของรูปภาพ */
+}
+
+.HisstoryCoin div:nth-child(even) {
+    background-color: #202020;
+}
+.HisstoryCoin {
+    border: 1px solid #fff;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.history-item {
+    border-bottom: 1px solid #fff;
+}
+.history-item:last-child {
+    border-radius: 0 0 12px 12px;
+    border-bottom:none;
+}
+.history-item:first-child {
+    border-radius: 12px 12px 0 0;
+}

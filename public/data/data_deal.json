@@ -1,0 +1,226 @@
+[
+    {
+        "dealID":"V00001",
+        "caption":"Caption1",
+        "imageUrl":"/img/deals/deal00001.jpg",
+        "validUntil": "31 / DEC / 2024",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 100,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ]
+    },
+    {
+        "dealID":"V00002",
+        "caption":"Caption2",
+        "imageUrl":"/img/deals/deal00002.jpg",
+        "validUntil": "31 / DEC / 2024",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 100,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ]
+    },
+    {
+        "dealID":"V00003",
+        "caption":"Caption3",
+        "imageUrl":"/img/deals/deal00003.jpg",
+        "validUntil": "31 / DEC / 2024",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 100,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ]
+    },
+    {
+        "dealID":"V00004",
+        "caption":"Caption4",
+        "imageUrl":"/img/deals/deal00004.jpg",
+        "validUntil": "31 / DEC / 2024",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 100,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ]
+    },
+    {
+        "dealID":"V00005",
+        "caption":"Caption5",
+        "imageUrl":"/img/deals/deal00005.jpg",
+        "validUntil": "31 / DEC / 2024",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 100,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ]
+    },
+    {
+        "dealID":"V00006",
+        "caption":"Caption6",
+        "imageUrl":"/img/deals/deal00006.jpg",
+        "validUntil": "31 / DEC / 2024",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 100,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ]
+    },
+    {
+        "dealID":"V00007",
+        "caption":"Caption7",
+        "imageUrl":"/img/deals/deal00007.jpg",
+        "validUntil": "31 / DEC / 2024",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 100,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ]
+    },
+    {
+        "dealID":"V00008",
+        "caption":"Caption8",
+        "imageUrl":"/img/deals/deal00008.jpg",
+        "validUntil": "31 / DEC / 2024",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 100,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ]
+    }
+]

@@ -1,0 +1,4 @@
+.non-clickable {
+  pointer-events: none;
+  /* user-select: none; */
+}

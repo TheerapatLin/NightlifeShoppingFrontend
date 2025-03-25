@@ -1,0 +1,1053 @@
+[
+    {
+        "venueId": "V00001",
+        "eventId": "V00001-E00000001",
+        "imageUrl": "/img/Event/E00000001.jpg",
+        "caption": "Caption 1",
+        "date": "24 / DEC / 2023",
+        "time": "20.00 PM - 12.00 AM",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "gallery": [
+            {
+                "url": "/img/Data08_g1.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Data08_g2.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ],
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 3000,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ],
+        "eventchats": [
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00005.jpg",
+              "memberCount": 50,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:36:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:37:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:38:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Looking forward to it! Can't wait to see everyone there.",
+                    "timestamp": "2023-12-24T20:39:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "I'm getting my dancing shoes ready! Let's party!",
+                    "timestamp": "2023-12-24T20:40:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00006.jpg",
+              "memberCount": 30,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00007.jpg",
+              "memberCount": 40,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            }
+        ]
+    },
+    {
+        "venueId": "V00001",
+        "eventId": "V00001-E00000002",
+        "imageUrl": "/img/Event/E00000002.jpg",
+        "caption": "Caption 2",
+        "date": "24 / DEC / 2023",
+        "time": "20.00 PM - 12.00 AM",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "gallery": [
+            {
+                "url": "/img/Data08_g1.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Data08_g2.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ],
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 3000,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "3",
+                "ticketName": "zone R",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "4",
+                "ticketName": "zone Center",
+                "price": 850,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ],
+        "eventchats": [
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00005.jpg",
+              "memberCount": 50,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:36:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:37:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:38:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Looking forward to it! Can't wait to see everyone there.",
+                    "timestamp": "2023-12-24T20:39:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "I'm getting my dancing shoes ready! Let's party!",
+                    "timestamp": "2023-12-24T20:40:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00006.jpg",
+              "memberCount": 30,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00007.jpg",
+              "memberCount": 40,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            }
+        ]
+    },
+    {
+        "venueId": "V00001",
+        "eventId": "V00001-E00000003",
+        "imageUrl": "/img/Event/E00000003.jpg",
+        "caption": "Caption 3",
+        "date": "24 / DEC / 2023",
+        "time": "20.00 PM - 12.00 AM",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "gallery": [
+            {
+                "url": "/img/Data08_g1.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Data08_g2.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ],
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 3000,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "3",
+                "ticketName": "zone R",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "4",
+                "ticketName": "zone Center",
+                "price": 850,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ],
+        "eventchats": [
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00005.jpg",
+              "memberCount": 50,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:36:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:37:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:38:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Looking forward to it! Can't wait to see everyone there.",
+                    "timestamp": "2023-12-24T20:39:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "I'm getting my dancing shoes ready! Let's party!",
+                    "timestamp": "2023-12-24T20:40:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00006.jpg",
+              "memberCount": 30,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00007.jpg",
+              "memberCount": 40,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            }
+        ]
+    },
+    {
+        "venueId": "V00001",
+        "eventId": "V00001-E00000004",
+        "imageUrl": "/img/Event/E00000004.jpg",
+        "caption": "Caption 4",
+        "date": "24 / DEC / 2023",
+        "time": "20.00 PM - 12.00 AM",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "gallery": [
+            {
+                "url": "/img/Data08_g1.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Data08_g2.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ],
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 3000,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "3",
+                "ticketName": "zone R",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "4",
+                "ticketName": "zone Center",
+                "price": 850,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ],
+        "eventchats": [
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00005.jpg",
+              "memberCount": 50,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:36:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:37:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:38:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Looking forward to it! Can't wait to see everyone there.",
+                    "timestamp": "2023-12-24T20:39:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "I'm getting my dancing shoes ready! Let's party!",
+                    "timestamp": "2023-12-24T20:40:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00006.jpg",
+              "memberCount": 30,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00007.jpg",
+              "memberCount": 40,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            }
+        ]
+    },
+    {
+        "venueId": "V00001",
+        "eventId": "V00001-E00000005",
+        "imageUrl": "/img/Event/E00000005.jpg",
+        "caption": "Caption 5",
+        "date": "24 / DEC / 2023",
+        "time": "20.00 PM - 12.00 AM",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "gallery": [
+            {
+                "url": "/img/Data08_g1.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Data08_g2.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ],
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 3000,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "3",
+                "ticketName": "zone R",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "4",
+                "ticketName": "zone Center",
+                "price": 850,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ],
+        "eventchats": [
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00005.jpg",
+              "memberCount": 50,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:36:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:37:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:38:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Looking forward to it! Can't wait to see everyone there.",
+                    "timestamp": "2023-12-24T20:39:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "I'm getting my dancing shoes ready! Let's party!",
+                    "timestamp": "2023-12-24T20:40:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00006.jpg",
+              "memberCount": 30,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00007.jpg",
+              "memberCount": 40,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            }
+        ]
+    },
+    {
+        "venueId": "V00001",
+        "eventId": "V00001-E00000006",
+        "imageUrl": "/img/Event/E00000006.jpg",
+        "caption": "Caption 6",
+        "date": "24 / DEC / 2023",
+        "time": "20.00 PM - 12.00 AM",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "gallery": [
+            {
+                "url": "/img/Data08_g1.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Data08_g2.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ],
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 3000,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "3",
+                "ticketName": "zone R",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "4",
+                "ticketName": "zone Center",
+                "price": 850,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ],
+        "eventchats": [
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00005.jpg",
+              "memberCount": 50,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:36:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:37:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:38:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Looking forward to it! Can't wait to see everyone there.",
+                    "timestamp": "2023-12-24T20:39:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "I'm getting my dancing shoes ready! Let's party!",
+                    "timestamp": "2023-12-24T20:40:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00006.jpg",
+              "memberCount": 30,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00007.jpg",
+              "memberCount": 40,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            }
+        ]
+    },
+    {
+        "venueId": "V00001",
+        "eventId": "V00001-E00000007",
+        "imageUrl": "/img/Event/E00000007.jpg",
+        "caption": "Caption 7",
+        "date": "24 / DEC / 2023",
+        "time": "20.00 PM - 12.00 AM",
+        "location": "115 Village No.12, Kampa",
+        "description":"The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "gallery": [
+            {
+                "url": "/img/Data08_g1.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Data08_g2.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ],
+        "tickets": [
+            {
+                "ticketId": "1",
+                "ticketName": "Zone Promotion",
+                "price": 3000,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "2",
+                "ticketName": "zone L",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "3",
+                "ticketName": "zone R",
+                "price": 950,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            },
+            {
+                "ticketId": "4",
+                "ticketName": "zone Center",
+                "price": 850,
+                "availableAmount": 100,
+                "totalAmount": 100,
+                "date": "",
+                "time": ""
+            }
+        ],
+        "eventchats": [
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00005.jpg",
+              "memberCount": 50,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:36:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:37:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:38:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Looking forward to it! Can't wait to see everyone there.",
+                    "timestamp": "2023-12-24T20:39:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "I'm getting my dancing shoes ready! Let's party!",
+                    "timestamp": "2023-12-24T20:40:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00006.jpg",
+              "memberCount": 30,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            },
+            {
+              "eventId": "V00001-E00000001",
+              "imageUrl": "/img/Venues/venue00007.jpg",
+              "memberCount": 40,
+              "isGroupChat": true,
+              "messages": [
+                {
+                    "userID": "U00001",
+                    "content": "Hey everyone! Are you excited for the event?",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00002",
+                    "content": "Yes, I can't wait! It's going to be so much fun!",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00003",
+                    "content": "Me too! I heard there will be live music.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  },
+                  {
+                    "userID": "U00004",
+                    "content": "I hope the weather holds up, it's been raining a lot lately.",
+                    "timestamp": "2023-12-24T20:35:00Z"
+                  }
+              ]
+            }
+        ]
+    }
+]

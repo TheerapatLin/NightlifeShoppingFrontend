@@ -1,0 +1,9 @@
+body {	
+  /* border-radius: 26px; */
+  
+  background: #231061;
+  background-image: url('../../img/gradient_bg_5.jpg');
+  background-attachment: fixed;
+  background-size: cover ;
+  font-family: 'Noto Sans Thai', sans-serif;
+}

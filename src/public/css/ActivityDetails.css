@@ -1,0 +1,20 @@
+.stickySize {
+    @apply w-full max-h-[500px] /* Default for mobile */
+    sm:max-w-[300px] sm:max-h-[550px] /* Small screens */
+    md:max-w-[320px] md:max-h-[575px] /* Medium screens */
+    lg:max-w-[390px] lg:max-h-[600px] /* Large screens */
+    xl:max-w-[400px] xl:max-h-[600px] /* Extra large screens */
+}
+@media (min-width: 370px) {
+    .date-calendar-container {
+      width: 95%;      /* ลดขนาดของกล่อง */
+      max-width: 320px; /* ตั้งขนาดสูงสุดให้พอดีกับหน้าจอเล็ก */
+      height: 70vh;     /* กำหนดความสูงให้อยู่ในขอบเขตของหน้าจอ */
+      overflow-y: auto; /* ให้สามารถเลื่อนลงได้ */
+    }
+    
+    .date-calendar {
+      font-size: 12px;  /* ลดขนาดตัวอักษร */
+      padding: 4px;     /* ลด padding */
+    }
+  } 

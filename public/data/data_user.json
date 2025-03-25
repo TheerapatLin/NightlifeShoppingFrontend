@@ -1,0 +1,58 @@
+[
+    {
+      "userID": "U00001",
+      "userName": "John Doe",
+      "profileImage": "/img/profiles/john.jpg",
+      "myEvent": {
+        "eventId": "V00001-E00000001"
+      }
+    },
+    {
+      "userID": "U00002",
+      "userName": "Emily Smith",
+      "profileImage": "/img/profiles/emily.jpg",
+      "myEvent": {
+        "eventId": "V00001-E00000001"
+      }
+    },
+    {
+      "userID": "U00003",
+      "userName": "Alex Johnson",
+      "profileImage": "/img/profiles/alex.jpg",
+      "myEvent": {
+        "eventId": "V00001-E00000001"
+      }
+    },
+    {
+      "userID": "U00004",
+      "userName": "Sarah Williams",
+      "profileImage": "/img/profiles/sarah.jpg",
+      "myEvent": {
+        "eventId": "V00001-E00000001"
+      }
+    },
+    {
+      "userID": "U00005",
+      "userName": "Nattanon",
+      "firstName": "Nattanon",
+      "lastName": "Siripaisananusorn",
+      "userEmail": "nattanon.siripai@gmail.com",
+      "profileImage": "/img/profiles/nattanon05.jpg",
+      "userPhone": 928525225,
+      "userBirthDay": "9/January/2002",
+      "userGender": "Male",
+      "myEvent": {
+        "eventId": ["V00001-E00000001", "V00001-E00000002", "V00001-E00000004"]
+      },
+      "myCoin": {
+        "total": 250,
+        "remaining": 200,
+        "historyCoinID": "U00005C00005"
+      },
+      "myPoint": 1550,
+      "follower": 350,
+      "following": 550
+    }    
+    
+]
+  

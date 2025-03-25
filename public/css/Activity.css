@@ -1,0 +1,36 @@
+.container {
+  display: flex;
+  flex-wrap: wrap; /* ให้การ์ดไปอยู่ในแถวถัดไปเมื่อไม่พอ */
+  justify-content: center; /* จัดกึ่งกลาง */
+  gap: 10px; /* ระยะห่างระหว่างการ์ด */
+}
+
+.activity-card {
+  flex: 1 1 calc(20% - 10px); /* ตั้งค่าเบื้องต้น 5 การ์ดต่อแถว */
+  min-width: 200px; /* กำหนดขนาดขั้นต่ำ */
+  height: 440px; /* ความสูงที่กำหนด */
+  max-width: 255px; /* ขนาดสูงสุด */
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden; /* ซ่อนส่วนที่เกิน */
+  position: relative; /* สำหรับวาง icon */
+}
+
+/* ปรับขนาดเมื่อหน้าจอเล็กลง */
+@media (max-width: 1200px) {
+  .activity-card {
+    flex: 1 1 calc(25% - 10px); /* 4 การ์ดต่อแถว */
+  }
+}
+
+@media (max-width: 992px) {
+  .activity-card {
+    flex: 1 1 calc(33.33% - 10px); /* 3 การ์ดต่อแถว */
+  }
+}
+
+@media (max-width: 768px) {
+  .activity-card {
+    flex: 1 1 calc(50% - 10px); /* 2 การ์ดต่อแถว */
+  }
+}

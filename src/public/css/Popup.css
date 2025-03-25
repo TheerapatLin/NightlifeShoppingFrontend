@@ -1,0 +1,350 @@
+/* Popup.css */
+.popup-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* กำหนด grid ให้มีขนาดอัตโนมัติและขนาดเล็กที่สุดคือ 300px */
+  gap: 20px; /* ระยะห่างระหว่าง grid items */
+  align-items: center;
+  justify-content: center;
+  height: max-content; 
+}
+
+.popup {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    /* transform: translate(-50%, -50%); */
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.5);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  } 
+
+  .popup-content {
+    max-width: 1280px;
+    backdrop-filter: blur(40px);
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 25px;
+    overflow: hidden; 
+    width: 90%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    /* padding: 20px; */
+    text-align: center;
+    overflow-y: auto; 
+    
+  }
+
+  .Create-Group-Chat {
+    width: 90%;
+  }
+  
+  
+  .popup-content button {
+    background-color: #E2346E;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    width: auto;
+  }
+  .popup-content div {
+    /* width: 100%; */
+    height: auto;
+    text-align: center;
+  }
+  .popup-content i {
+    color: #ffffff;
+    cursor: pointer;
+    transition: color 100ms ease-in;
+  }
+  
+  .popup-content i:hover {
+    color: #E2346E !important;
+    cursor: pointer;
+  }
+  .order-summary {
+    background-color: #fff;
+    border-radius: 25px;
+  }
+  .ticket {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ticketprice {
+    backdrop-filter: blur(40px);
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 25px;
+    padding-inline: 20px;
+  }
+
+/*popup chat*/
+.popup02 {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.popup-content02 {
+  max-width: 500px;
+}
+
+.chat_content {
+  max-height: 500px;
+  overflow-y: auto;
+  border-radius: 16px;
+  
+}
+
+.chat_container {
+  padding: 10px;
+}
+
+.chat_message {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.profile_image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.sender_name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.message_content {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  /* max-width: 50%; */
+}
+
+
+.input_container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
+.message_input {
+  width: 100%;
+  padding: 10px;
+  padding-inline: 25px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: large;
+}
+.content-flexDirection {
+  display: flex;
+  flex-direction: row;
+  gap: 20px ;
+}
+
+/*popup Profile*/
+
+.popup-right {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  width: 45vh; 
+  height: 100vh; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; 
+  overflow-y: auto; 
+  /* scrollbar-width: none; */
+}
+.outside-image {
+  /* ให้รูปลอยอยู่ข้างนอกและไม่เกี่ยวข้องกับ popup-container */
+  position: fixed;
+  top: 0; /* หรือตำแหน่งที่ต้องการ */
+  right: 0; /* หรือตำแหน่งที่ต้องการ */
+  z-index: 999; /* ให้รูปอยู่บนสุดของส่วนอื่นๆ */
+  /* ใส่ความกว้าง, ความสูง, รูปภาพ หรือการจัดรูปแบบอื่นๆ ตามต้องการ */
+}
+
+.profile-image {
+  width: 100%;
+  height: auto;
+  background-size: cover;
+  /* border-radius: 50%; */
+}
+
+.Profile {
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  overflow: hidden; 
+  text-align: center;
+  overflow-y: auto; /* เพิ่มส่วนนี้ */
+  max-height: 100%; /* เพิ่มส่วนนี้ */
+}
+.Manage-profile {
+  top: 50%; /* ตำแหน่งตรงกลางแนวตั้ง */
+  left: 50%; /* ตำแหน่งตรงกลางแนวนอน */
+  transform: translate(-50%, -50%); /* ย้ายตำแหน่งลงมาให้อยู่ตรงกลาง */
+  overflow: hidden; 
+  text-align: center;
+  overflow-y: auto; 
+}
+.popup-right div {
+  /* width: 100%; */
+  height: auto;
+  text-align: center;
+}
+.popup-right i {
+  color: #ffffff;
+  cursor: pointer;
+  transition: color 100ms ease-in;
+}
+
+.popup-right i:hover {
+  color: #E2346E !important;
+  cursor: pointer;
+}
+
+.popup-content.Manage-profile h3 {
+  border-bottom: 1px dotted #ffffff; 
+  padding-bottom: 5px; 
+}
+.myevent {
+  border-bottom: 1px solid #ffffff; 
+}
+.popup-content.About-Us h3 {
+  border-bottom: 1px dotted #ffffff; 
+  padding-bottom: none; 
+}
+.myevent:last-child {
+  border-bottom: none;
+}
+
+.Manage-profile h3:hover {
+  font-size: 24px; 
+  background-color: #202020; 
+}
+
+.Manage-profile h3:first-child {
+  font-size: 20px; 
+  background-color: #202020; 
+}
+.About-Us h3:hover {
+  font-size: 24px; 
+  background-color: #202020; 
+}
+.About-Us h3:first-child {
+  font-size: 20px; 
+  background-color: #202020; 
+}
+.myevent:hover {
+  background-color: #202020; 
+}
+
+/*css ManageProfile*/
+.edit-imgPhoto {
+  position: absolute;
+  top: 80px;
+  right: 50px;
+  background-color: #E2346E;
+  color: white;
+  padding: 3px 9px;
+  border-radius: 50%;
+  font-size: 18px;
+}
+.container-menuLeft {
+  display: grid; 
+  grid-template-columns: 1fr 2.5fr;
+  gap:25px;
+  margin-top:30 ;
+  height:1400;
+}
+
+/*animation*/
+.Add_Coin {
+  transition: transform 0.5s ease;
+}
+.Add_Coin:hover {
+  transform: scale(1.3); 
+}
+
+.Scan {
+  transition: transform 0.5s ease;
+}
+.Scan:hover {
+  transform: scale(1.3); 
+}
+
+.Widthdraw {
+  transition: transform 0.5s ease;
+}
+.Widthdraw:hover {
+  transform: scale(1.3); 
+}
+
+.photo-profile {
+  transition: transform 0.5s ease;
+}
+.photo-profile:hover {
+  transform: scale(1.3); 
+}
+
+.profile-username {
+  transition: transform 0.5s ease;
+}
+.profile-username:hover {
+  transform: scale(1.3); 
+}
+
+/* TODO: ===============RESPONSIVE */
+@media screen and (max-width: 1276px) {
+
+}
+
+@media screen and (max-width: 768px) {
+  .content-flexDirection {
+    display: flex;
+    flex-direction: column;
+    gap: 20px ;
+  }  
+  .popup-content {
+    max-height: 80vh;
+    font-size: large;
+  }
+  .popup-content::-webkit-scrollbar {
+    display: none; 
+  }
+  .order-summary {
+    height: auto; 
+  }
+}
+
+@media screen and (max-width: 425px) {
+  .popup-content {
+    max-height: 80vh;
+    font-size: large;
+  }
+  .popup-content::-webkit-scrollbar {
+    display: none; 
+  }
+  .order-summary {
+    height: auto; 
+  }
+}
+/* TODO: ===============RESPONSIVE END */

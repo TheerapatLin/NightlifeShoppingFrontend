@@ -1,0 +1,90 @@
+[
+    {
+        "venueId": "V00004",
+        "imageUrl": "/img/Selected_venues/004_1.jpg",
+        "popularity": 5,
+        "caption": "Super club",
+        "date": "24 / DEC / 2024",
+        "gallery": [
+            {
+                "url": "/img/Selected_venues/004_1.1.jpg",
+                "caption": "Image 2 Caption"
+            },
+            {
+                "url": "/img/Selected_venues/004_2.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Selected_venues/004_4.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ]
+    },
+    {
+        "venueId": "V00001",
+        "imageUrl": "/img/Selected_venues/001_1.jpg",
+        "popularity": 5,
+        "caption": "Chill out bar",
+        "date": "24 / DEC / 2024",
+        "time": "18.00 PM - 02.00 AM",
+        "location": "Room 6, No 981 Holiday Inn SilomHotel, 11 Silom Rd Bang Rak District, Bangkok 10500",
+        "description": "The ultimate party experience! Live music, great atmosphere, and more! Come and let loose at the craziest party in town at ...",
+        "gallery": [
+            {
+                "url": "/img/Selected_venues/001_1.1.jpg",
+                "caption": "Image 2 Caption"
+            },
+            {
+                "url": "/img/Selected_venues/001_2.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Selected_venues/001_4.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ]
+    },    
+    {
+        "venueId": "V00002",
+        "imageUrl": "/img/Selected_venues/002_1.jpg",
+        "popularity": 5,
+        "caption": "Speak easy bar",
+        "date": "24 / DEC / 2024",
+        "gallery": [
+            {
+                "url": "/img/Selected_venues/002_1.1.jpg",
+                "caption": "Image 2 Caption"
+            },
+            {
+                "url": "/img/Selected_venues/002_2.jpg",
+                "caption": "Image 3 Caption"
+            },
+            {
+                "url": "/img/Selected_venues/002_4.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ]
+    },
+    {
+        "venueId": "V00003",
+        "imageUrl": "/img/Selected_venues/003_1.jpg",
+        "popularity": 5,
+        "caption": "Night club",
+        "date": "24 / DEC / 2024",
+        "gallery": [
+            {
+                "url": "/img/Selected_venues/003_1.1.jpg",
+                "caption": "Image 2 Caption"
+            },
+            {
+                "url": "/img/Selected_venues/003_2.jpg",
+                "caption": "Image 3 Caption"
+            }
+            ,
+            {
+                "url": "/img/Selected_venues/003_4.jpg",
+                "caption": "Image 4 Caption"
+            }
+        ]
+    }
+]

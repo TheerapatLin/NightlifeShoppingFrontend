@@ -1,0 +1,107 @@
+/* Container_grid.css */
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding-block: 20px;
+}
+
+.flex-item {
+  display: flex;
+  flex-direction: row; /* เปลี่ยนเป็น row */
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.15); /* ตรงนี้กำหนด box-shadow ตามต้องการ */
+  transition: all 0.3s ease; 
+}
+
+
+.flex-item:hover {
+  transform: scale(1.05); 
+  box-shadow: 0 0 20px 1px rgba(255, 255, 255, 1); 
+}
+
+
+
+.flex-item p {
+  color: #ffffff;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.flex-item div {
+  width: 100%;
+  height: auto;
+  background-size: cover;
+}
+.caption {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.searchbar {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  margin-top: 60px;
+}
+.col-1 {
+  width: 25%;
+}
+
+/* TODO: ===============RESPONSIVE */
+@media screen and (max-width: 1276px) {
+  .grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+  }
+  .flex-item {
+    flex-direction: row; 
+  }
+  .container {
+    width: 100%;
+  }
+  .col-1 {
+    width: auto;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .flex-item {
+    flex-direction: row; 
+  }
+}
+
+@media screen and (max-width: 425px) {
+  .grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 5fr)); 
+  }
+
+  .flex-item {
+    flex-direction: row; 
+  }
+
+  .searchbar {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content:center;
+    margin-top: 60px;
+  }
+  .col-1 {
+    margin-block: 30px;
+    width: 100%;
+  }
+}
+/* TODO: ===============RESPONSIVE END */
+
+
