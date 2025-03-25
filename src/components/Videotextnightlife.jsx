@@ -66,9 +66,10 @@ function Videotextnightlife() {
       style={{
         position: "relative", // ใช้ position relative กับ container เพื่อให้ซ้อนทับกัน
         width: "100%",
-        height: "min(900px,135vh)",
+        height: "max(700px,90vh)",
         //marginTop: "100px", // เว้นระยะจากด้านบน 180px
         overflow: "hidden", // ป้องกันการล้นของเนื้อหา
+        backgroundColor: "black",
       }}
     >
       {/* วิดีโอ */}
@@ -85,6 +86,8 @@ function Videotextnightlife() {
           position: "absolute",
           top: 60,
           left: 0,
+          width: "100%",
+          height: "100%",
           objectFit: "cover", // ปรับวิดีโอให้ยืดเต็มโดยรักษาสัดส่วน
         }}
       />
