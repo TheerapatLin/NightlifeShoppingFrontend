@@ -47,6 +47,7 @@ const inlineStyles = {
 };
 
 const ActivityDetails = () => {
+  const today = new Date();
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const [activity, setActivity] = useState(null);
@@ -488,6 +489,10 @@ const ActivityDetails = () => {
     );
   };
 
+  const everydayFromToday = (date) => {
+    return date >= today.setHours(0, 0, 0, 0); // ป้องกันเลือกวันในอดีต
+  };
+
   const CalendarComponent = ({ schedules }) => {
     // ฟังก์ชันสำหรับกรองวันที่
     const filterDate = (date) => {
@@ -545,7 +550,8 @@ const ActivityDetails = () => {
             {/* <b>{dayjs(startDate).format("DD/MM/YYYY")}</b> */}
             <DatePicker
               ref={datePickerRef}
-              selected={startDate}
+              //selected={startDate}
+              selected={today}
               onChange={handleDateChange}
               dateFormat="dd/MM/yyyy"
               locale="th"
@@ -553,7 +559,9 @@ const ActivityDetails = () => {
                 i18n.language === "en" ? "Select Date" : "เลือกวันที่"
               }
               className="cursor-pointer font-CerFont"
-              filterDate={filterDate}
+              //filterDate={filterDate}
+              filterDate={everydayFromToday}
+              minDate={today}
               style={{ display: "none" }}
             />
           </div>
