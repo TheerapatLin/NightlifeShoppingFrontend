@@ -13,6 +13,56 @@ import Videotextnightlife from "../components/Videotextnightlife";
 import VideotextnightlifeMobile from "../components/VideotextnightlifeMobile";
 import ElfsightWidget from "../views/ElfsightWidget";
 
+const DealCard = ({ frontImg, title, description, onClaim }) => {
+  const [flipped, setFlipped] = useState(false);
+
+  return (
+    <div className="w-full md:w-1/2 perspective">
+      <div
+        className={`relative w-full aspect-[1.6] transition-transform duration-700 preserve-3d ${
+          flipped ? "rotate-y-180" : ""
+        }`}
+      >
+        {/* FRONT */}
+        <div
+          className="absolute w-full h-full backface-hidden cursor-pointer"
+          onClick={() => setFlipped(true)}
+        >
+          <img
+            src={frontImg}
+            alt="Deal"
+            className="w-full h-full object-contain glow-img rounded-2xl"
+          />
+        </div>
+
+        {/* BACK */}
+        <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-white text-black rounded-2xl p-4 flex flex-col justify-between shadow-inner">
+          <div>
+            <button
+              className="absolute top-2 right-3 text-lg font-bold text-gray-500 hover:text-gray-800"
+              onClick={() => setFlipped(false)}
+            >
+              ✕
+            </button>
+            <h3 className="text-xl font-semibold mb-2">{title}</h3>
+            {description.map((line, index) => (
+              <p key={index} className="text-sm mb-1">
+                {line}
+              </p>
+            ))}
+          </div>
+          <button
+            className="bg-black text-white rounded-full py-2 px-4 text-sm"
+            onClick={onClaim}
+          >
+            Claim Deal
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function Home() {
   const [eventData, setEventData] = useState([]);
   const [eventData2, setEventData2] = useState([]);
@@ -97,11 +147,22 @@ function Home() {
       <>
         <style>
           {`
-      .glow-img {
-        box-shadow: 0 0 12px rgba(255, 255, 255, .4);
-        border-radius: 1.5rem;
-      }
-    `}
+          .glow-img {
+            box-shadow: 0 0 12px rgba(255, 255, 255, .4);
+          }
+          .perspective {
+            perspective: 1000px;
+          }
+          .preserve-3d {
+            transform-style: preserve-3d;
+          }
+          .backface-hidden {
+            backface-visibility: hidden;
+          }
+          .rotate-y-180 {
+            transform: rotateY(180deg);
+          }
+        `}
         </style>
 
         <div className="max-w-screen-lg mx-auto px-4 py-8">
@@ -111,28 +172,26 @@ function Home() {
           </h2>
 
           <div className="flex flex-row flex-wrap md:flex-nowrap gap-4">
-            <div className="w-full md:w-1/2 text-center text-white">
-              <img
-                src="/img/pro1.jpg"
-                alt="Image 1"
-                className="w-full glow-img cursor-pointer"
-                onClick={() => handleClick("image1")}
-              />
-              <p className="mt-2 text-sm opacity-50">
-                <i>10% off on all food items</i>
-              </p>
-            </div>
-            <div className="w-full md:w-1/2 text-center text-white">
-              <img
-                src="/img/pro2.jpg"
-                alt="Image 2"
-                className="w-full glow-img cursor-pointer"
-                onClick={() => handleClick("image2")}
-              />
-              <p className="mt-2 text-sm opacity-50">
-                <i>5% off on signature cocktails</i>
-              </p>
-            </div>
+            <DealCard
+              frontImg="/img/pro1.jpg"
+              title="10% Off on Food"
+              description={[
+                "Enjoy delicious meals with a discount.",
+                "Valid on all menu items.",
+                "Available today only!",
+              ]}
+              onClaim={() => handleClaim("food")}
+            />
+            <DealCard
+              frontImg="/img/pro2.jpg"
+              title="5% Off Signature Cocktails"
+              description={[
+                "Sip on our finest handcrafted drinks.",
+                "Valid only on signature menu.",
+                "Limited availability!",
+              ]}
+              onClaim={() => handleClaim("cocktail")}
+            />
           </div>
         </div>
       </>
