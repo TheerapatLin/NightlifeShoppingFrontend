@@ -12,56 +12,7 @@ import AllEventsInclude from "../components/AllEventsInclude";
 import Videotextnightlife from "../components/Videotextnightlife";
 import VideotextnightlifeMobile from "../components/VideotextnightlifeMobile";
 import ElfsightWidget from "../views/ElfsightWidget";
-
-const DealCard = ({ frontImg, title, description, onClaim }) => {
-  const [flipped, setFlipped] = useState(false);
-
-  return (
-    <div className="w-full md:w-1/2 perspective">
-      <div
-        className={`relative w-full aspect-[1.6] transition-transform duration-700 preserve-3d ${
-          flipped ? "rotate-y-180" : ""
-        }`}
-      >
-        {/* FRONT */}
-        <div
-          className="absolute w-full h-full backface-hidden cursor-pointer"
-          onClick={() => setFlipped(true)}
-        >
-          <img
-            src={frontImg}
-            alt="Deal"
-            className="w-full h-full object-contain glow-img rounded-2xl"
-          />
-        </div>
-
-        {/* BACK */}
-        <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-white text-black rounded-2xl p-4 flex flex-col justify-between shadow-inner">
-          <div>
-            <button
-              className="absolute top-2 right-3 text-lg font-bold text-gray-500 hover:text-gray-800"
-              onClick={() => setFlipped(false)}
-            >
-              ✕
-            </button>
-            <h3 className="text-xl font-semibold mb-2">{title}</h3>
-            {description.map((line, index) => (
-              <p key={index} className="text-sm mb-1">
-                {line}
-              </p>
-            ))}
-          </div>
-          <button
-            className="bg-black text-white rounded-full py-2 px-4 text-sm"
-            onClick={onClaim}
-          >
-            Claim Deal
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+import DealCard from "./DealCard";
 
 function Home() {
   const [eventData, setEventData] = useState([]);
@@ -72,6 +23,11 @@ function Home() {
   const navigate = useNavigate();
   const { isScrolled, currentPage, updateCurrentPage, windowSize } =
     useGlobalEvent();
+
+  const handleClaim = (dealId) => {
+    alert(`Claimed deal: ${dealId}`);
+    // หรือจะเปลี่ยนเป็น navigate/modal
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -143,27 +99,25 @@ function Home() {
         )}
       </div>
 
-      {/***************** Weekend Turn-Up *****************/}
+      {/***************** Deal Cards *****************/}
       <>
-        <style>
-          {`
-          .glow-img {
-            box-shadow: 0 0 12px rgba(255, 255, 255, .4);
-          }
-          .perspective {
-            perspective: 1000px;
-          }
-          .preserve-3d {
-            transform-style: preserve-3d;
-          }
-          .backface-hidden {
-            backface-visibility: hidden;
-          }
-          .rotate-y-180 {
-            transform: rotateY(180deg);
-          }
-        `}
-        </style>
+        <style>{`
+        .glow-img {
+          box-shadow: 0 0 12px rgba(255, 255, 255, .4);
+        }
+        .perspective {
+          perspective: 1000px;
+        }
+        .preserve-3d {
+          transform-style: preserve-3d;
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
 
         <div className="max-w-screen-lg mx-auto px-4 py-8">
           <h2 className="glow-text text-2xl text-white flex items-center gap-2 mb-4 justify-center md:justify-start">
@@ -171,10 +125,11 @@ function Home() {
             Today's Hot Deals
           </h2>
 
-          <div className="flex flex-row flex-wrap md:flex-nowrap gap-4">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-4">
             <DealCard
               frontImg="/img/pro1.jpg"
               title="10% Off on Food"
+              subtitle="Available for all food items"
               description={[
                 "Enjoy delicious meals with a discount.",
                 "Valid on all menu items.",
@@ -185,6 +140,7 @@ function Home() {
             <DealCard
               frontImg="/img/pro2.jpg"
               title="5% Off Signature Cocktails"
+              subtitle="Exclusive offer on crafted drinks"
               description={[
                 "Sip on our finest handcrafted drinks.",
                 "Valid only on signature menu.",
