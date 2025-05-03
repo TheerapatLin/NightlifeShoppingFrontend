@@ -94,6 +94,50 @@ function Home() {
       </div>
 
       {/***************** Weekend Turn-Up *****************/}
+      <>
+        <style>
+          {`
+      .glow-img {
+        box-shadow: 0 0 12px rgba(255, 255, 255, .4);
+        border-radius: 1.5rem;
+      }
+    `}
+        </style>
+
+        <div className="max-w-screen-lg mx-auto px-4 py-8">
+          <h2 className="glow-text text-2xl text-white flex items-center gap-2 mb-4 justify-center md:justify-start">
+            <span className="text-3xl">🔥</span>
+            Today's Hot Deals
+          </h2>
+
+          <div className="flex flex-row flex-wrap md:flex-nowrap gap-4">
+            <div className="w-full md:w-1/2 text-center text-white">
+              <img
+                src="/img/pro1.jpg"
+                alt="Image 1"
+                className="w-full glow-img cursor-pointer"
+                onClick={() => handleClick("image1")}
+              />
+              <p className="mt-2 text-sm opacity-50">
+                <i>10% off on all food items</i>
+              </p>
+            </div>
+            <div className="w-full md:w-1/2 text-center text-white">
+              <img
+                src="/img/pro2.jpg"
+                alt="Image 2"
+                className="w-full glow-img cursor-pointer"
+                onClick={() => handleClick("image2")}
+              />
+              <p className="mt-2 text-sm opacity-50">
+                <i>5% off on signature cocktails</i>
+              </p>
+            </div>
+          </div>
+        </div>
+      </>
+
+      {/***************** Weekend Turn-Up *****************/}
       <div
         className="container"
         style={{ paddingTop: "70px", maxWidth: "90%" }}

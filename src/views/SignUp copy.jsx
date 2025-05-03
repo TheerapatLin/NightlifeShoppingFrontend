@@ -11,12 +11,9 @@ import emailSentAnimation1 from "../public/lottie/email_sent1.json";
 import emailSentAnimation2 from "../public/lottie/email_sent2.json";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import closeIcon from "../img/circle_close.png";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
 function SignUpForm() {
   const [isJustPasswordWrong, setIsJustPasswordWrong] = useState(false);
-  const [isNotRegistered, setIsNotRegistered] = useState(false);
   const [isEmailLottieLoad, setIsEmailLottieLoad] = useState(false);
   const [isLoadingLottieLoad, setIsLoadingLottieLoad] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,10 +21,9 @@ function SignUpForm() {
   const [emailSentText, setEmailSentText] = useState(
     "ลงทะเบียนเรียบร้อยแล้ว!\nกรุณาตรวจสอบอีเมล\nก่อน Log in ครั้งแรก"
   );
-  const { login, checkAuthStatus } = useAuth();
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
+  //const BASE_URL = import.meta.env.VITE_BASE_API_URL;
   const { windowSize } = useGlobalEvent();
-  const navigate = useNavigate();
   const [signupFormData, setSignupFormData] = useState({
     signupName: "",
     signupEmail: "",
@@ -64,17 +60,12 @@ function SignUpForm() {
       isValid = false;
     }
 
-    if (
-      signupFormData.signupPassword.length < 8 ||
-      signupFormData.signupPassword.length > 16
-    ) {
+    if (signupFormData.signupPassword.length < 8 || signupFormData.signupPassword.length > 16) {
       errors.password = "Password must be 8-16 characters long";
       isValid = false;
     }
 
-    if (
-      signupFormData.signupPassword !== signupFormData.signupConfirmPassword
-    ) {
+    if (signupFormData.signupPassword !== signupFormData.signupConfirmPassword) {
       errors.confirmPassword = "Passwords do not match";
       isValid = false;
     }
@@ -113,19 +104,11 @@ function SignUpForm() {
 
   const registerUser = async () => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/auth/register`,
-        {
-          name: signupFormData.signupName.toLowerCase().trim(),
-          email: signupFormData.signupEmail.toLowerCase().trim(),
-          password: signupFormData.signupPassword.trim(),
-        },
-        {
-          headers: {
-            businessId: "1",
-          },
-        }
-      );
+      const response = await axios.post(`${BASE_URL}/auth/register`, {
+        name: signupFormData.signupName.toLowerCase().trim(),
+        email: signupFormData.signupEmail.toLowerCase().trim(),
+        password: signupFormData.signupPassword.trim(),
+      });
       console.log("API Response:", response.data);
       setIsLoading(false);
       setFlipped(!flipped);
@@ -133,12 +116,7 @@ function SignUpForm() {
     } catch (error) {
       setIsLoading(false);
       if (axios.isAxiosError(error) && error.response) {
-        console.error(
-          "Error API Response",
-          error.response.status,
-          ": ",
-          error.response.data
-        );
+        console.error("Error API Response", error.response.status, ": ", error.response.data);
         if (error.response.status === 409) {
           alert("อีเมลนี้ลงทะเบียนไปแล้ว! กรุณาใช้อีเมลอื่น");
         }
@@ -152,7 +130,8 @@ function SignUpForm() {
     const fp = await FingerprintJS.load();
     const result = await fp.get();
     const fingerprint = result.visitorId;
-
+    
+    console.log(`fingerprint = ${fingerprint}`);
     try {
       const response = await axios.post(
         `${BASE_URL}/auth/login`,
@@ -164,40 +143,31 @@ function SignUpForm() {
         {
           headers: {
             "Content-Type": "application/json",
-            "device-fingerprint": "12345678",
-            businessId: "1",
+            "hardware-id": "1",
           },
-          withCredentials: true,
         }
       );
+
       const { data } = response;
-      console.log(data);
-      if (data) {
-       // await login(data.data.user);
-        await checkAuthStatus(); // เพิ่มการเรียก checkAuthStatus หลังจาก login
-        navigate("/");
+      if (data && data.data && data.data.user) {
+        if (data.data.user.activated) {
+          console.log(JSON.stringify(data));
+          localStorage.setItem("userData", JSON.stringify(data));
+        } else {
+        }
       } else {
-        console.log("No token received");
       }
     } catch (error) {
-      console.log("Error catch:", error);
-      if (error.response) {
-        if (error.response.status === 401) {
-          setEmailSentText(
-            "ต้องตั้งรหัสผ่านก่อนใช้งาน \nกรุณาตรวจสอบอีเมลล์เพื่อทำการตั้งรหัสผ่าน"
-          );
-          setIsJustSignup(true);
-        } else if (error.response.status === 406) {
-          setEmailSentText(
-            "อีเมล์นี้ลงทะเบียนไปแล้ว\nแต่ยังไม่ได้ยืนยัน\nกรุณายืนยันในอีเมลล์ก่อน"
-          );
-          setIsJustSignup(true);
-        } else if (error.response.status === 403) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Error API Response", error.response.status, ": ", error.response.data);
+        if (error.response.status === 403) {
           setIsJustPasswordWrong(true);
-        } else if (error.response.status === 404) {
-          // 404 Not Found
-          setIsNotRegistered(true);
+        } else if (error.response.status === 406) {
+          setEmailSentText("อีเมล์นี้ลงทะเบียนไปแล้ว\nแต่ยังไม่ได้ยืนยัน\nกรุณายืนยันในอีเมลล์ก่อน");
+          setIsJustSignup(true);
         }
+      } else {
+        console.error("Error Making API Request:", error);
       }
     } finally {
       setIsLoading(false);
@@ -211,11 +181,7 @@ function SignUpForm() {
   }
 
   useEffect(() => {
-    if (
-      isLoading &&
-      document.getElementById("lottie").innerHTML == "" &&
-      !isLoadingLottieLoad
-    ) {
+    if (isLoading && document.getElementById("lottie").innerHTML == "" && !isLoadingLottieLoad) {
       setIsLoadingLottieLoad(true);
       Lottie.loadAnimation({
         container: document.getElementById("lottie"),
@@ -228,11 +194,7 @@ function SignUpForm() {
   }, [isLoading]);
 
   useEffect(() => {
-    if (
-      isJustSignup &&
-      document.getElementById("emailSentAnimationDIV").innerHTML == "" &&
-      !isEmailLottieLoad
-    ) {
+    if (isJustSignup && document.getElementById("emailSentAnimationDIV").innerHTML == "" && !isEmailLottieLoad) {
       setIsEmailLottieLoad(true);
       Lottie.loadAnimation({
         container: document.getElementById("emailSentAnimationDIV"),
@@ -261,10 +223,7 @@ function SignUpForm() {
         <div id="lottie" style={{ maxWidth: "200px" }} />
       </div>
 
-      <div
-        className="container_f"
-        style={{ paddingTop: windowSize.width < 800 ? "100px" : "180px" }}
-      >
+      <div className="container_f" style={{ paddingTop: windowSize.width < 800 ? "100px" : "180px" }}>
         <div className={`flipper ${flipped ? "flip" : ""}`}>
           <div
             className="back"
@@ -285,13 +244,7 @@ function SignUpForm() {
               }}
             >
               <div
-                style={{
-                  position: "absolute",
-                  right: "0px",
-                  top: "0px",
-                  width: "40px",
-                  height: "40px",
-                }}
+                style={{ position: "absolute", right: "0px", top: "0px", width: "40px", height: "40px" }}
                 onClick={() => {
                   setIsJustSignup(false);
                 }}
@@ -307,10 +260,7 @@ function SignUpForm() {
                   flexWrap: "wrap",
                 }}
               >
-                <div
-                  id="emailSentAnimationDIV"
-                  style={{ flex: "1", minWidth: "150px", maxWidth: "150px" }}
-                ></div>
+                <div id="emailSentAnimationDIV" style={{ flex: "1", minWidth: "150px", maxWidth: "150px" }}></div>
 
                 <div
                   style={{
@@ -328,11 +278,7 @@ function SignUpForm() {
                 </div>
                 <div
                   className="zigzag-divider"
-                  style={{
-                    backgroundSize: "5% 100%",
-                    height: "8px",
-                    margin: "10px 0px 10px 0px",
-                  }}
+                  style={{ backgroundSize: "5% 100%", height: "8px", margin: "10px 0px 10px 0px" }}
                 ></div>
               </div>
             </div>
@@ -340,11 +286,7 @@ function SignUpForm() {
             <form
               key={"loginForm"}
               onSubmit={handleLoginSubmit}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                color: "red",
-              }}
+              style={{ display: "flex", justifyContent: "center", color: "red" }}
             >
               <div
                 style={{
@@ -385,27 +327,15 @@ function SignUpForm() {
                   variant="outlined"
                   InputProps={{ style: { borderRadius: "15px" } }}
                 />
-                <div
-                  style={{ fontSize: "13.5px", color: "red", height: "24px" }}
-                  className="m-1 p-1"
-                >
-                  {isJustPasswordWrong &&
-                    "Incorrect email or password. Please try again."}
-                  {isNotRegistered &&
-                    "This email is not registered. Please sign up."}
+                <div style={{ fontSize: "13.5px", color: "red", height: "24px" }}>
+                  {isJustPasswordWrong && "Wrong Password! Please Try Again"}
                 </div>
                 <button className="button1" type="submit">
                   Log in
                 </button>
               </div>
             </form>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                margin: "20px",
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "center", margin: "20px" }}>
               Don’t have an account?{"  "}
               <div onClick={handleClick} style={{ color: "blue" }}>
                 {" "}
@@ -413,8 +343,7 @@ function SignUpForm() {
               </div>
             </div>
           </div>
-
-          {/* ******************* Sign up ********************** */}
+          {/* ***************************************** */}
           <div
             className="front"
             style={{
@@ -427,11 +356,7 @@ function SignUpForm() {
             <form
               key={"signupForm"}
               onSubmit={handleSignupSubmit}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                color: "red",
-              }}
+              style={{ display: "flex", justifyContent: "center", color: "red" }}
             >
               <div
                 style={{
@@ -457,7 +382,6 @@ function SignUpForm() {
                   key={"signup1"}
                   required
                   onChange={handleSignupChange}
-                  type=""
                   name="signupName"
                   label="Name"
                   variant="outlined"
@@ -502,13 +426,7 @@ function SignUpForm() {
                 </button>
               </div>
             </form>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                margin: "20px",
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "center", margin: "20px" }}>
               Already have an account?{"  "}
               <div onClick={handleClick} style={{ color: "blue" }}>
                 {" "}
