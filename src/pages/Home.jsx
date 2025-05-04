@@ -153,12 +153,12 @@ function Home() {
       </>
 
       {/***************** Weekend Turn-Up *****************/}
-      <div
+      {/* <div
         className="container"
         style={{ paddingTop: "70px", maxWidth: "90%" }}
       >
         <WeekendTurnUp />
-      </div>
+      </div> */}
 
       <div
         className="container"
