@@ -68,14 +68,6 @@
         },
         {
             "id": 2,
-            "headerTH": "ตั๋ว",
-            "headerEN": "Tickets",
-            "detailTH": "ในวันศุกร์และวันเสาร์ คุณจะได้เข้าฟรีที่ไนท์คลับแรกซึ่งมีค่าเข้า 300 บาท",
-            "detailEN": "On Friday and Saturday, you will get free entrance of the first nightclub which is 300 Baht.",
-            "icon": "icon_ticket1.png"
-        },
-        {
-            "id": 3,
             "headerTH": "โฮสต์มืออาชีพ",
             "headerEN": "Host",
             "detailTH": "โฮสต์มืออาชีพอำนวยความสะดวกและนำกิจกรรมให้สนุกสนาน",
