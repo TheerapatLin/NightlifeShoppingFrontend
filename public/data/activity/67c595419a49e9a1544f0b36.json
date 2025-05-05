@@ -60,10 +60,10 @@
     "included": [
         {
             "id": 1,
-            "headerTH": "เครื่องดื่ม",
-            "headerEN": "Drinks",
-            "detailTH": "เราจะมีเครื่องดื่มระหว่างการเดินทางและบางครั้งเครื่องดื่มฟรีที่บาร์แรก!",
-            "detailEN": "We will have some drinks during transfer and sometimes free drink at the first bar!",
+            "headerTH": "เครื่องดื่มและอาหาร",
+            "headerEN": "Snack & Drinks",
+            "detailTH": "เราจะมี Drink แรก และ Snack ให้ พร้อมส่วนลดสำหรับออเดอร์ต่อไป!",
+            "detailEN": "One drink at the venue and snack and some special discount for next order!",
             "icon": "icon_drink1.png"
         },
         {
