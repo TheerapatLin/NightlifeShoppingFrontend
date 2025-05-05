@@ -806,12 +806,12 @@ const ActivityDetails = () => {
                           {activity?.duration / 60}{" "}
                           {i18n.language === "en" ? "Hours" : "ชั่วโมง"}
                         </div>
-                        <div className="font-CerFont text-base">.</div>
-                        <div className="font-CerFont text-base">
+                        {/* <div className="font-CerFont text-base">.</div> */}
+                        {/* <div className="font-CerFont text-base">
                           {i18n.language === "en"
                             ? " Thai & English Activity"
                             : " จัดเป็นภาษาไทยและอังกฤษ"}
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                     <div>
