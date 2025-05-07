@@ -6,15 +6,20 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import EventSlider3 from "../components/EventSlider3";
 import { useGlobalEvent } from "../context/GlobalEventContext";
+import { useAuth } from "../context/AuthContext";
 import EventSlider4 from "../components/EventSlider4";
+import CustomModal from "../components/CustomModal";
 import WeekendTurnUp from "../components/WeekendTurnUp";
 import AllEventsInclude from "../components/AllEventsInclude";
 import Videotextnightlife from "../components/Videotextnightlife";
 import VideotextnightlifeMobile from "../components/VideotextnightlifeMobile";
 import ElfsightWidget from "../views/ElfsightWidget";
 import DealCard from "./DealCard";
+import axios from "axios";
 
 function Home() {
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
+  const { isLoggedIn, logout, user } = useAuth();
   const [eventData, setEventData] = useState([]);
   const [eventData2, setEventData2] = useState([]);
   const [venueData, setVenueData] = useState([]);
@@ -24,9 +29,52 @@ function Home() {
   const { isScrolled, currentPage, updateCurrentPage, windowSize } =
     useGlobalEvent();
 
-  const handleClaim = (dealId) => {
-    alert(`Claimed deal: ${dealId}`);
-    // หรือจะเปลี่ยนเป็น navigate/modal
+  const [showClaimDealSuccess, setShowClaimDealSuccess] = useState(false);
+  const [showNotLoggedInModal, setShowNotLoggedInModal] = useState(false);
+  const [claimErrorMessage, setClaimErrorMessage] = useState("");
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [claimStatus, setClaimStatus] = useState(null); // null | 'success' | 'fail'
+  // null | 'success' | 'fail'
+
+  const handleClaim = async (dealId) => {
+    if (!isLoggedIn) {
+      setShowNotLoggedInModal(true);
+      return;
+    }
+
+    if (isClaiming) return;
+    setIsClaiming(true);
+
+    // เคลียร์ state ก่อนทุกครั้ง
+    setClaimStatus(null);
+    setClaimErrorMessage("");
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/user-deal/claim`,
+        { dealId },
+        {
+          headers: {
+            "device-fingerprint": "12345678",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 201) {
+        setClaimStatus("success");
+      } else {
+        const error = response.data?.error || "ไม่สามารถเคลมดีลได้";
+        setClaimErrorMessage(error);
+        setClaimStatus("fail");
+      }
+    } catch (error) {
+      const message = error?.response?.data?.error || "ไม่สามารถเคลมดีลได้";
+      setClaimErrorMessage(message);
+      setClaimStatus("fail");
+    } finally {
+      setIsClaiming(false);
+    }
   };
 
   useEffect(() => {
@@ -72,6 +120,64 @@ function Home() {
 
   return (
     <div>
+      {/***************** Modal เตือนให้ล็อกอิน *****************/}
+      {claimStatus === "success" && (
+        <CustomModal
+          message="เคลมดีลสำเร็จแล้ว!"
+          type="success"
+          showOkButton={true}
+          showCloseButton={false}
+          onClose={() => setClaimStatus(null)}
+          autoClose={false}
+        />
+      )}
+
+      {claimStatus === "fail" && (
+        <CustomModal
+          message={claimErrorMessage}
+          type="error"
+          showOkButton={true}
+          onClose={() => setClaimStatus(null)}
+          autoClose={false}
+        />
+      )}
+
+      {/* {showNotLoggedInModal && (
+        <CustomModal
+          message="กรุณาเข้าสู่ระบบก่อนใช้งาน"
+          type="error"
+          showOkButton={true}
+          onClose={() => setShowNotLoggedInModal(false)}
+          autoClose={false}
+        />
+      )} */}
+
+      {/***************** Modal เตือนให้ล็อกอิน *****************/}
+      {showNotLoggedInModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl p-6 relative w-[90%] max-w-sm shadow-xl">
+            {/* ปุ่ม X */}
+            <button
+              onClick={() => setShowNotLoggedInModal(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg"
+            >
+              ×
+            </button>
+
+            {/* เนื้อหา */}
+            <h2 className="text-center text-lg font-semibold mb-4">
+              <br/>Please log in<br/>before claiming deals!
+            </h2>
+            <button
+              onClick={() => navigate("/signup")}
+              className="block w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            >
+              Go to Log in
+            </button>
+          </div>
+        </div>
+      )}
+
       {/***************** Main Banners *****************/}
       {/* <div 
         className="container col99" 
@@ -135,7 +241,7 @@ function Home() {
                 "Valid on all menu items.",
                 "Available today only!",
               ]}
-              onClaim={() => handleClaim("food")}
+              onClaim={() => handleClaim("681b1698800bd4c6df20c398")}
             />
             <DealCard
               frontImg="/img/pro2.jpg"
@@ -146,7 +252,7 @@ function Home() {
                 "Valid only on signature menu.",
                 "Limited availability!",
               ]}
-              onClaim={() => handleClaim("cocktail")}
+              onClaim={() => handleClaim("681b169b800bd4c6df20c39a")}
             />
           </div>
         </div>

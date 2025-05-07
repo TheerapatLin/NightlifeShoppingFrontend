@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
       );
       if (response.status === 200) {
         setIsLoggedIn(true);
-        // alert(JSON.stringify(response.data.data.user));
+        //alert(`test = ${JSON.stringify(response.data.data.user)}`);
         setUser(response.data.data.user);
       } else {
         setIsLoggedIn(false);
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (userData) => {
     setIsLoggedIn(true);
-    setUser(userData);
+    console.log("User Data:", userData);
     await checkAuthStatus();
   };
 
@@ -70,6 +70,7 @@ export const AuthProvider = ({ children }) => {
 
         if (response.status === 200) {
           setIsLoggedIn(true);
+          setUser(response.data.data.user );
           await checkAuthStatus();
           isRefreshingToken = false;
         } else {

@@ -6,23 +6,41 @@ function ProfilePage() {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [userDeals, setUserDeals] = useState([]); // 🎯 เพิ่ม user deals
 
   // Fetch order by user ID
-  const fetchOrderByUserID = async (userID) => {
+  // const fetchOrderByUserID = async (userID) => {
+  //   try {
+  //     const response = await axios.get(`${BASE_URL}/order/${userID}`, {
+  //       withCredentials: true,
+  //     });
+  //     setOrders(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching Orders:", error);
+  //   }
+  // };
+
+  // 🎯 ดึง deals ที่ user นี้เคยซื้อ
+  const fetchUserDeals = async (userID) => {
     try {
-      const response = await axios.get(`${BASE_URL}/order/${userID}`, {
+      const response = await axios.get(`${BASE_URL}/user-deal/${userID}`, {
+        headers: {
+          "device-fingerprint": "12345678",
+        },
         withCredentials: true,
       });
-      setOrders(response.data);
+      //alert(JSON.stringify(response.data, null, 2));
+      setUserDeals(response.data);
     } catch (error) {
-      console.error("Error fetching Orders:", error);
+      console.error("Error fetching user deals:", error);
     }
   };
 
   useEffect(() => {
     if (user) {
       console.log(user);
-      fetchOrderByUserID(user.userId);
+      fetchUserDeals(user.userId);
+      //fetchOrderByUserID(user.userId);
     }
   }, [user]);
 
@@ -41,21 +59,41 @@ function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-4 justify-center items-center px-4 sm:px-8 md:px-16 lg:px-32">
-      {/* <div className="flex flex-col sm:flex-row gap-4 w-full text-center rounded-lg">
-        <div className="w-full sm:w-[40%] flex flex-col justify-center items-center gap-4 p-4 rounded-lg bg-white">
-          <img
-            src="https://placehold.co/600x400"
-            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border border-gray-300"
-            alt="Profile"
-          />
-          <div>
-            <span className="text-lg font-CerFont">อัมรินทร์ ดอกยี่สูน</span>
-          </div>
+      {/* 🎯 แสดงดีลที่เคยซื้อ */}
+      <div className="w-full bg-white rounded-lg p-4">
+        <span className="text-xl font-CerFont ml-4">ดีลที่เคยซื้อไว้</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+          {userDeals.map((userDeal) => (
+            <div
+              key={userDeal._id}
+              className="border border-gray-200 rounded-lg p-4 shadow-sm"
+            >
+              {/* รูปภาพดีล */}
+              {userDeal.dealId?.images?.[0] && (
+                <img
+                  src={userDeal.dealId.images[0]}
+                  alt="Deal Preview"
+                  className="w-full h-40 object-cover rounded mb-2"
+                />
+              )}
+
+              <div className="font-bold mb-2">
+                {userDeal.dealId?.title?.th || "ดีลไม่มีชื่อ"}
+              </div>
+              <div className="text-sm text-gray-600">
+                ซื้อเมื่อ:{" "}
+                {new Date(userDeal.claimedAt).toLocaleDateString("th-TH")}
+              </div>
+              <div className="text-sm text-gray-600">
+                สถานะ: {userDeal.isUsed ? "ใช้แล้ว" : "ยังไม่ใช้"}
+              </div>
+              <div className="text-sm text-gray-600">
+                ราคาที่จ่าย: {userDeal.pricePaid} บาท
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="w-full sm:w-[60%] p-4 rounded-lg bg-white flex flex-col">
-          <div className="text-xl font-CerFont mb-4">แก้ไขข้อมูลผู้ใช้</div>
-        </div>
-      </div> */}
+      </div>
 
       <div className="w-full bg-white rounded-lg p-4">
         <span className="text-xl font-CerFont ml-4">กิจกรรมที่จองไว้</span>
