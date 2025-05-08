@@ -1,4 +1,4 @@
-// filepath: /Users/siriroongaroonwongs/Documents/real_projects/HealWorld/healworld_web/src/i18n.js
+// filepath: src/i18n.js
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -9,24 +9,16 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    fallbackLng: 'en',
+    fallbackLng: 'th',
     debug: true,
     interpolation: {
       escapeValue: false,
     },
-    resources: {
-      en: {
-        translation: {
-          "welcome": "Welcome to HealWorld",
-          // ...other translations
-        }
-      },
-      th: {
-        translation: {
-          "welcome": "ยินดีต้อนรับสู่ HealWorld",
-          // ...other translations
-        }
-      }
+    backend: {
+      loadPath: '/locales/{{lng}}/translation.json', // ✅ ใช้ไฟล์จาก public/locales
+    },
+    react: {
+      useSuspense: false
     }
   });
 

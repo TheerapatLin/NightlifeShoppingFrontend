@@ -1,0 +1,25 @@
+{
+    "profile": {
+      "purchasedDeals": "Purchased Deals",
+      "noTitle": "Untitled Deal",
+      "purchasedOn": "Purchased On",
+      "status": "Status",
+      "used": "Used",
+      "unused": "Unused",
+      "paidPrice": "Paid Price",
+      "currency": "THB",
+      "bookedActivities": "Booked Activities",
+      "activityName": "Activity Name",
+      "bookingDate": "Booking Date",
+      "price": "Price",
+      "duration": "Activity Duration",
+      "location": "Location",
+      "paymentStatus": "Payment Status",
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "notFound": "Not Found",
+      "claimedOn": "Claimed On",
+      "free": "Free"
+    }
+  }
+  

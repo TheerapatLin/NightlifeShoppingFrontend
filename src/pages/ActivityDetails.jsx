@@ -32,8 +32,9 @@ import { useTranslation } from "react-i18next";
 import i18n from "../i18n";
 import Footer from "../components/Footer";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import { use } from "react";
-import ElfsightWidget from "../views/ElfsightWidget";
+//import { use } from "react";
+//import ElfsightWidget from "../views/ElfsightWidget";
+import useSyncDayjsLocale from "../components/useSyncDayjsLocale";
 
 dayjs.locale("th");
 
@@ -74,6 +75,8 @@ const ActivityDetails = () => {
   const { setAffiliate, user } = useAuth();
   const [filteredSchedules, setFilteredSchedules] = useState([]);
   const [activityDetail, setActivityDetail] = useState(null);
+
+  useSyncDayjsLocale();
 
   const handlePaymentNavigation = (
     activityId,
@@ -1339,9 +1342,9 @@ const ActivityDetails = () => {
           )}
         </div>
       </div>
-      <div style={{ padding: "20px" }}>
+      {/* <div style={{ padding: "20px" }}>
         <ElfsightWidget />
-      </div>
+      </div> */}
 
       <Footer />
       {isMobile && (
@@ -1486,7 +1489,7 @@ const FloatingBar = ({
 
         <div className="flex flex-col">
           <h3 className="text-2xl text-black font-bold mb-6 font-CerFont">
-            เลือกวันที่
+            {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
           </h3>
 
           <div className="flex gap-3">
@@ -1577,20 +1580,27 @@ const FloatingBar = ({
                 onClick={() => setModalCalendar(false)}
               />
               <span className="text-base font-CerFont font-bold flex-grow text-center">
-                เลือกช่วงวันที่
+                {i18n.language === "en" ? "Choose Date" : "เลือกช่วงวันที่"}
               </span>
               <div style={{ width: "30px" }}></div>
             </div>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <LocalizationProvider
+              dateAdapter={AdapterDayjs}
+              adapterLocale={i18n.language}
+            >
               <DateCalendar
                 className="date-calendar"
-                defaultValue={selectedDate ? dayjs(selectedDate) : null} // กำหนดค่าเริ่มต้น
+                defaultValue={selectedDate ? dayjs(selectedDate) : null}
                 onChange={(newDate) => {
                   setSelectedDate(new Date(newDate));
                   setIsCleared(false);
                   setModalCalendar(false);
                   handleDateChange(newDate);
-                  
+                }}
+                shouldDisableDate={(date) => {
+                  const currentDate = new Date(date).setHours(0, 0, 0, 0);
+                  const today = new Date().setHours(0, 0, 0, 0);
+                  return currentDate < today; // 🔥 ปิดวันก่อนวันนี้
                 }}
                 // shouldDisableDate={(date) => {
                 //   if (!dates) {
@@ -1614,13 +1624,13 @@ const FloatingBar = ({
                 onClick={handleClearDate}
                 className="underline font-bold bg-transparent"
               >
-                เคลียร์วันที่
+                {i18n.language === "en" ? "Clear Date" : "เคลียร์วันที่"}
               </button>
               <button
                 onClick={() => setModalCalendar(false)}
                 className="py-2 px-4 rounded-lg text-sm font-semibold bg-black text-white hover:bg-gray-800 transition-colors "
               >
-                บันทึก
+                {i18n.language === "en" ? "Save" : "บันทึก"}
               </button>
             </div>
           </div>
@@ -1734,7 +1744,11 @@ const FloatingBar = ({
             ? ` ฿${activity?.cost}/person`
             : ` ฿${activity?.cost}/คน`}
           <br />
-          {selectedDate ? dayjs(selectedDate).format("YYYY-MM-DD") : i18n.language === "en" ? "(Please Select Date)" : "(กรุณาเลือกวันที่ก่อน)"}
+          {selectedDate
+            ? dayjs(selectedDate).format("YYYY-MM-DD")
+            : i18n.language === "en"
+            ? "(Please Select Date)"
+            : "(กรุณาเลือกวันที่ก่อน)"}
         </div>
       </div>
       {/* <button
@@ -1811,20 +1825,27 @@ const FloatingBar = ({
                 onClick={() => setModalCalendar(false)}
               />
               <span className="text-base font-CerFont font-bold flex-grow text-center">
-                เลือกช่วงวันที่
+                {i18n.language === "en" ? "Choose Date" : "เลือกช่วงวันที่"}
               </span>
               <div style={{ width: "30px" }}></div>
             </div>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <LocalizationProvider
+              dateAdapter={AdapterDayjs}
+              adapterLocale={i18n.language}
+            >
               <DateCalendar
                 className="date-calendar"
-                defaultValue={selectedDate ? dayjs(selectedDate) : null} // กำหนดค่าเริ่มต้น
+                defaultValue={selectedDate ? dayjs(selectedDate) : null}
                 onChange={(newDate) => {
-                  alert(newDate);
                   setSelectedDate(new Date(newDate));
                   setIsCleared(false);
                   setModalCalendar(false);
                   handleDateChange(newDate);
+                }}
+                shouldDisableDate={(date) => {
+                  const currentDate = new Date(date).setHours(0, 0, 0, 0);
+                  const today = new Date().setHours(0, 0, 0, 0);
+                  return currentDate < today; // 🔥 ปิดวันก่อนวันนี้
                 }}
                 // shouldDisableDate={(date) => {
                 //   if (!dates) {
@@ -1848,13 +1869,13 @@ const FloatingBar = ({
                 onClick={handleClearDate}
                 className="underline font-bold bg-transparent"
               >
-                เคลียร์วันที่
+                {i18n.language === "en" ? "Clear Date" : "เคลียร์วันที่"}
               </button>
               <button
                 onClick={() => setModalCalendar(false)}
                 className="py-2 px-4 rounded-lg text-sm font-semibold bg-black text-white hover:bg-gray-800 transition-colors "
               >
-                บันทึก
+                {i18n.language === "en" ? "Save" : "บันทึก"}
               </button>
             </div>
           </div>
@@ -1884,7 +1905,8 @@ const FloatingBar = ({
               className="flex flex-col gap-5 p-4"
               style={{ border: "1px solid #dddddd" }}
             >
-              {/* ผู้ใหญ่ */}
+              
+              {/******************* ผู้ใหญ่ *******************/}
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <div className="font-CerFont">
@@ -1893,8 +1915,8 @@ const FloatingBar = ({
                   <div className="font-CerFont text-xs">
                     {" "}
                     {i18n.language === "en"
-                      ? "more than 13"
-                      : "อายุ 13 ปีขึ้นไป"}
+                      ? "more than 20"
+                      : "อายุ 20 ปีขึ้นไป"}
                   </div>
                 </div>
                 <div>
@@ -1916,8 +1938,9 @@ const FloatingBar = ({
                   </button>
                 </div>
               </div>
-              {/* เด็ก */}
-              <div className="flex justify-between items-center">
+              
+              {/*******************  เด็ก ***********************/}
+              {/* <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <div className="font-CerFont">
                     {i18n.language === "en" ? "Child" : "เด็ก"}
@@ -1944,7 +1967,7 @@ const FloatingBar = ({
                     +
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="flex justify-center pt-5 pb-10">

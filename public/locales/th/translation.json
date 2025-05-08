@@ -1,0 +1,24 @@
+{
+  "profile": {
+    "purchasedDeals": "ดีลที่เคยซื้อไว้",
+    "noTitle": "ดีลไม่มีชื่อ",
+    "purchasedOn": "ซื้อเมื่อ",
+    "status": "สถานะ",
+    "used": "ใช้แล้ว",
+    "unused": "ยังไม่ใช้",
+    "paidPrice": "ราคาที่จ่าย",
+    "currency": "บาท",
+    "bookedActivities": "กิจกรรมที่จองไว้",
+    "activityName": "ชื่อกิจกรรม",
+    "bookingDate": "วันที่จอง",
+    "price": "ราคา",
+    "duration": "ระยะเวลากิจกรรม",
+    "location": "สถานที่",
+    "paymentStatus": "สถานะการชำระเงิน",
+    "paid": "ชำระแล้ว",
+    "unpaid": "ยังไม่ชำระ",
+    "notFound": "ข้อมูลไม่พบ",
+    "claimedOn": "วันที่รับดีล",
+    "free": "ฟรี"
+  }
+}

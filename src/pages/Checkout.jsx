@@ -270,7 +270,8 @@ const Checkout = () => {
                           ? formatDate(startDate, "en-US")
                           : formatDate(startDate)}{" "}
                         {isMobile ? <br /> : <></>}(
-                        {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)})
+                        {formatTime(schedule.startTime)} -{" "}
+                        {formatTime(schedule.endTime)})
                       </>
                     ) : (
                       "กำลังโหลด..."
@@ -337,16 +338,18 @@ const Checkout = () => {
                     </span>
                     <span className="text-[20px] font-normal font-CerFont">
                       {i18n.language === "en" ? (
-                        <>All participants must be at least 4 years old. </>
+                        <>All participants must be at least 20 years old. </>
                       ) : (
-                        "ผู้เข้าร่วมทุกคนต้องมีอายุอย่างน้อย 4 ปี "
+                        "ผู้เข้าร่วมทุกคนต้องมีอายุอย่างน้อย 20 ปี "
                       )}
-                      <span
+                      {/* <span
                         className="text-[16px] underline  cursor-pointer"
                         onClick={() => setIsModalOpen(true)}
                       >
-                        ดูข้อมูลเพิ่มเติม
-                      </span>
+                        {i18n.language === "en"
+                          ? "Important Notice : "
+                          : "ดูข้อมูลเพิ่มเติม"}
+                      </span> */}
                     </span>
                   </div>
                 </div>
@@ -438,7 +441,10 @@ const Checkout = () => {
                           {adults > 0 && children === 0 && (
                             <div className="flex justify-between">
                               <div className="font-CerFont text-[16px] ">
-                                {formatCurrency(cost)} x {adults} (ผู้ใหญ่)
+                                {formatCurrency(cost)} x {adults}{" "}
+                                {i18n.language === "en"
+                                  ? "(adults)"
+                                  : "(ผู้ใหญ่)"}
                               </div>
                               <div className="font-CerFont text-[16px] ">
                                 {formatCurrency(cost * adults)}
