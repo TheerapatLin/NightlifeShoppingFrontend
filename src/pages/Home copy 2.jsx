@@ -1,4 +1,5 @@
 // Home.jsx
+
 import { useEffect, useState } from "react";
 import "../public/css/App.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -15,10 +16,8 @@ import VideotextnightlifeMobile from "../components/VideotextnightlifeMobile";
 import ElfsightWidget from "../views/ElfsightWidget";
 import DealCard from "./DealCard";
 import axios from "axios";
-import { useTranslation } from "react-i18next";
 
 function Home() {
-  const { t, i18n } = useTranslation();
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   const { isLoggedIn, logout, user } = useAuth();
   const [eventData, setEventData] = useState([]);
@@ -36,20 +35,6 @@ function Home() {
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimStatus, setClaimStatus] = useState(null); // null | 'success' | 'fail'
   // null | 'success' | 'fail'
-
-  const [deals, setDeals] = useState([]);
-
-  useEffect(() => {
-    const fetchDeals = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/deal`);
-        setDeals(res.data); // ตรวจสอบว่า API คืน array หรือ object ที่มี field เป็น deals[]
-      } catch (err) {
-        console.error("Error loading deals:", err);
-      }
-    };
-    fetchDeals();
-  }, []);
 
   const handleClaim = async (dealId) => {
     if (!isLoggedIn) {
@@ -181,10 +166,7 @@ function Home() {
 
             {/* เนื้อหา */}
             <h2 className="text-center text-lg font-semibold mb-4">
-              <br />
-              Please log in
-              <br />
-              before claiming deals!
+              <br/>Please log in<br/>before claiming deals!
             </h2>
             <button
               onClick={() => navigate("/signup")}
@@ -243,35 +225,35 @@ function Home() {
         }
       `}</style>
 
-        <div className="w-full px-4 py-8 max-w-screen-xl mx-auto">
-          <h2 className="glow-text text-2xl text-white flex items-center gap-2 mb-6 justify-center md:justify-start">
+        <div className="max-w-screen-lg mx-auto px-4 py-8">
+          <h2 className="glow-text text-2xl text-white flex items-center gap-2 mb-4 justify-center md:justify-start">
             <span className="text-3xl">🔥</span>
-            {i18n.language === "th" ? "ดีลร้อนวันนี้" : "Today's Hot Deals"}
+            Today's Hot Deals
           </h2>
 
-          <div
-            className={`grid gap-6 ${
-              deals.length === 1
-                ? "grid-cols-1"
-                : deals.length === 2
-                ? "grid-cols-1 md:grid-cols-2"
-                : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-            }`}
-          >
-            {deals.map((deal) => (
-              <div key={deal._id} className="p-2 sm:p-3 lg:p-4">
-                <DealCard
-                  frontImg={deal.images?.[0] || "/default.jpg"}
-                  title={deal.title?.[i18n.language] || t("profile.noTitle")}
-                  subtitle={deal.subTitle?.[i18n.language] || ""}
-                  description={[
-                    deal.description?.[i18n.language] || "",
-                    deal.howToUse?.[i18n.language] || "",
-                  ]}
-                  onClaim={() => handleClaim(deal._id)}
-                />
-              </div>
-            ))}
+          <div className="flex flex-col md:flex-row gap-8 md:gap-4">
+            <DealCard
+              frontImg="/img/pro1.jpg"
+              title="10% Off on Food"
+              subtitle="Available for all food items"
+              description={[
+                "Enjoy delicious meals with a discount.",
+                "Valid on all menu items.",
+                "Available today only!",
+              ]}
+              onClaim={() => handleClaim("681b1698800bd4c6df20c398")}
+            />
+            <DealCard
+              frontImg="/img/pro2.jpg"
+              title="5% Off Signature Cocktails"
+              subtitle="Exclusive offer on crafted drinks"
+              description={[
+                "Sip on our finest handcrafted drinks.",
+                "Valid only on signature menu.",
+                "Limited availability!",
+              ]}
+              onClaim={() => handleClaim("681b169b800bd4c6df20c39a")}
+            />
           </div>
         </div>
       </>

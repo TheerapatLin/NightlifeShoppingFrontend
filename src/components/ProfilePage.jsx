@@ -63,7 +63,7 @@ function ProfilePage() {
   };
 
   const handleUseDeal = async (userDealId) => {
-    const confirm = window.confirm("คุณต้องการใช้ดีลนี้หรือไม่?");
+    const confirm = window.confirm(t("profile.confirmUse"));
     if (!confirm) return;
 
     try {
@@ -91,7 +91,7 @@ function ProfilePage() {
         }, 1000);
       }
     } catch (error) {
-      alert(error.response?.data?.error || "ไม่สามารถเริ่มใช้งานดีลได้");
+      alert(error.response?.data?.error || t("profile.useFailed"));
     }
   };
 
@@ -114,139 +114,148 @@ function ProfilePage() {
   return (
     <div className="flex flex-col gap-4 justify-center items-center px-4 sm:px-8 md:px-16 lg:px-32">
       {/* 🎯 ดีลที่เคยซื้อ */}
-      <div className="w-full bg-white rounded-lg p-4">
-        <span className="text-xl font-CerFont ml-4">
+      <div className="w-full p-4">
+        <span className="text-xl font-CerFont ml-4 text-white">
           {t("profile.purchasedDeals")}
         </span>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-          {userDeals.map((userDeal) => {
-            const isFlipped = flipStates[userDeal._id];
-            const serial = serialNumbers[userDeal._id];
-            const countdown = countdowns[userDeal._id];
+          {userDeals.length === 0 ? (
+            <div className="text-gray-500 col-span-full text-center text-sm sm:text-base italic">
+              ( {t("profile.noClaimedDeals")} )
+            </div>
+          ) : (
+            userDeals.map((userDeal) => {
+              const isFlipped = flipStates[userDeal._id];
+              const serial = serialNumbers[userDeal._id];
+              const countdown = countdowns[userDeal._id];
 
-            const isUsedOrStarted =
-              userDeal.isUsed || userDeal.isActiveSession || serial;
+              const isUsedOrStarted =
+                userDeal.isUsed || userDeal.isActiveSession || serial;
 
-            return (
-              <div
-                key={userDeal._id}
-                className={`flip-card ${isFlipped ? "flipped" : ""}`}
-              >
-                <div className="flip-card-inner">
-                  {/* Front */}
-                  <div className="flip-card-front">
-                    {userDeal.dealId?.images?.[0] && (
-                      <img
-                        src={userDeal.dealId.images[0]}
-                        alt="Deal Preview"
-                        className="w-full h-32 object-cover rounded mb-2"
-                        onClick={() => {
-                          if (isUsedOrStarted) {
+              return (
+                <div
+                  key={userDeal._id}
+                  className={`flip-card ${isFlipped ? "flipped" : ""}`}
+                >
+                  <div className="flip-card-inner">
+                    {/* Front */}
+                    <div className="flip-card-front flex flex-col items-center justify-center text-center px-4">
+                      {userDeal.dealId?.images?.[0] && (
+                        <img
+                          src={userDeal.dealId.images[0]}
+                          alt="Deal Preview"
+                          className="w-full h-32 object-cover rounded mb-2"
+                          onClick={() => {
+                            if (isUsedOrStarted) {
+                              setFlipStates((prev) => ({
+                                ...prev,
+                                [userDeal._id]: true,
+                              }));
+                            }
+                          }}
+                        />
+                      )}
+                      <div className="font-bold mb-2">
+                        {userDeal.dealId?.title?.[i18n.language] ||
+                          t("profile.noTitle")}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {userDeal.pricePaid === 0
+                          ? t("profile.claimedOn")
+                          : t("profile.purchasedOn")}
+                        :{" "}
+                        {new Date(userDeal.claimedAt).toLocaleDateString(
+                          i18n.language === "th" ? "th-TH" : "en-GB"
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {t("profile.status")}:{" "}
+                        {t(
+                          userDeal.isUsed ||
+                            userDeal.isActiveSession ||
+                            serialNumbers[userDeal._id]
+                            ? "profile.used"
+                            : "profile.unused"
+                        )}
+                      </div>
+
+                      <div className="text-sm text-gray-600">
+                        {t("profile.paidPrice")}:{" "}
+                        {userDeal.pricePaid === 0
+                          ? t("profile.free")
+                          : `${userDeal.pricePaid} ${t("profile.currency")}`}
+                      </div>
+
+                      {!isUsedOrStarted ? (
+                        <button
+                          onClick={() => handleUseDeal(userDeal._id)}
+                          className="mt-3 px-4 py-2 rounded text-white w-full bg-green-600 hover:bg-green-700"
+                        >
+                          {t("profile.useDeal")}
+                        </button>
+                      ) : (
+                        <button
+                          className="mt-3 px-4 py-2 rounded text-white w-full bg-blue-600 hover:bg-blue-700"
+                          onClick={() =>
                             setFlipStates((prev) => ({
                               ...prev,
                               [userDeal._id]: true,
-                            }));
+                            }))
                           }
-                        }}
-                      />
-                    )}
-                    <div className="font-bold mb-2">
-                      {userDeal.dealId?.title?.[i18n.language] ||
-                        t("profile.noTitle")}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {userDeal.pricePaid === 0
-                        ? t("profile.claimedOn")
-                        : t("profile.purchasedOn")}
-                      :{" "}
-                      {new Date(userDeal.claimedAt).toLocaleDateString(
-                        i18n.language === "th" ? "th-TH" : "en-GB"
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {t("profile.status")}:{" "}
-                      {t(
-                        userDeal.isUsed ||
-                          userDeal.isActiveSession ||
-                          serialNumbers[userDeal._id]
-                          ? "profile.used"
-                          : "profile.unused"
+                        >
+                          {t("profile.viewQR")}
+                        </button>
                       )}
                     </div>
 
-                    <div className="text-sm text-gray-600">
-                      {t("profile.paidPrice")}:{" "}
-                      {userDeal.pricePaid === 0
-                        ? t("profile.free")
-                        : `${userDeal.pricePaid} ${t("profile.currency")}`}
-                    </div>
-
-                    {!isUsedOrStarted ? (
+                    {/* Back */}
+                    <div className="flip-card-back flex flex-col items-center justify-center text-center px-4 relative">
                       <button
-                        onClick={() => handleUseDeal(userDeal._id)}
-                        className="mt-3 px-4 py-2 rounded text-white w-full bg-green-600 hover:bg-green-700"
-                      >
-                        ใช้ดีลนี้
-                      </button>
-                    ) : (
-                      <button
-                        className="mt-3 px-4 py-2 rounded text-white w-full bg-blue-600 hover:bg-blue-700"
+                        className="absolute top-2 right-3 text-gray-500 text-xl font-bold"
                         onClick={() =>
                           setFlipStates((prev) => ({
                             ...prev,
-                            [userDeal._id]: true,
+                            [userDeal._id]: false,
                           }))
                         }
                       >
-                        ดูรหัส / QR
+                        ×
                       </button>
-                    )}
-                  </div>
-
-                  {/* Back */}
-                  <div className="flip-card-back text-center">
-                    <button
-                      className="absolute top-2 right-3 text-gray-500 text-xl font-bold"
-                      onClick={() =>
-                        setFlipStates((prev) => ({
-                          ...prev,
-                          [userDeal._id]: false,
-                        }))
-                      }
-                    >
-                      ×
-                    </button>
-                    <div className="text-lg font-bold">
-                      หมายเลขดีล: {serial !== undefined ? serial : "-"}
-                    </div>
-                    {serial && (
-                      <div className="mt-2 mx-auto w-[150px]">
-                        <QRCode
-                          value={`${window.location.origin}/check-deal/${serial}`}
-                          size={150}
-                        />
+                      <div className="text-lg font-bold">
+                        {t("profile.dealSerial")}:{" "}
+                        {serial !== undefined ? serial : "-"}
                       </div>
-                    )}
-                    <div className="mt-2 text-sm text-gray-700">
-                      {countdown !== undefined
-                        ? `เวลาที่เหลือ: ${Math.floor(countdown / 60)}:${(
-                            countdown % 60
-                          )
-                            .toString()
-                            .padStart(2, "0")} นาที`
-                        : "ใช้ได้ไม่มีหมดอายุ"}
+                      {serial && (
+                        <div className="mt-2 mx-auto w-[150px]">
+                          <QRCode
+                            value={`${window.location.origin}/check-deal/${serial}`}
+                            size={150}
+                          />
+                        </div>
+                      )}
+                      <div className="mt-2 text-sm text-gray-700">
+                        {countdown !== undefined
+                          ? countdown > 0
+                            ? `${t("profile.remainingTime")}: ${Math.floor(
+                                countdown / 60
+                              )}:${(countdown % 60)
+                                .toString()
+                                .padStart(2, "0")} ${t("profile.minutes")}`
+                            : t("profile.expired")
+                          : t("profile.noExpiration")}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
 
       {/* 🎯 ตารางกิจกรรมที่จอง */}
-      <div className="w-full bg-white rounded-lg p-4">
-        <span className="text-xl font-CerFont ml-4">
+      <div className="w-full p-4">
+        <span className="text-xl font-CerFont ml-4 text-white">
           {t("profile.bookedActivities")}
         </span>
         <div className="overflow-x-auto mt-4">

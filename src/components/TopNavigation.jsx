@@ -83,6 +83,8 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   }, [location.search, navigate]);
 
   useEffect(() => {
+    setIsDrawerOpen(false); // ✅ ปิด drawer เมื่อเปลี่ยนหน้า
+    
     const path = location.pathname;
     if (path === "/") {
       updateCurrentPage("", 1);
@@ -273,10 +275,11 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
             >
               <div
                 style={{
+                  display: "flex",
                   width: "auto",
                   height: "100%",
-                  justifyContent: "start",
-                  alignItems: "start",
+                  justifyContent: "center",
+                  alignItems: "center",
                   padding: "8px",
                   margin: "0px",
                 }}
@@ -285,7 +288,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                   <img
                     src={Nightlife1_long1}
                     alt="Logo HealWorld"
-                    style={{ padding: "2px", height: "90%" }}
+                    style={{ padding: "2px", height: "40px" }}
                   />
                 </Link>
               </div>

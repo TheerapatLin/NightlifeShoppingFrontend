@@ -10,7 +10,7 @@ export default function DealCard({
   const [flipped, setFlipped] = useState(false);
 
   return (
-    <div className="w-full md:w-1/2 perspective">
+    <div className="w-full h-full perspective">
       <div
         className={`relative w-full aspect-[1.6] transition-transform duration-700 preserve-3d ${
           flipped ? "rotate-y-180" : ""
@@ -49,9 +49,11 @@ export default function DealCard({
 
             {Array.isArray(description) && description.length > 0 ? (
               description.map((line, index) => (
-                <p key={index} className="text-sm mb-1 text-gray-800">
-                  {line}
-                </p>
+                <p
+                  key={index}
+                  className="text-sm mb-1 text-gray-800"
+                  dangerouslySetInnerHTML={{ __html: line }}
+                />
               ))
             ) : (
               <p className="text-sm italic text-red-600">
