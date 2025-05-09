@@ -1,6 +1,6 @@
 {
     "profile": {
-        "purchasedDeals": "Purchased Deals",
+        "purchasedDeals": "Your Deals",
         "noTitle": "Untitled Deal",
         "purchasedOn": "Purchased On",
         "status": "Status",
@@ -30,5 +30,11 @@
         "minutes": "minutes",
         "useDeal": "Use Deal",
         "noClaimedDeals": "No deals claimed yet"
+    },
+    "deal": {
+        "claimLimitExceeded": "You have already claimed this deal the maximum number of times",
+        "alreadyClaimed": "You have already claimed this deal",
+        "notAvailable": "This deal is not available",
+        "expired": "This deal has expired"
     }
 }

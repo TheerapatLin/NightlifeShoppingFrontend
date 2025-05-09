@@ -45,7 +45,6 @@ function Home() {
     if (isClaiming) return;
     setIsClaiming(true);
 
-    // เคลียร์ state ก่อนทุกครั้ง
     setClaimStatus(null);
     setClaimErrorMessage("");
 
@@ -54,9 +53,7 @@ function Home() {
         `${BASE_URL}/user-deal/claim`,
         { dealId },
         {
-          headers: {
-            "device-fingerprint": "12345678",
-          },
+          headers: { "device-fingerprint": "12345678" },
           withCredentials: true,
         }
       );
@@ -64,13 +61,15 @@ function Home() {
       if (response.status === 201) {
         setClaimStatus("success");
       } else {
-        const error = response.data?.error || "ไม่สามารถเคลมดีลได้";
-        setClaimErrorMessage(error);
+        const errorCode = response.data?.errorCode;
+        const fallback = response.data?.error || t("profile.useFailed");
+        setClaimErrorMessage(errorCode ? t(errorCode) : fallback);
         setClaimStatus("fail");
       }
     } catch (error) {
-      const message = error?.response?.data?.error || "ไม่สามารถเคลมดีลได้";
-      setClaimErrorMessage(message);
+      const errorCode = error?.response?.data?.errorCode;
+      const fallback = error?.response?.data?.error || t("profile.useFailed");
+      setClaimErrorMessage(errorCode ? t(errorCode) : fallback);
       setClaimStatus("fail");
     } finally {
       setIsClaiming(false);
@@ -166,7 +165,10 @@ function Home() {
 
             {/* เนื้อหา */}
             <h2 className="text-center text-lg font-semibold mb-4">
-              <br/>Please log in<br/>before claiming deals!
+              <br />
+              Please log in
+              <br />
+              before claiming deals!
             </h2>
             <button
               onClick={() => navigate("/signup")}

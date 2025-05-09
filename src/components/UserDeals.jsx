@@ -3,9 +3,9 @@ import axios from "axios";
 import QRCode from "react-qr-code";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
-import "./ProfilePage.css";
+import "./UserDeals.css";
 
-function ProfilePage() {
+function UserDeals() {
   const { t, i18n } = useTranslation();
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   const { user } = useAuth();
@@ -115,9 +115,9 @@ function ProfilePage() {
     <div className="flex flex-col gap-4 justify-center items-center px-4 sm:px-8 md:px-16 lg:px-32">
       {/* 🎯 ดีลที่เคยซื้อ */}
       <div className="w-full p-4">
-        <span className="text-xl font-CerFont ml-4 text-white">
+        <div className="text-xl font-CerFont text-white text-center flex justify-center">
           {t("profile.purchasedDeals")}
-        </span>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
           {userDeals.length === 0 ? (
             <div className="text-gray-500 col-span-full text-center text-sm sm:text-base italic">
@@ -252,73 +252,8 @@ function ProfilePage() {
           )}
         </div>
       </div>
-
-      {/* 🎯 ตารางกิจกรรมที่จอง */}
-      <div className="w-full p-4">
-        <span className="text-xl font-CerFont ml-4 text-white">
-          {t("profile.bookedActivities")}
-        </span>
-        <div className="overflow-x-auto mt-4">
-          <table className="min-w-full table-auto">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="px-4 py-2 text-left">
-                  {t("profile.activityName")}
-                </th>
-                <th className="px-4 py-2 text-left">
-                  {t("profile.bookingDate")}
-                </th>
-                <th className="px-4 py-2 text-left">{t("profile.price")}</th>
-                <th className="px-4 py-2 text-left">{t("profile.duration")}</th>
-                <th className="px-4 py-2 text-left">{t("profile.location")}</th>
-                <th className="px-4 py-2 text-left">
-                  {t("profile.paymentStatus")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order, index) => {
-                const schedule = getScheduleDetails(
-                  order.scheduleId,
-                  order.activityId.schedule
-                );
-                return (
-                  <tr key={order._id}>
-                    <td className="px-4 py-2 whitespace-nowrap">
-                      {index + 1}. {order.activityId.name}
-                    </td>
-                    <td className="px-4 py-2">
-                      {new Date(order.bookingDate).toLocaleDateString(
-                        i18n.language === "th" ? "th-TH" : "en-GB"
-                      )}
-                    </td>
-                    <td className="px-4 py-2">
-                      {schedule ? schedule.cost : t("profile.notFound")}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
-                      {schedule
-                        ? `${formatTime(schedule.startTime)} - ${formatTime(
-                            schedule.endTime
-                          )}`
-                        : t("profile.notFound")}
-                    </td>
-                    <td className="px-4 py-2">
-                      {order.activityId.location.name}
-                    </td>
-                    <td className="px-4 py-2">
-                      {order.status === "paid"
-                        ? t("profile.paid")
-                        : t("profile.unpaid")}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 }
 
-export default ProfilePage;
+export default UserDeals;

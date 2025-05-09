@@ -60,7 +60,6 @@ function Home() {
     if (isClaiming) return;
     setIsClaiming(true);
 
-    // เคลียร์ state ก่อนทุกครั้ง
     setClaimStatus(null);
     setClaimErrorMessage("");
 
@@ -79,13 +78,15 @@ function Home() {
       if (response.status === 201) {
         setClaimStatus("success");
       } else {
-        const error = response.data?.error || "ไม่สามารถเคลมดีลได้";
-        setClaimErrorMessage(error);
+        const errorCode = response.data?.errorCode;
+        const fallback = response.data?.error || t("profile.useFailed");
+        setClaimErrorMessage(errorCode ? t(`deal.${errorCode}`) : fallback);
         setClaimStatus("fail");
       }
     } catch (error) {
-      const message = error?.response?.data?.error || "ไม่สามารถเคลมดีลได้";
-      setClaimErrorMessage(message);
+      const errorCode = error?.response?.data?.errorCode;
+      const fallback = error?.response?.data?.error || t("profile.useFailed");
+      setClaimErrorMessage(errorCode ? t(`deal.${errorCode}`) : fallback);
       setClaimStatus("fail");
     } finally {
       setIsClaiming(false);

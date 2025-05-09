@@ -1,6 +1,6 @@
 {
   "profile": {
-    "purchasedDeals": "ดีลที่เคยซื้อไว้",
+    "purchasedDeals": "ดีล/คูปอง ของคุณ",
     "noTitle": "ดีลไม่มีชื่อ",
     "purchasedOn": "ซื้อเมื่อ",
     "status": "สถานะ",
@@ -30,5 +30,11 @@
     "minutes": "นาที",
     "useDeal": "ใช้ดีลนี้",
     "noClaimedDeals": "ยังไม่มีดีลที่เคลมไว้"
+  },
+  "deal": {
+    "claimLimitExceeded": "คุณใช้สิทธิ์เคลมดีลนี้ครบแล้ว",
+    "alreadyClaimed": "คุณเคยเคลมดีลนี้แล้ว",
+    "notAvailable": "ดีลนี้ไม่พร้อมใช้งาน",
+    "expired": "ดีลนี้หมดอายุแล้ว"
   }
 }
