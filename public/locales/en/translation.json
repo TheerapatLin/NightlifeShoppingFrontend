@@ -36,5 +36,8 @@
         "alreadyClaimed": "You have already claimed this deal",
         "notAvailable": "This deal is not available",
         "expired": "This deal has expired"
+    },
+    "auth": {
+        "orLoginWith": "or log in with"
     }
 }

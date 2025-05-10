@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
   const checkAuthStatus = async () => {
+    alert('aa)');
     try {
       const response = await axios.post(
         `${BASE_URL}/auth/refresh-web`,
@@ -28,15 +29,17 @@ export const AuthProvider = ({ children }) => {
           withCredentials: true,
         }
       );
+      alert(response.status);
       if (response.status === 200) {
         setIsLoggedIn(true);
-        //alert(`test = ${JSON.stringify(response.data.data.user)}`);
+        alert(`test = ${JSON.stringify(response.data.data.user)}`);
         setUser(response.data.data.user);
       } else {
         setIsLoggedIn(false);
         setUser(null);
       }
     } catch (error) {
+      alert(error);
       setIsLoggedIn(false);
       setUser(null);
     }

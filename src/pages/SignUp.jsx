@@ -13,6 +13,7 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import closeIcon from "../img/circle_close.png";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { GoogleLogin } from "@react-oauth/google";
 
 function SignUpForm() {
   const [isJustPasswordWrong, setIsJustPasswordWrong] = useState(false);
@@ -40,6 +41,29 @@ function SignUpForm() {
   });
   const [errors, setErrors] = useState({});
   const [flipped, setFlipped] = useState(false);
+
+  function GoogleLoginButton() {
+    const handleSuccess = async (credentialResponse) => {
+      try {
+        const { credential } = credentialResponse;
+        const res = await axios.post(
+          `${BASE_URL}/auth/google-login`,
+          { token: credential },
+          { withCredentials: true }
+        );
+        console.log(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    return (
+      <GoogleLogin
+        onSuccess={handleSuccess}
+        onError={() => console.error("Google Login Failed")}
+      />
+    );
+  }
 
   const handleClick = () => {
     if (flipped) setIsJustSignup(false);
@@ -366,6 +390,7 @@ function SignUpForm() {
                 >
                   Log in
                 </div>
+                <GoogleLoginButton />
                 <TextField
                   required
                   onChange={handleLoginChange}

@@ -41,6 +41,9 @@ import { Elements } from "@stripe/react-stripe-js";
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 import { loadStripe } from "@stripe/stripe-js";
 import { AuthProvider } from "./context/AuthContext";
+
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
 // const stripePromise = loadStripe(
 //   "pk_test_51NigrKCQKredYD0SRv7ivWjWuiHQIxjb5OrykOyx1Zvu3xLWlS7T6yqyv03bF1QoRKF82MeckE6H8pmP0meRqFLp005UQtTW3j"
 // );
@@ -50,15 +53,17 @@ const stripePromise = loadStripe(
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <Elements stripe={stripePromise}>
-            <RouteContainer />
-          </Elements>
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+    <GoogleOAuthProvider clientId="264872388310-dopb96r58u05v3b7ukrjq03u6ktrdh6t.apps.googleusercontent.com">
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <Elements stripe={stripePromise}>
+              <RouteContainer />
+            </Elements>
+          </Router>
+        </CartProvider>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 

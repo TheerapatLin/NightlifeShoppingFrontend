@@ -13,8 +13,16 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import closeIcon from "../img/circle_close.png";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+//import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
+//import { GoogleLogin, googleLogout, useGoogleLogin } from "@react-oauth/google";
+//import { GoogleLogin } from "react-google-login";
+import googleLogo from "../img/google-logo.svg";
+import { useTranslation } from "react-i18next";
 
 function SignUpForm() {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language;
   const [isJustPasswordWrong, setIsJustPasswordWrong] = useState(false);
   const [isNotRegistered, setIsNotRegistered] = useState(false);
   const [isEmailLottieLoad, setIsEmailLottieLoad] = useState(false);
@@ -40,6 +48,70 @@ function SignUpForm() {
   });
   const [errors, setErrors] = useState({});
   const [flipped, setFlipped] = useState(false);
+
+  function GoogleLoginButton({ BASE_URL }) {
+    const googleLogin = useGoogleLogin({
+      onSuccess: async (tokenResponse) => {
+        try {
+          const fp = await FingerprintJS.load();
+          const result = await fp.get();
+          const fingerprint = result.visitorId;
+
+          const res = await axios.post(
+            `${BASE_URL}/auth/google-web-login`,
+            { token: tokenResponse.access_token },
+            {
+              headers: {
+                "device-fingerprint": "12345678",
+                businessid: "1",
+              },
+              withCredentials: true,
+            }
+          );
+
+          const { data } = res.data;
+          if (data) {
+            console.log(`data = ${JSON.stringify(data)}`);
+            await checkAuthStatus(); // เพิ่มการเรียก checkAuthStatus หลังจาก login
+            navigate("/");
+          } else {
+            console.log("No token received");
+          }
+        } catch (err) {
+          console.error("❌ Google login failed:", err);
+        }
+      },
+      onError: (err) => console.error("Google Login Error", err),
+      flow: "implicit",
+    });
+
+    return (
+      <button
+        onClick={() => googleLogin()}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "10px",
+          backgroundColor: "white",
+          border: "1px solid #ccc",
+          borderRadius: "12px",
+          padding: "10px 20px",
+          fontSize: "16px",
+          fontWeight: "500",
+          cursor: "pointer",
+          width: "100%",
+        }}
+      >
+        <img
+          src={googleLogo}
+          alt="Google"
+          style={{ width: "20px", height: "20px" }}
+        />
+        <span style={{ color: "#444" }}>Log in with Google</span>
+      </button>
+    );
+  }
 
   const handleClick = () => {
     if (flipped) setIsJustSignup(false);
@@ -170,10 +242,11 @@ function SignUpForm() {
           withCredentials: true,
         }
       );
-      const { data } = response;
-      console.log(data);
+      const { data } = response.data;
+      //alert(JSON.stringify(data));
+      console.log(`data = ${JSON.stringify(data)}`);
       if (data) {
-       // await login(data.data.user);
+        // await login(data.data.user);
         await checkAuthStatus(); // เพิ่มการเรียก checkAuthStatus หลังจาก login
         navigate("/");
       } else {
@@ -397,6 +470,28 @@ function SignUpForm() {
                 <button className="button1" type="submit">
                   Log in
                 </button>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "20px 0",
+                    color: "#999",
+                    fontSize: "14px",
+                  }}
+                >
+                  <div
+                    style={{ flex: 1, height: "1px", backgroundColor: "#ccc" }}
+                  />
+                  <div style={{ padding: "0 10px", whiteSpace: "nowrap" }}>
+                    {t("auth.orLoginWith")}
+                  </div>
+                  <div
+                    style={{ flex: 1, height: "1px", backgroundColor: "#ccc" }}
+                  />
+                </div>
+
+                <GoogleLoginButton BASE_URL={BASE_URL} />
               </div>
             </form>
             <div
