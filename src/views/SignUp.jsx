@@ -71,7 +71,7 @@ function SignUpForm() {
 
           const { data } = res.data;
           if (data) {
-            console.log(`data = ${JSON.stringify(data)}`);
+            //console.log(`data = ${JSON.stringify(data)}`);
             await checkAuthStatus(); // เพิ่มการเรียก checkAuthStatus หลังจาก login
             navigate("/");
           } else {
@@ -244,7 +244,7 @@ function SignUpForm() {
       );
       const { data } = response.data;
       //alert(JSON.stringify(data));
-      console.log(`data = ${JSON.stringify(data)}`);
+      //console.log(`data = ${JSON.stringify(data)}`);
       if (data) {
         // await login(data.data.user);
         await checkAuthStatus(); // เพิ่มการเรียก checkAuthStatus หลังจาก login
