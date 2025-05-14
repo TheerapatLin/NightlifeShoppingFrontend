@@ -28,6 +28,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   const { isLoggedIn, logout, user } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const [hasUserDeals, setHasUserDeals] = useState(false);
 
   const styles = {
     menuItem: {
@@ -65,6 +66,27 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   };
 
   useEffect(() => {
+    const fetchUserDeals = async () => {
+      if (!isLoggedIn || !user?.userId) return;
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/user-deal/${user?.userId}`,
+          {
+            headers: { "device-fingerprint": "12345678" },
+            withCredentials: true,
+          }
+        );
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setHasUserDeals(true);
+        }
+      } catch (err) {
+        console.error("Error checking user deals:", err);
+      }
+    };
+    fetchUserDeals();
+  }, [isLoggedIn, user]);
+
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const lang =
       params.get("lang") ??
@@ -84,7 +106,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
 
   useEffect(() => {
     setIsDrawerOpen(false); // ✅ ปิด drawer เมื่อเปลี่ยนหน้า
-    
+
     const path = location.pathname;
     if (path === "/") {
       updateCurrentPage("", 1);
@@ -106,64 +128,65 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   }, [location.pathname]);
 
   return (
-    <div style={{zIndex: '10000000'}}>
-      <div className={`top-navigation ${isScrolled ? "scrolled" : ""}`}>
-        {windowSize.width > 768 ? (
-          <div className="container">
-            <div style={{ height: "10px" }}>
-              <nav className="menu-bar">
-                {/* <div className="group" style={{ display: "flex", flexDirection: "row" }}>
+    <>
+      <div style={{ zIndex: "10000000" }}>
+        <div className={`top-navigation ${isScrolled ? "scrolled" : ""}`}>
+          {windowSize.width > 768 ? (
+            <div className="container">
+              <div style={{ height: "10px" }}>
+                <nav className="menu-bar">
+                  {/* <div className="group" style={{ display: "flex", flexDirection: "row" }}>
                   <Dropdown_lang_currency />
                   <Dropdown_link_lang />
                 </div> */}
-              </nav>
-            </div>
+                </nav>
+              </div>
 
-            <div style={{ height: "50px" }}>
-              <nav
-                className={`menu-bar ${
-                  isScrolled ? "scrolled" : "not-scrolled"
-                }`}
-              >
-                <div
-                  className="group"
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "flex-start",
-                    width: "100%",
-                    height: "20px",
-                    padding: "0px",
-                    margin: "0px",
-                  }}
+              <div style={{ height: "50px" }}>
+                <nav
+                  className={`menu-bar ${
+                    isScrolled ? "scrolled" : "not-scrolled"
+                  }`}
                 >
                   <div
+                    className="group"
                     style={{
-                      width: "300px",
-                      height: "200%",
                       display: "flex",
-                      justifyContent: "center",
+                      flexDirection: "row",
+                      justifyContent: "flex-start",
+                      width: "100%",
+                      height: "20px",
+                      padding: "0px",
+                      margin: "0px",
                     }}
                   >
-                    <img
-                      src={Nightlife1}
-                      alt="Logo HealWorld"
-                      style={{ height: "35px" }}
-                    />
-                  </div>
-                  {/* <div style={{ width: "50px", height: "200%", display: "flex", justifyContent: "center" }}>
+                    <div
+                      style={{
+                        width: "300px",
+                        height: "200%",
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        src={Nightlife1}
+                        alt="Logo HealWorld"
+                        style={{ height: "35px" }}
+                      />
+                    </div>
+                    {/* <div style={{ width: "50px", height: "200%", display: "flex", justifyContent: "center" }}>
                     <div className="vertical-divider"></div>
                   </div> */}
-                  <Link
-                    to="/"
-                    className={`item02 ${
-                      currentPage.name === "" ? "active" : ""
-                    }`}
-                    style={styles.menuItem}
-                  >
-                    Home
-                  </Link>
-                  {/* <Link
+                    <Link
+                      to="/"
+                      className={`item02 ${
+                        currentPage.name === "" ? "active" : ""
+                      }`}
+                      style={styles.menuItem}
+                    >
+                      Home
+                    </Link>
+                    {/* <Link
                     to="/Activity"
                     className={`item02 ${
                       currentPage.name === "Activity" ? "active" : ""
@@ -172,174 +195,178 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                   >
                     Activity
                   </Link> */}
-                  {isLoggedIn && user?.role === "admin" && (
-                    <Link
-                      to="/certificate"
-                      className={`item02 ${
-                        currentPage.name === "certificate" ? "active" : ""
-                      }`}
-                      style={styles.menuItem}
-                    >
-                      Certificate
-                    </Link>
-                  )}
-                  <div className="ml-auto" />
-                  <div
-                    style={{
-                      ...styles.menuItem,
-                    }}
-                    className="lg:mr-6"
-                  >
-                    {isLoggedIn ? (
-                      <>
-                        <Link
-                          to={"/profile"}
-                          style={{
-                            ...styles.menuItem,
-                          }}
-                          className={`item02 ${
-                            currentPage.name === "profile" ? "active" : ""
-                          }`}
-                        >
-                          <FaUser className="text-lg text-black " />
-
-                          <span className=" text-black">
-                            {user?.name || "ผู้ใช้"}
-                          </span>
-                        </Link>
-
-                        <a
-                          href="#"
-                          className=" px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-700 no-underline"
-                          onClick={handleLogout}
-                        >
-                          Logout
-                        </a>
-                      </>
-                    ) : (
+                    {isLoggedIn && user?.role === "admin" && (
                       <Link
-                        to="/signup"
-                        className="item02"
-                        style={{ ...styles.menuItem, width: "100%" }}
+                        to="/certificate"
+                        className={`item02 ${
+                          currentPage.name === "certificate" ? "active" : ""
+                        }`}
+                        style={styles.menuItem}
                       >
-                        {i18n.language === "en"
-                          ? "Login/Register"
-                          : "เข้าสู่ระบบ/ลงทะเบียน"}
+                        Certificate
                       </Link>
                     )}
-                  </div>
-                  <div style={styles.menuItem}>
-                    <button
-                      onClick={() => changeLanguage("en")}
-                      style={
-                        i18n.language === "en"
-                          ? styles.selected
-                          : styles.unselected
-                      }
+                    <div className="ml-auto" />
+                    <div
+                      style={{
+                        ...styles.menuItem,
+                      }}
+                      className="lg:mr-6"
                     >
-                      EN
-                    </button>
-                    <button
-                      onClick={() => changeLanguage("th")}
-                      style={
-                        i18n.language === "th"
-                          ? styles.selected
-                          : styles.unselected
-                      }
-                    >
-                      TH
-                    </button>
+                      {isLoggedIn ? (
+                        <>
+                          <Link
+                            to={"/profile"}
+                            style={{
+                              ...styles.menuItem,
+                            }}
+                            className={`item02 ${
+                              currentPage.name === "profile" ? "active" : ""
+                            }`}
+                          >
+                            <FaUser className="text-lg text-black " />
+
+                            <span className=" text-black">
+                              {user?.name || "ผู้ใช้"}
+                            </span>
+                          </Link>
+
+                          <a
+                            href="#"
+                            className=" px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-700 no-underline"
+                            onClick={handleLogout}
+                          >
+                            Logout
+                          </a>
+                        </>
+                      ) : (
+                        <Link
+                          to="/signup"
+                          className="item02"
+                          style={{ ...styles.menuItem, width: "100%" }}
+                        >
+                          {i18n.language === "en"
+                            ? "Login/Register"
+                            : "เข้าสู่ระบบ/ลงทะเบียน"}
+                        </Link>
+                      )}
+                    </div>
+                    <div style={styles.menuItem}>
+                      <button
+                        onClick={() => changeLanguage("en")}
+                        style={
+                          i18n.language === "en"
+                            ? styles.selected
+                            : styles.unselected
+                        }
+                      >
+                        EN
+                      </button>
+                      <button
+                        onClick={() => changeLanguage("th")}
+                        style={
+                          i18n.language === "th"
+                            ? styles.selected
+                            : styles.unselected
+                        }
+                      >
+                        TH
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </nav>
+                </nav>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div
-            style={{
-              flexDirection: "column",
-              padding: "0px",
-              height: "100%",
-              width: "100%",
-            }}
-          >
+          ) : (
             <div
-              className="group"
               style={{
-                height: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                flexDirection: "column",
                 padding: "0px",
+                height: "100%",
+                width: "100%",
               }}
             >
               <div
+                className="group"
                 style={{
-                  display: "flex",
-                  width: "auto",
                   height: "100%",
-                  justifyContent: "center",
+                  display: "flex",
+                  justifyContent: "space-between",
                   alignItems: "center",
-                  padding: "8px",
-                  margin: "0px",
+                  padding: "0px",
                 }}
               >
-                <Link to="/">
-                  <img
-                    src={Nightlife1_long1}
-                    alt="Logo HealWorld"
-                    style={{ padding: "2px", height: "40px" }}
-                  />
-                </Link>
-              </div>
-              <div style={{ backgroundColor: "transparent" }}>
-                <button
-                  onClick={() => changeLanguage("en")}
-                  style={
-                    i18n.language === "en" ? styles.selected : styles.unselected
-                  }
+                <div
+                  style={{
+                    display: "flex",
+                    width: "auto",
+                    height: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "8px",
+                    margin: "0px",
+                  }}
                 >
-                  EN
-                </button>
-                <button
-                  onClick={() => changeLanguage("th")}
-                  style={
-                    i18n.language === "th" ? styles.selected : styles.unselected
-                  }
+                  <Link to="/">
+                    <img
+                      src={Nightlife1_long1}
+                      alt="Logo HealWorld"
+                      style={{ padding: "2px", height: "40px" }}
+                    />
+                  </Link>
+                </div>
+                <div style={{ backgroundColor: "transparent" }}>
+                  <button
+                    onClick={() => changeLanguage("en")}
+                    style={
+                      i18n.language === "en"
+                        ? styles.selected
+                        : styles.unselected
+                    }
+                  >
+                    EN
+                  </button>
+                  <button
+                    onClick={() => changeLanguage("th")}
+                    style={
+                      i18n.language === "th"
+                        ? styles.selected
+                        : styles.unselected
+                    }
+                  >
+                    TH
+                  </button>
+                </div>
+                <div
+                  style={{
+                    minWidth: "50px",
+                    fontSize: "40px",
+                    color: "rgb(100,100,255)",
+                  }}
+                  onClick={() => setIsDrawerOpen(!isDrawerOpen)}
                 >
-                  TH
-                </button>
-              </div>
-              <div
-                style={{
-                  minWidth: "50px",
-                  fontSize: "40px",
-                  color: "rgb(100,100,255)",
-                }}
-                onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-              >
-                ☰
+                  ☰
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-      {windowSize.width <= 768 && (
-        <div
-          className={`drawer ${isScrolled ? "scrolled" : ""}`}
-          style={{ left: !isDrawerOpen ? windowSize.width : "0px" }}
-        >
-          {/* <a href="jaideeipos://ipos/acrossPrintPage?orderId=1233-dsfds-21&businessId=3432403-334-sdsd">
+          )}
+        </div>
+        {windowSize.width <= 768 && (
+          <div
+            className={`drawer ${isScrolled ? "scrolled" : ""}`}
+            style={{ left: !isDrawerOpen ? windowSize.width : "0px" }}
+          >
+            {/* <a href="jaideeipos://ipos/acrossPrintPage?orderId=1233-dsfds-21&businessId=3432403-334-sdsd">
             เปิดแอป JaideeIPOS แบบมี
           </a> */}
-          <Link
-            to="/"
-            className={`item02_m ${currentPage.name === "" ? "active" : ""}`}
-          >
-            Home
-          </Link>
+            <Link
+              to="/"
+              className={`item02_m ${currentPage.name === "" ? "active" : ""}`}
+            >
+              Home
+            </Link>
 
-          {/* <Link
+            {/* <Link
             to="/Activity"
             className={`item02_m ${
               currentPage.name === "Activity" ? "active" : ""
@@ -348,33 +375,56 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
             Activity
           </Link> */}
 
-          {isLoggedIn ? (
-            <div className="flex flex-col justify-center items-center">
-              <Link
-                to={"/profile"}
-                style={styles.menuItem}
-                className={`${currentPage.name === "profile" ? "active" : ""}`}
-              >
-                <FaUser className="text-lg text-black " />
-                <span className=" text-black">{user?.name || "ผู้ใช้"}</span>
-              </Link>
+            {isLoggedIn ? (
+              <div className="flex flex-col justify-center items-center">
+                <Link
+                  to={"/profile"}
+                  style={styles.menuItem}
+                  className={`${
+                    currentPage.name === "profile" ? "active" : ""
+                  }`}
+                >
+                  <FaUser className="text-lg text-black " />
+                  <span className=" text-black">{user?.name || "ผู้ใช้"}</span>
+                </Link>
 
-              <a
-                href="#"
-                className="inline-block px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-700 no-underline"
-                onClick={handleLogout}
-              >
-                Logout
-              </a>
-            </div>
-          ) : (
-            <Link to="/signup" className="item02" style={styles.menuItem}>
-              {i18n.language === "en" ? "Login" : "เข้าสู่ระบบ/ลงทะเบียน"}
-            </Link>
-          )}
-        </div>
+                <a
+                  href="#"
+                  className="inline-block px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-700 no-underline"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </a>
+              </div>
+            ) : (
+              <Link to="/signup" className="item02" style={styles.menuItem}>
+                {i18n.language === "en" ? "Login" : "เข้าสู่ระบบ/ลงทะเบียน"}
+              </Link>
+            )}
+          </div>
+        )}
+      </div>
+      {windowSize.width <= 768 && hasUserDeals && isLoggedIn && (
+        <button
+          onClick={() => navigate("/profile?tab=userdeal")}
+          style={{
+            position: "fixed",
+            bottom: "10px",
+            right: "10px",
+            zIndex: 9999,
+            backgroundColor: "white",
+            color: "black",
+            padding: "7px 10px",
+            borderRadius: "50px",
+            boxShadow: "0 2px 15px rgba(0, 0, 0, 0.5)",
+            fontSize: "14px",
+            fontWeight: "bold",
+          }}
+        >
+          🎟 {t("profile.purchasedDeals")}
+        </button>
       )}
-    </div>
+    </>
   );
 };
 

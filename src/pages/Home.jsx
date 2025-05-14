@@ -76,6 +76,7 @@ function Home() {
       );
 
       if (response.status === 201) {
+        // ✅ ให้ผู้ใช้เห็น modal ก่อน แล้วค่อย reload
         setClaimStatus("success");
       } else {
         const errorCode = response.data?.errorCode;
@@ -139,11 +140,18 @@ function Home() {
       {/***************** Modal เตือนให้ล็อกอิน *****************/}
       {claimStatus === "success" && (
         <CustomModal
-          message="เคลมดีลสำเร็จแล้ว!"
+          message={
+            i18n.language == "en"
+              ? "🎉Deal claimed successfully"
+              : "🎉รับดีลเรียบร้อยแล้ว"
+          }
           type="success"
           showOkButton={true}
           showCloseButton={false}
-          onClose={() => setClaimStatus(null)}
+          onClose={() => {
+            setClaimStatus(null);
+            window.location.reload(); // ✅ รีเฟรชหลังจากผู้ใช้กด OK
+          }}
           autoClose={false}
         />
       )}
