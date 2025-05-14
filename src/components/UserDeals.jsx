@@ -10,7 +10,6 @@ function UserDeals() {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   const { user } = useAuth();
 
-  const [orders, setOrders] = useState([]);
   const [userDeals, setUserDeals] = useState([]);
   const [flipStates, setFlipStates] = useState({});
   const [serialNumbers, setSerialNumbers] = useState({});
@@ -90,6 +89,16 @@ function UserDeals() {
           if (diff <= 0) clearInterval(interval);
         }, 1000);
       }
+
+      // ✅ โหลดข้อมูล userDeals ใหม่ เพื่อให้ lastUsedAt และ state อื่นๆ ทันที
+      const updatedDealRes = await axios.get(
+        `${BASE_URL}/user-deal/${user.userId}`,
+        {
+          headers: { "device-fingerprint": "12345678" },
+          withCredentials: true,
+        }
+      );
+      setUserDeals(updatedDealRes.data);
     } catch (error) {
       alert(error.response?.data?.error || t("profile.useFailed"));
     }
@@ -99,21 +108,8 @@ function UserDeals() {
     if (user) fetchUserDeals(user.userId);
   }, [user]);
 
-  const formatTime = (time) => {
-    const date = new Date(time);
-    return `${date.getHours()}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}${i18n.language === "th" ? "น." : ""}`;
-  };
-
-  const getScheduleDetails = (scheduleId, schedules) => {
-    return schedules.find((s) => s._id === scheduleId);
-  };
-
   return (
     <div className="flex flex-col gap-4 justify-center items-center px-4 sm:px-8 md:px-16 lg:px-32">
-      {/* 🎯 ดีลที่เคยซื้อ */}
       <div className="w-full p-4">
         <div className="text-xl font-CerFont text-white text-center flex justify-center">
           {t("profile.purchasedDeals")}
@@ -128,7 +124,6 @@ function UserDeals() {
               const isFlipped = flipStates[userDeal._id];
               const serial = serialNumbers[userDeal._id];
               const countdown = countdowns[userDeal._id];
-
               const isUsedOrStarted =
                 userDeal.isUsed || userDeal.isActiveSession || serial;
 
@@ -171,21 +166,17 @@ function UserDeals() {
                       <div className="text-sm text-gray-600">
                         {t("profile.status")}:{" "}
                         {t(
-                          userDeal.isUsed ||
-                            userDeal.isActiveSession ||
-                            serialNumbers[userDeal._id]
+                          userDeal.isUsed || userDeal.isActiveSession || serial
                             ? "profile.used"
                             : "profile.unused"
                         )}
                       </div>
-
                       <div className="text-sm text-gray-600">
                         {t("profile.paidPrice")}:{" "}
                         {userDeal.pricePaid === 0
                           ? t("profile.free")
                           : `${userDeal.pricePaid} ${t("profile.currency")}`}
                       </div>
-
                       {!isUsedOrStarted ? (
                         <button
                           onClick={() => handleUseDeal(userDeal._id)}
@@ -209,9 +200,9 @@ function UserDeals() {
                     </div>
 
                     {/* Back */}
-                    <div className="flip-card-back flex flex-col items-center justify-center text-center px-4 relative">
+                    <div className="flip-card-back relative text-center px-0 py-0 overflow-hidden rounded">
                       <button
-                        className="absolute top-2 right-3 text-gray-500 text-xl font-bold"
+                        className="absolute top-2 right-3 text-gray-500 text-xl font-bold z-10"
                         onClick={() =>
                           setFlipStates((prev) => ({
                             ...prev,
@@ -221,28 +212,80 @@ function UserDeals() {
                       >
                         ×
                       </button>
-                      <div className="text-lg font-bold">
-                        {t("profile.dealSerial")}:{" "}
-                        {serial !== undefined ? serial : "-"}
-                      </div>
-                      {serial && (
-                        <div className="mt-2 mx-auto w-[150px]">
-                          <QRCode
-                            value={`${window.location.origin}/check-deal/${serial}`}
-                            size={150}
-                          />
-                        </div>
+
+                      {userDeal.dealId?.images?.[0] && (
+                        <img
+                          src={userDeal.dealId.images[0]}
+                          alt="Deal Preview"
+                          className="w-full object-cover"
+                          style={{ aspectRatio: "1.6", objectFit: "cover" ,width:'90%'}}
+                        />
                       )}
-                      <div className="mt-2 text-sm text-gray-700">
-                        {countdown !== undefined
-                          ? countdown > 0
-                            ? `${t("profile.remainingTime")}: ${Math.floor(
-                                countdown / 60
-                              )}:${(countdown % 60)
+
+                      {/* Left bottom info */}
+                      <div className="absolute bottom-2 left-5 text-left text-sm text-gray-700 z-10">
+                        <div>
+                          {t("profile.status")}:{" "}
+                          {t(
+                            userDeal.isUsed ||
+                              userDeal.isActiveSession ||
+                              serialNumbers[userDeal._id]
+                              ? "profile.used"
+                              : "profile.unused"
+                          )}
+                        </div>
+                        <div>
+                          {t("profile.usedAt")}:{" "}
+                          {userDeal.lastUsedAt
+                            ? new Date(userDeal.lastUsedAt).toLocaleString(
+                                i18n.language === "th" ? "th-TH" : "en-GB",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )
+                            : "-"}
+                        </div>
+                      </div>
+
+                      {/* QR code right */}
+                      {serial && (
+                        <>
+                          
+                          <div className="absolute bottom-2 right-2 w-[90px] h-[90px] bg-white p-1 rounded shadow-md z-10">
+                            <QRCode
+                              value={`${window.location.origin}/check-deal/${
+                                userDeal.dealId?.dealPrefix
+                              }-${serial.toString().padStart(4, "0")}`}
+                              size={80}
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      <div className="px-4 pt-2 pb-3">
+                        <div className="text-lg font-bold">
+                          {t("profile.dealSerial")}:{" "}
+                          {serial !== undefined && userDeal.dealId?.dealPrefix
+                            ? `${userDeal.dealId.dealPrefix}-${serial
                                 .toString()
-                                .padStart(2, "0")} ${t("profile.minutes")}`
-                            : t("profile.expired")
-                          : t("profile.noExpiration")}
+                                .padStart(4, "0")}`
+                            : "-"}
+                        </div>
+                        <div className="mt-2 text-sm text-gray-700">
+                          {countdown !== undefined
+                            ? countdown > 0
+                              ? `${t("profile.remainingTime")}: ${Math.floor(
+                                  countdown / 60
+                                )}:${(countdown % 60)
+                                  .toString()
+                                  .padStart(2, "0")} ${t("profile.minutes")}`
+                              : t("profile.expired")
+                            : t("profile.noExpiration")}
+                        </div>
                       </div>
                     </div>
                   </div>

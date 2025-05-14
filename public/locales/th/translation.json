@@ -23,13 +23,14 @@
     "confirmUse": "คุณต้องการใช้ดีลนี้หรือไม่?",
     "useFailed": "ไม่สามารถเริ่มใช้งานดีลได้",
     "viewQR": "ดูรหัส / QR",
-    "dealSerial": "หมายเลขดีล",
+    "dealSerial": "หมายเลข",
     "expired": "หมดอายุการใช้",
     "noExpiration": "ใช้ได้ไม่มีหมดอายุ",
     "remainingTime": "เวลาที่เหลือ",
     "minutes": "นาที",
     "useDeal": "ใช้ดีลนี้",
-    "noClaimedDeals": "ยังไม่มีดีลที่เคลมไว้"
+    "noClaimedDeals": "ยังไม่มีดีลที่เคลมไว้",
+    "usedAt":"ใช้ดีลนี้เมื่อ"
   },
   "deal": {
     "claimLimitExceeded": "คุณใช้สิทธิ์เคลมดีลนี้ครบแล้ว",

@@ -23,13 +23,14 @@
         "confirmUse": "Do you want to use this deal?",
         "useFailed": "Failed to start the deal session",
         "viewQR": "View Serial / QR",
-        "dealSerial": "Deal Serial",
+        "dealSerial": "Serial",
         "expired": "Expired",
         "noExpiration": "No expiration limit",
         "remainingTime": "Remaining Time",
         "minutes": "minutes",
         "useDeal": "Use Deal",
-        "noClaimedDeals": "No deals claimed yet"
+        "noClaimedDeals": "No deals claimed yet",
+        "usedAt":"used at"
     },
     "deal": {
         "claimLimitExceeded": "You have already claimed this deal the maximum number of times",
