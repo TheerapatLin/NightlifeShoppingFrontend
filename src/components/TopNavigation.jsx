@@ -126,7 +126,9 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
       updateCurrentPage("profile", 7);
     }
   }, [location.pathname]);
-
+  const isAtThePageThatShowsDeal =
+    location.pathname === "/profile" ||
+    location.pathname.startsWith("/activityDetails");
   return (
     <>
       <div style={{ zIndex: "10000000" }}>
@@ -404,25 +406,33 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
           </div>
         )}
       </div>
-      {windowSize.width <= 768 && hasUserDeals && isLoggedIn && (
-        <button
+      {windowSize.width <= 768 && (
+        <div
           onClick={() => navigate("/profile?tab=userdeal")}
           style={{
             position: "fixed",
-            bottom: "10px",
-            right: "10px",
-            zIndex: 9999,
+            bottom: "20px",
+            right: 0,
+            transform:
+              hasUserDeals && isLoggedIn && !isAtThePageThatShowsDeal
+                ? "translateX(0%)"
+                : "translateX(120%)",
+            transition: "transform 0.4s ease",
             backgroundColor: "white",
             color: "black",
-            padding: "7px 10px",
-            borderRadius: "50px",
-            boxShadow: "0 2px 15px rgba(0, 0, 0, 0.5)",
+            padding: "10px 16px",
+            borderTopRightRadius: 0,
+            borderBottomRightRadius: 0,
+            borderTopLeftRadius: "50px",
+            borderBottomLeftRadius: "50px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
             fontSize: "14px",
             fontWeight: "bold",
+            zIndex: 9999,
           }}
         >
           🎟 {t("profile.purchasedDeals")}
-        </button>
+        </div>
       )}
     </>
   );
