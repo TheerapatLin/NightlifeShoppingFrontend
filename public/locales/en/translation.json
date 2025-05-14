@@ -1,5 +1,7 @@
 {
     "profile": {
+        "expiredDealsHeader": "Expired Deals/Coupons",
+        "showExpiredDeals": "Show Expired Deals/Coupons",
         "purchasedDeals": "Your Deals/Coupons",
         "noTitle": "Untitled Deal",
         "purchasedOn": "Purchased On",
@@ -30,7 +32,7 @@
         "minutes": "minutes",
         "useDeal": "Use Deal",
         "noClaimedDeals": "No deals claimed yet",
-        "usedAt":"used at"
+        "usedAt": "used at"
     },
     "deal": {
         "claimLimitExceeded": "You have already claimed this deal the maximum number of times",

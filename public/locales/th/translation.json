@@ -1,5 +1,7 @@
 {
   "profile": {
+    "expiredDealsHeader": "ดีล/คูปองที่หมดอายุ",
+    "showExpiredDeals": "แสดงดีลและคูปองที่หมดอายุแล้ว",
     "purchasedDeals": "ดีล/คูปอง ของคุณ",
     "noTitle": "ดีลไม่มีชื่อ",
     "purchasedOn": "ซื้อเมื่อ",
@@ -30,7 +32,7 @@
     "minutes": "นาที",
     "useDeal": "ใช้ดีลนี้",
     "noClaimedDeals": "ยังไม่มีดีลที่เคลมไว้",
-    "usedAt":"ใช้ดีลนี้เมื่อ"
+    "usedAt": "ใช้ดีลนี้เมื่อ"
   },
   "deal": {
     "claimLimitExceeded": "คุณใช้สิทธิ์เคลมดีลนี้ครบแล้ว",
