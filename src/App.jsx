@@ -163,7 +163,7 @@ function RouteContainer() {
             }
           />
           <Route
-            path="/info_venues"
+            path="/info_venues/:venue_id" 
             element={
               <MotionPage>
                 <InfoVenues />

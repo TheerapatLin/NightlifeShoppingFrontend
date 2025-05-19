@@ -313,7 +313,7 @@ function Home() {
         showDetail={false}
         showInnerDetail={true}
         onCardClick={(data, index) => {
-          navigate(`/info_venues`, { state: { eventData: data } });
+          navigate(`/info_venues/${data._id}`);
         }}
         detailElement={(data, index) => (
           <div>
@@ -370,7 +370,7 @@ function Home() {
             >
               {data?.name ?? ""}
             </h3>
-            
+
             <p
               className="item03"
               style={{
