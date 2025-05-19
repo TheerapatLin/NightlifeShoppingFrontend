@@ -51,6 +51,25 @@ function Home() {
     fetchDeals();
   }, []);
 
+  // 1. ดึงข้อมูล venue จาก backend (ใช้ API จริง)
+  useEffect(() => {
+    const fetchVenues = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/venue`);
+        // ถ้าต้องการ filter เฉพาะ selected venues ในอนาคต ให้ uncomment ด้านล่าง
+        // const selected = res.data.filter(venue => venue.isFeatured);
+        // setVenueData2(selected);
+
+        // ช่วงแรก: เอาทุก venue ไปก่อน
+        //console.log(JSON.stringify(res.data, null, 2));
+        setVenueData2(res.data);
+      } catch (err) {
+        console.error("Error fetching venues:", err);
+      }
+    };
+    fetchVenues();
+  }, []);
+
   const handleClaim = async (dealId) => {
     if (!isLoggedIn) {
       setShowNotLoggedInModal(true);
@@ -120,13 +139,13 @@ function Home() {
         console.error("Error fetching data:", error);
       }
 
-      try {
-        const response = await fetch("/data/data_Selected_venues.json");
-        const data = await response.json();
-        setVenueData2(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      // try {
+      //   const response = await fetch("/data/data_Selected_venues.json");
+      //   const data = await response.json();
+      //   setVenueData2(data);
+      // } catch (error) {
+      //   console.error("Error fetching data:", error);
+      // }
     };
     fetchData();
   }, []);
@@ -166,16 +185,6 @@ function Home() {
         />
       )}
 
-      {/* {showNotLoggedInModal && (
-        <CustomModal
-          message="กรุณาเข้าสู่ระบบก่อนใช้งาน"
-          type="error"
-          showOkButton={true}
-          onClose={() => setShowNotLoggedInModal(false)}
-          autoClose={false}
-        />
-      )} */}
-
       {/***************** Modal เตือนให้ล็อกอิน *****************/}
       {showNotLoggedInModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -204,25 +213,6 @@ function Home() {
           </div>
         </div>
       )}
-
-      {/***************** Main Banners *****************/}
-      {/* <div 
-        className="container col99" 
-        style={{
-          paddingTop: "180px", 
-          paddingBottom: "30px", 
-          maxWidth: "100%",
-          cursor: hover ? "pointer" : ""
-        }}
-        onClick={handleBanner}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-      >
-        <img
-          src="img/main_banner_1.jpg"
-          style={{ width: "100%", borderRadius: "10px", boxShadow: "0 0 80px 1px rgba(255,255,255,.5)" }}
-        ></img>
-      </div> */}
 
       <div className="App">
         {windowSize.width > 768 ? (
@@ -285,14 +275,6 @@ function Home() {
         </div>
       </>
 
-      {/***************** Weekend Turn-Up *****************/}
-      {/* <div
-        className="container"
-        style={{ paddingTop: "70px", maxWidth: "90%" }}
-      >
-        <WeekendTurnUp />
-      </div> */}
-
       <div
         className="container"
         style={{ paddingTop: "70px", maxWidth: "90%" }}
@@ -300,7 +282,7 @@ function Home() {
         <AllEventsInclude />
       </div>
 
-      {/***************** Selected Venues *****************/}
+      {/* ************** Selected Venues **************** */}
       <div
         className="container"
         style={{ paddingTop: "70px", maxWidth: "90%" }}
@@ -317,7 +299,6 @@ function Home() {
           <div className="EventSlideHeaderText1">Selected Venues</div>
         </div>
       </div>
-
       <EventSlider4
         data={venueData2}
         intervalTime={3000}
@@ -326,25 +307,27 @@ function Home() {
         detailHeight={150}
         ratio={2}
         isStartAtRim={true}
-        autoplay={false}
-        // cardShadow={'0 0 20px 0px rgba(0,0,0,.45)'}
+        autoplay={true}
         cardShadowHover={"0 0 20px 1px rgba(255,255,255,1)"}
         showDot={true}
         showDetail={false}
         showInnerDetail={true}
         onCardClick={(data, index) => {
-          // alert(`คุณคลิกการ์ดที่ ${index}`);
-          //...เขียนการทำงานเพิ่มเติมตรงนี้ได้เลย
-          console.log(data);
           navigate(`/info_venues`, { state: { eventData: data } });
         }}
         detailElement={(data, index) => (
           <div>
             <h3
               className="item03"
-              style={{ color: "white", padding: "5px 0px 5px 20px" }}
+              style={{
+                color: "white",
+                padding: "5px 0px 5px 20px",
+                fontSize: "18px",
+                fontWeight: "bold",
+                letterSpacing: ".5px",
+              }}
             >
-              <b>{data?.caption ?? ""}</b>
+              {data?.name ?? "กกก"}
             </h3>
             <p
               className="item03"
@@ -354,27 +337,28 @@ function Home() {
                 fontSize: "12px",
               }}
             >
-              <i className="bi bi-calendar3"></i> {data?.date ?? ""}
+              <i className="bi bi-star-fill"></i> {data?.reviewStar ?? "-"}
             </p>
             <p
               className="item03"
               style={{
-                color: "#31ff64",
+                color: "#FFFF00",
                 padding: "0px 0px 0px 20px",
                 fontSize: "12px",
               }}
             >
-              <i className="bi bi-clock"></i> {data?.time ?? ""}
+              <i className="bi bi-geo-alt-fill"></i>{" "}
+              {data?.location?.name ?? ""}
             </p>
             <p
               className="item03"
               style={{
-                color: "#31ff64",
-                padding: "0px 0px 15px 20px",
+                color: "#fff",
+                padding: "0px 0px 0px 20px",
                 fontSize: "12px",
               }}
             >
-              <i className="bi bi-geo-alt-fill"></i> {data?.location ?? ""}
+              {data?.descriptionEN ?? data?.descriptionTH ?? ""}
             </p>
           </div>
         )}
@@ -384,98 +368,9 @@ function Home() {
               className="item03"
               style={{ color: "white", padding: "5px 0px 5px 20px" }}
             >
-              <b>{data?.caption ?? ""}</b>
+              {data?.name ?? ""}
             </h3>
-            <p
-              className="item03"
-              style={{
-                color: "#FFFF00",
-                padding: "0px 0px 15px 20px",
-                fontSize: "16px",
-              }}
-            >
-              {data?.popularity >= 5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                </span>
-              ) : data?.popularity >= 4.5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-half"></i>
-                </span>
-              ) : data?.popularity >= 4 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 3.5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-half"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 3 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 2.5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-half"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 2 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 1.5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-half"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 1 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : (
-                <span>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              )}
-            </p>
+            
             <p
               className="item03"
               style={{
@@ -507,346 +402,18 @@ function Home() {
                 textOverflow: "ellipsis",
               }}
             >
-              <i className="bi bi-geo-alt-fill"></i> {data?.location ?? ""}
+              <i className="bi bi-geo-alt-fill"></i>{" "}
+              {data?.location?.name ?? ""}
             </p>
           </div>
         )}
         imageGallery={venueData2
-          .map((venue) => venue.gallery.map((image) => image.url))
+          .map((venue) =>
+            Array.isArray(venue.gallery)
+              ? venue.gallery.map((image) => image.url)
+              : []
+          )
           .flat()}
-      />
-
-      {/***************** Recommended Venues *****************/}
-
-      <div
-        className="container"
-        style={{ paddingTop: "70px", maxWidth: "90%" }}
-      >
-        <div
-          style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "end",
-            justifyContent: "center",
-          }}
-        >
-          <div className="EventSlideHeaderText1">Recommended Venues</div>
-          <div className="EventSlideHeaderText2 col-3">view all &gt;</div>
-        </div>
-      </div>
-
-      <EventSlider3
-        data={venueData}
-        intervalTime={3000}
-        bottomPadding={20}
-        cardWidth={250}
-        detailHeight={150}
-        ratio={1.5}
-        isStartAtRim={true}
-        // cardShadow={'0 0 20px 0px rgba(0,0,0,.45)'}
-        cardShadowHover={"0 0 20px 1px rgba(255,255,255,1)"}
-        showDot={true}
-        showDetail={false}
-        showInnerDetail={true}
-        onCardClick={(data, index) => {
-          // alert(`คุณคลิกการ์ดที่ ${index}`);
-          //...เขียนการทำงานเพิ่มเติมตรงนี้ได้เลย
-          console.log(data);
-          navigate(`/info_venues`, { state: { eventData: data } });
-        }}
-        detailElement={(data, index) => (
-          <div>
-            <h3
-              className="item03"
-              style={{ color: "white", padding: "5px 0px 5px 20px" }}
-            >
-              <b>{data?.caption ?? ""}</b>
-            </h3>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 0px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-calendar3"></i> {data?.date ?? ""}
-            </p>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 0px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-clock"></i> {data?.time ?? ""}
-            </p>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 15px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-geo-alt-fill"></i> {data?.location ?? ""}
-            </p>
-          </div>
-        )}
-        detailInnerElement={(data, index) => (
-          <div>
-            <h3
-              className="item03"
-              style={{ color: "white", padding: "5px 0px 5px 20px" }}
-            >
-              <b>{data?.caption ?? ""}</b>
-            </h3>
-            <p
-              className="item03"
-              style={{
-                color: "#FFFF00",
-                padding: "0px 0px 15px 20px",
-                fontSize: "16px",
-              }}
-            >
-              {data?.popularity >= 5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                </span>
-              ) : data?.popularity >= 4.5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-half"></i>
-                </span>
-              ) : data?.popularity >= 4 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 3.5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-half"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 3 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 2.5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-half"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 2 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 1.5 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star-half"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : data?.popularity >= 1 ? (
-                <span>
-                  <i className="bi bi-star-fill"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              ) : (
-                <span>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                  <i className="bi bi-star"></i>
-                </span>
-              )}
-            </p>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 0px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-calendar3"></i> {data?.date ?? ""}
-            </p>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 0px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-clock"></i> {data?.time ?? ""}
-            </p>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 15px 20px",
-                fontSize: "12px",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              <i className="bi bi-geo-alt-fill"></i> {data?.location ?? ""}
-            </p>
-          </div>
-        )}
-      />
-      {/***************** Recommended Events ****************/}
-
-      <div
-        className="container"
-        style={{ paddingTop: "70px", maxWidth: "90%" }}
-      >
-        <div
-          style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "end",
-            justifyContent: "center",
-          }}
-        >
-          <div className="EventSlideHeaderText1">Recommended Events</div>
-          <div className="EventSlideHeaderText2 col-3">view all &gt;</div>
-        </div>
-      </div>
-
-      <EventSlider3
-        data={eventData}
-        intervalTime={4000}
-        bottomPadding={20}
-        ratio={1.5}
-        cardWidth={250}
-        detailHeight={120}
-        // cardShadow={'0 0 20px 0px rgba(0,0,0,.45)'}
-        cardShadowHover={"0 0 20px 1px rgba(255,255,255,1)"}
-        showDot={true}
-        showDetail={true}
-        showInnerDetail={false}
-        onCardClick={(data, index) => {
-          // alert(`คุณคลิกการ์ดที่ ${index}`);
-          //...เขียนการทำงานเพิ่มเติมตรงนี้ได้เลย
-          console.log(data);
-          navigate(`/info_event`, { state: { eventData: data } });
-        }}
-        detailElement={(data, index) => (
-          <div>
-            <h3
-              className="item03"
-              style={{ color: "white", padding: "5px 0px 5px 20px" }}
-            >
-              <b>{data?.caption ?? ""}</b>
-            </h3>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 0px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-calendar3"></i> {data?.date ?? ""}
-            </p>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 0px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-clock"></i> {data?.time ?? ""}
-            </p>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 15px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-geo-alt-fill"></i> {data?.location ?? ""}
-            </p>
-          </div>
-        )}
-        detailInnerElement={(data, index) => (
-          <div>
-            <h3
-              className="item03"
-              style={{ color: "white", padding: "5px 0px 5px 20px" }}
-            >
-              <b>{data?.caption ?? ""}</b>
-            </h3>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 0px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-calendar3"></i> {data?.date ?? ""}
-            </p>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 0px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-clock"></i> {data?.time ?? ""}
-            </p>
-            <p
-              className="item03"
-              style={{
-                color: "#31ff64",
-                padding: "0px 0px 15px 20px",
-                fontSize: "12px",
-              }}
-            >
-              <i className="bi bi-geo-alt-fill"></i> {data?.location ?? ""}
-            </p>
-          </div>
-        )}
       />
 
       {/***************** Test Banner ****************/}
@@ -904,19 +471,6 @@ function Home() {
           navigate(`/info_event`, { state: { eventData: data } });
         }}
       />
-      {/***************** Test Banner ****************/}
-      <div>
-        <ElfsightWidget />
-      </div>
-      <div
-        className="container"
-        style={{ paddingTop: "50px", paddingBottom: "100px", maxWidth: "100%" }}
-      >
-        <img
-          src="img/banner1.jpeg"
-          style={{ width: "100%", borderRadius: "20px" }}
-        ></img>
-      </div>
     </div>
   );
 }
