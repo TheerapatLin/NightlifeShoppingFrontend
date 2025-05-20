@@ -223,8 +223,9 @@ const InfoVenues = () => {
           ) : (
             // ถ้า unbookable เป็นลิงก์ออกไป แต่หน้าตาเหมือนปุ่ม
             <a
-              href={venue.linkWhenUnbookable || "#"}
-              target="_blank"
+              //href={venue.linkWhenUnbookable || "#"}
+              href="/activityDetails/67c595419a49e9a1544f0b36"
+              target="_self"
               rel="noopener noreferrer"
               style={{
                 display: "block",
