@@ -275,13 +275,6 @@ function Home() {
         </div>
       </>
 
-      <div
-        className="container"
-        style={{ paddingTop: "70px", maxWidth: "90%" }}
-      >
-        <AllEventsInclude />
-      </div>
-
       {/* ************** Selected Venues **************** */}
       <div
         className="container"
@@ -370,7 +363,7 @@ function Home() {
                 color: "white",
                 padding: "5px 5px 5px 5px",
                 fontSize: "21px",
-                fontWeight:'normal',
+                fontWeight: "normal",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -423,6 +416,14 @@ function Home() {
           )
           .flat()}
       />
+      
+      {/* ************** All Events Include **************** */}
+      <div
+        className="container"
+        style={{ paddingTop: "70px", maxWidth: "90%" }}
+      >
+        <AllEventsInclude />
+      </div>
 
       {/***************** Test Banner ****************/}
       <div className="container" style={{ marginTop: 70, maxWidth: "90%" }}>
