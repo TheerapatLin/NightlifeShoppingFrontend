@@ -409,7 +409,7 @@ const InfoVenues = () => {
           </div>
         )}
       </div> */}
-      <div style={{ height: 80 }} />
+      {/* <div style={{ height: 80 }} /> */}
     </div>
   );
 };
