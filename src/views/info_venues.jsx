@@ -49,13 +49,14 @@ const InfoVenues = () => {
   const type = field(venue.type);
   const reviewStar = venue.reviewStar ?? "-";
   const reviewCount = venue.reviewCount ?? "-";
-  const area = field(venue.location?.name);
-  const address = field(venue.location?.description);
+  const area = field(venue.location?.area);
+  const address = field(venue.location?.mapLink);
   const mapEmbed = (venue.location?.coordinates && venue.location.coordinates.length === 2)
     ? `https://maps.google.com/maps?q=${venue.location.coordinates[1]},${venue.location.coordinates[0]}&output=embed`
     : "";
   const dressCode = field(venue.dressCode);
-  const vibes = venue.amenities?.join(", ") || "-";
+  //const vibes = venue.vibes?.join(", ") || "-";  field(venue.dressCode)
+  const vibes = field(venue.vibes) || "-"; 
   const bts = field(venue.nearestBTS || "-");
   const description = venue.descriptionEN || venue.descriptionTH || "-";
   const gallery = Array.isArray(venue.gallery) && venue.gallery.length ? venue.gallery : (venue.image ? venue.image.map(url => ({ url })) : []);
@@ -66,7 +67,7 @@ const InfoVenues = () => {
   return (
     <div style={{ background: "#000", color: "#fff", minHeight: "100vh", fontFamily: "inherit" ,marginTop:"70px"}}>
       {/* Cover */}
-      <div style={{ width: "100%", height: 260, background: `url(${coverImage}) center/cover` }}></div>
+      <div style={{ width: "100%", height: 360, background: `url(${coverImage}) center/cover` }}></div>
 
       {/* Main Info Grid */}
       <div
@@ -88,7 +89,7 @@ const InfoVenues = () => {
           <div style={{ color: "#ccc", fontSize: 14, marginBottom: 8 }}>
             {area} &nbsp;&gt;&nbsp; <b>{name}</b>
           </div>
-          <h1 style={{ fontSize: 32, margin: 0, fontWeight: 700 }}>
+          <h1 style={{ fontSize: 48, margin: 0, fontWeight: 700 }}>
             {name}
           </h1>
           <div style={{ color: "#AAA", fontSize: 18, margin: "8px 0 12px" }}>
@@ -113,17 +114,17 @@ const InfoVenues = () => {
             <div>Area:</div>
             <div>{area}</div>
             <div>Address:</div>
-            <div>{address}</div>
+            <a href={address}>Open Link</a>
             <div>Dress Code:</div>
             <div>{dressCode}</div>
-            <div>Amenities:</div>
+            <div>Vibes:</div>
             <div>{vibes}</div>
             <div>Tags:</div>
             <div>{tags.length ? tags.join(", ") : "-"}</div>
           </div>
           <div style={{ margin: "30px 0 0" }}>
             <h3>About {name}</h3>
-            <div style={{ color: "#ccc", maxWidth: 600 }}>{description}</div>
+             <div style={{ color: "#ccc", maxWidth: 600 }} dangerouslySetInnerHTML={{ __html: description }} />
           </div>
         </div>
         {/* Right */}
