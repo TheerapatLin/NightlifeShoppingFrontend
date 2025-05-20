@@ -307,7 +307,7 @@ function Home() {
         detailHeight={150}
         ratio={2}
         isStartAtRim={true}
-        autoplay={true}
+        autoplay={false}
         cardShadowHover={"0 0 20px 1px rgba(255,255,255,1)"}
         showDot={true}
         showDetail={false}
