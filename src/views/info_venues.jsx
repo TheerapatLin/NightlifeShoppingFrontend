@@ -122,7 +122,7 @@ const InfoVenues = () => {
          background-image: url(${
            venue.shortBannerImg || coverImage
          }) !important;
-          height: 200px !important;
+          height: 300px !important;
         }
         }
       `}
