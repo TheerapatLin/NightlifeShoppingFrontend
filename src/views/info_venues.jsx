@@ -92,7 +92,8 @@ const InfoVenues = () => {
       ? venue.artistRosters
       : [];
   const menuImage = venue.menuImage || "";
-  const tags = venue.tags || [];
+  //const tags = venue.tags || [];
+  const tags = venue.special || "";
 
   return (
     <div
@@ -178,8 +179,9 @@ const InfoVenues = () => {
             <div>{dressCode}</div>
             <div>Vibes:</div>
             <div>{vibes}</div>
-            <div>Tags:</div>
-            <div>{tags.length ? tags.join(", ") : "-"}</div>
+            <div>Special:</div>
+            <div>{tags}</div>
+            {/* <div>{tags.length ? tags.join(", ") : "-"}</div> */}
           </div>
           <div style={{ margin: "30px 0 0" }}>
             <h3>About {name}</h3>

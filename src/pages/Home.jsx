@@ -304,8 +304,8 @@ function Home() {
         intervalTime={3000}
         bottomPadding={20}
         cardWidth={300}
-        detailHeight={150}
-        ratio={2}
+        detailHeight={50}
+        ratio={1.6}
         isStartAtRim={true}
         autoplay={false}
         cardShadowHover={"0 0 20px 1px rgba(255,255,255,1)"}
@@ -366,12 +366,20 @@ function Home() {
           <div>
             <h3
               className="item03"
-              style={{ color: "white", padding: "5px 0px 5px 20px" }}
+              style={{
+                color: "white",
+                padding: "5px 5px 5px 5px",
+                fontSize: "21px",
+                fontWeight:'normal',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
               {data?.name ?? ""}
             </h3>
 
-            <p
+            {/* <p
               className="item03"
               style={{
                 color: "#31ff64",
@@ -404,7 +412,7 @@ function Home() {
             >
               <i className="bi bi-geo-alt-fill"></i>{" "}
               {data?.location?.name ?? ""}
-            </p>
+            </p> */}
           </div>
         )}
         imageGallery={venueData2
