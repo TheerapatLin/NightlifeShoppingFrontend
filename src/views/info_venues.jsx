@@ -21,22 +21,41 @@ const InfoVenues = () => {
   useEffect(() => {
     if (!venue_id) return;
     setLoading(true);
-    axios.get(`${BASE_URL}/venue/${venue_id}`)
-      .then(res => setVenue(res.data))
+    axios
+      .get(`${BASE_URL}/venue/${venue_id}`)
+      .then((res) => setVenue(res.data))
       .catch(() => setVenue(null))
       .finally(() => setLoading(false));
   }, [venue_id]);
 
   if (loading) {
     return (
-      <div style={{ color: "#fff", background: "#000", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div
+        style={{
+          color: "#fff",
+          background: "#000",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         Loading venue info...
       </div>
     );
   }
   if (!venue) {
     return (
-      <div style={{ color: "#fff", background: "#000", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div
+        style={{
+          color: "#fff",
+          background: "#000",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         Venue not found.
       </div>
     );
@@ -45,29 +64,69 @@ const InfoVenues = () => {
   // Data fallback
   const coverImage = venue.image?.[0] || PLACEHOLDER_IMG;
   const name = field(venue.name);
-  const priceLevel = venue.priceLevel ? formatPriceLevel(venue.priceLevel) : "-";
+  const priceLevel = venue.priceLevel
+    ? formatPriceLevel(venue.priceLevel)
+    : "-";
   const type = field(venue.type);
   const reviewStar = venue.reviewStar ?? "-";
   const reviewCount = venue.reviewCount ?? "-";
   const area = field(venue.location?.area);
   const address = field(venue.location?.mapLink);
-  const mapEmbed = (venue.location?.coordinates && venue.location.coordinates.length === 2)
-    ? `https://maps.google.com/maps?q=${venue.location.coordinates[1]},${venue.location.coordinates[0]}&output=embed`
-    : "";
+  const mapEmbed =
+    venue.location?.coordinates && venue.location.coordinates.length === 2
+      ? `https://maps.google.com/maps?q=${venue.location.coordinates[1]},${venue.location.coordinates[0]}&output=embed`
+      : "";
   const dressCode = field(venue.dressCode);
   //const vibes = venue.vibes?.join(", ") || "-";  field(venue.dressCode)
-  const vibes = field(venue.vibes) || "-"; 
+  const vibes = field(venue.vibes) || "-";
   const bts = field(venue.nearestBTS || "-");
   const description = venue.descriptionEN || venue.descriptionTH || "-";
-  const gallery = Array.isArray(venue.gallery) && venue.gallery.length ? venue.gallery : (venue.image ? venue.image.map(url => ({ url })) : []);
-  const artists = Array.isArray(venue.artistRosters) && venue.artistRosters.length ? venue.artistRosters : [];
+  const gallery =
+    Array.isArray(venue.gallery) && venue.gallery.length
+      ? venue.gallery
+      : venue.image
+      ? venue.image.map((url) => ({ url }))
+      : [];
+  const artists =
+    Array.isArray(venue.artistRosters) && venue.artistRosters.length
+      ? venue.artistRosters
+      : [];
   const menuImage = venue.menuImage || "";
   const tags = venue.tags || [];
 
   return (
-    <div style={{ background: "#000", color: "#fff", minHeight: "100vh", fontFamily: "inherit" ,marginTop:"70px"}}>
-      {/* Cover */}
-      <div style={{ width: "100%", height: 360, background: `url(${coverImage}) center/cover` }}></div>
+    <div
+      style={{
+        background: "#000",
+        color: "#fff",
+        minHeight: "100vh",
+        fontFamily: "inherit",
+        marginTop: "70px",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          height: 360,
+          background: `url(${venue.longBannerImg || coverImage}) center/cover`,
+          display: "block",
+        }}
+        className="venue-banner"
+      >
+        {/* Banner จะถูกเปลี่ยนภาพผ่าน CSS media query */}
+      </div>
+      <style>
+        {`
+          @media (max-width: 650px) {
+        .venue-banner {
+         background-image: url(${
+           venue.shortBannerImg || coverImage
+         }) !important;
+          height: 200px !important;
+        }
+        }
+      `}
+      </style>
 
       {/* Main Info Grid */}
       <div
@@ -89,13 +148,13 @@ const InfoVenues = () => {
           <div style={{ color: "#ccc", fontSize: 14, marginBottom: 8 }}>
             {area} &nbsp;&gt;&nbsp; <b>{name}</b>
           </div>
-          <h1 style={{ fontSize: 48, margin: 0, fontWeight: 700 }}>
-            {name}
-          </h1>
+          <h1 style={{ fontSize: 48, margin: 0, fontWeight: 700 }}>{name}</h1>
           <div style={{ color: "#AAA", fontSize: 18, margin: "8px 0 12px" }}>
             {priceLevel}
             {reviewStar !== "-" && (
-              <span style={{ marginLeft: 10, color: "#ffc107", fontWeight: 600 }}>
+              <span
+                style={{ marginLeft: 10, color: "#ffc107", fontWeight: 600 }}
+              >
                 <i className="bi bi-star-fill"></i> {reviewStar} ({reviewCount})
               </span>
             )}
@@ -124,7 +183,10 @@ const InfoVenues = () => {
           </div>
           <div style={{ margin: "30px 0 0" }}>
             <h3>About {name}</h3>
-             <div style={{ color: "#ccc", maxWidth: 600 }} dangerouslySetInnerHTML={{ __html: description }} />
+            <div
+              style={{ color: "#ccc", maxWidth: 600 }}
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
           </div>
         </div>
         {/* Right */}
@@ -138,22 +200,51 @@ const InfoVenues = () => {
             gap: 18,
           }}
         >
-          <button
-            style={{
-              background: "#2269FF",
-              color: "#fff",
-              fontWeight: 700,
-              border: 0,
-              borderRadius: 8,
-              padding: "12px 0",
-              fontSize: 16,
-              marginBottom: 10,
-              cursor: "pointer",
-              width: "100%",
-            }}
-          >
-            Book Now
-          </button>
+          {venue.isBookable ? (
+            // ถ้า bookable จริง กดแล้วไม่ต้องทำอะไร (หรือใส่ onClick ทีหลัง)
+            <button
+              type="button"
+              style={{
+                background: "#2269FF",
+                color: "#fff",
+                fontWeight: 700,
+                border: 0,
+                borderRadius: 8,
+                padding: "12px 0",
+                fontSize: 16,
+                marginBottom: 10,
+                cursor: "pointer",
+                width: "100%",
+              }}
+              // onClick={() => ... } // ใส่ฟังก์ชันจองจริงทีหลัง
+            >
+              Book Now
+            </button>
+          ) : (
+            // ถ้า unbookable เป็นลิงก์ออกไป แต่หน้าตาเหมือนปุ่ม
+            <a
+              href={venue.linkWhenUnbookable || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                background: "#2269FF", // ให้เหมือนปุ่ม
+                color: "#fff",
+                fontWeight: 700,
+                border: 0,
+                borderRadius: 8,
+                padding: "12px 0",
+                fontSize: 16,
+                marginBottom: 10,
+                cursor: "pointer",
+                textAlign: "center",
+                width: "100%",
+                textDecoration: "none",
+              }}
+            >
+              Book Now
+            </a>
+          )}
           {/* Google Map */}
           <div
             style={{
@@ -178,12 +269,13 @@ const InfoVenues = () => {
                 title="venue-map"
               ></iframe>
             ) : (
-              <div style={{ color: "#888", padding: 28, textAlign: "center" }}>No Map</div>
+              <div style={{ color: "#888", padding: 28, textAlign: "center" }}>
+                No Map
+              </div>
             )}
           </div>
         </div>
       </div>
-
       {/* Responsive BREAKPOINT */}
       <style>
         {`
@@ -203,16 +295,18 @@ const InfoVenues = () => {
         }
         `}
       </style>
-
       {/* ----------- Gallery Section ----------- */}
-      <div className="container-gallery" style={{
-        maxWidth: 1280,
-        margin: "44px auto 0",
-        padding: "0 5vw",
-        display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: 18,
-      }}>
+      <div
+        className="container-gallery"
+        style={{
+          maxWidth: 1280,
+          margin: "44px auto 0",
+          padding: "0 5vw",
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: 18,
+        }}
+      >
         {gallery.length > 0 ? (
           gallery.map((img, i) => (
             <img
@@ -229,24 +323,33 @@ const InfoVenues = () => {
             />
           ))
         ) : (
-          <div style={{ gridColumn: "1/-1", color: "#aaa", textAlign: "center" }}>No images</div>
+          <div
+            style={{ gridColumn: "1/-1", color: "#aaa", textAlign: "center" }}
+          >
+            No images
+          </div>
         )}
       </div>
-
       {/* ----------- DJ/Artist Rosters ----------- */}
       {artists.length > 0 && (
-        <div style={{
-          maxWidth: 1280,
-          margin: "44px auto 0",
-          padding: "0 5vw"
-        }}>
-          <h2 style={{ fontSize: 24, margin: "32px 0 14px" }}>DJ/Artist Rosters</h2>
-          <div style={{
-            display: "flex",
-            gap: 16,
-            overflowX: "auto",
-            paddingBottom: 8,
-          }}>
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: "44px auto 0",
+            padding: "0 5vw",
+          }}
+        >
+          <h2 style={{ fontSize: 24, margin: "32px 0 14px" }}>
+            DJ/Artist Rosters
+          </h2>
+          <div
+            style={{
+              display: "flex",
+              gap: 16,
+              overflowX: "auto",
+              paddingBottom: 8,
+            }}
+          >
             {artists.map((artist, i) => (
               <img
                 key={i}
@@ -264,13 +367,14 @@ const InfoVenues = () => {
           </div>
         </div>
       )}
-
       {/* ----------- Menu ----------- */}
-      <div style={{
-        maxWidth: 1280,
-        margin: "44px auto 0",
-        padding: "0 5vw"
-      }}>
+      <div
+        style={{
+          maxWidth: 1280,
+          margin: "44px auto 0",
+          padding: "0 5vw",
+        }}
+      >
         <h2 style={{ fontSize: 24, margin: "32px 0 14px" }}>Menu</h2>
         {menuImage ? (
           <img
@@ -281,13 +385,24 @@ const InfoVenues = () => {
               borderRadius: 12,
               objectFit: "contain",
               background: "#fff",
-              aspectRatio: "1/1"
+              aspectRatio: "1/1",
             }}
           />
         ) : (
-          <div style={{
-            width: 140, height: 140, borderRadius: 12, background: "#181818", color: "#888", display: "flex", alignItems: "center", justifyContent: "center"
-          }}>No menu image</div>
+          <div
+            style={{
+              width: 140,
+              height: 140,
+              borderRadius: 12,
+              background: "#181818",
+              color: "#888",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            No menu image
+          </div>
         )}
       </div>
       <div style={{ height: 80 }} />
