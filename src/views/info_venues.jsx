@@ -370,8 +370,9 @@ const InfoVenues = () => {
           </div>
         </div>
       )}
+      
       {/* ----------- Menu ----------- */}
-      <div
+      {/* <div
         style={{
           maxWidth: 1280,
           margin: "44px auto 0",
@@ -407,7 +408,7 @@ const InfoVenues = () => {
             No menu image
           </div>
         )}
-      </div>
+      </div> */}
       <div style={{ height: 80 }} />
     </div>
   );
