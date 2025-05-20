@@ -98,7 +98,7 @@ const InfoVenues = () => {
   return (
     <div
       style={{
-        background: "#000",
+        background: "transparent",
         color: "#fff",
         minHeight: "100vh",
         fontFamily: "inherit",
@@ -213,7 +213,7 @@ const InfoVenues = () => {
                 border: 0,
                 borderRadius: 8,
                 padding: "12px 0",
-                fontSize: 16,
+                fontSize: 20,
                 marginBottom: 10,
                 cursor: "pointer",
                 width: "100%",
@@ -237,7 +237,7 @@ const InfoVenues = () => {
                 border: 0,
                 borderRadius: 8,
                 padding: "12px 0",
-                fontSize: 16,
+                fontSize: 20,
                 marginBottom: 10,
                 cursor: "pointer",
                 textAlign: "center",

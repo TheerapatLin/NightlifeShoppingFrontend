@@ -284,6 +284,7 @@ function RouteContainer() {
           />
         </Routes>
       </AnimatePresence>
+      <Footer />
     </>
   );
 }
