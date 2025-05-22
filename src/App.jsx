@@ -38,6 +38,9 @@ import MyCoin from "./views/MY_COIN";
 import React from "react";
 import { Elements } from "@stripe/react-stripe-js";
 
+import Videotextnightlife from "../src/components/Videotextnightlife";
+import VideotextnightlifeMobile from "../src/components/VideotextnightlifeMobile";
+
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 import { loadStripe } from "@stripe/stripe-js";
 import { AuthProvider } from "./context/AuthContext";
@@ -247,6 +250,22 @@ function RouteContainer() {
             element={
               <MotionPage>
                 <MyBooking />
+              </MotionPage>
+            }
+          />
+          <Route
+            path="/mingle-options"
+            element={
+              <MotionPage>
+                <Videotextnightlife />
+              </MotionPage>
+            }
+          />
+          <Route
+            path="/mingle-options-mobile"
+            element={
+              <MotionPage>
+                <VideotextnightlifeMobile />
               </MotionPage>
             }
           />
