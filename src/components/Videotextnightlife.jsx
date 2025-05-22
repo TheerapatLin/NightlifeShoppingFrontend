@@ -77,7 +77,7 @@ function Videotextnightlife() {
   };
 
   const goToFirstLink = () => {
-    navigate("/activityDetails/67c595419a49e9a1544f0b36");
+    navigate("/activityDetails/682f7ef1d878c85d7e172ce7");
   };
 
   const goToSecondLink = () => {
