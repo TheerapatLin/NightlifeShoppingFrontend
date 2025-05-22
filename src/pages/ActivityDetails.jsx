@@ -74,7 +74,6 @@ const ActivityDetails = () => {
   const [searchParams] = useSearchParams();
   const { setAffiliate, user } = useAuth();
   const [filteredSchedules, setFilteredSchedules] = useState([]);
-  const [activityDetail, setActivityDetail] = useState(null);
 
   useSyncDayjsLocale();
 
@@ -186,14 +185,14 @@ const ActivityDetails = () => {
   };
 
   useEffect(() => {
-    if (activityDetail && activity?.schedule) {
+    if (activity && activity?.schedule) {
       setFilteredSchedules([]);
-      //alert("activityDetail.lastStartDate = " + activityDetail.lastStartDate);
-      setStartDate(activityDetail.lastStartDate);
-      const initialDate = new Date(activityDetail.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
+      //alert("activitylastStartDate = " + activity.lastStartDate);
+      setStartDate(activity.lastStartDate);
+      const initialDate = new Date(activity.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
       handleDateChange(initialDate);
     }
-  }, [activity, activityDetail]);
+  }, [activity]);
 
   useEffect(() => {
     const affiliate = searchParams.get("affiliate");
@@ -219,13 +218,13 @@ const ActivityDetails = () => {
   // Image navigation
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) =>
-      prev === 0 ? (activityDetail?.images?.length || 0) - 1 : prev - 1
+      prev === 0 ? (activity?.images?.length || 0) - 1 : prev - 1
     );
   };
 
   const handleNextImage = () => {
     setCurrentImageIndex((prev) =>
-      prev === (activityDetail?.images?.length || 0) - 1 ? 0 : prev + 1
+      prev === (activity?.images?.length || 0) - 1 ? 0 : prev + 1
     );
   };
 
@@ -241,7 +240,7 @@ const ActivityDetails = () => {
         });
         const activityData = response.data.activity;
         if (activityData) {
-          // console.log("activityData =", response.data);
+          console.log("activityData =", response.data);
           setActivity(activityData);
         } else {
           setError("Activity not found");
@@ -263,7 +262,7 @@ const ActivityDetails = () => {
     };
 
     fetchActivityData();
-    fetchActivityDetail();
+    //fetchActivityDetail();
   }, [id]);
 
   const formatTime = (timeStr) => {
@@ -588,7 +587,7 @@ const ActivityDetails = () => {
     <div className="relative w-full h-[300px]">
       <>
         <img
-          src={`/img/${id}/${activityDetail?.images?.[currentImageIndex]}`}
+          src={`${activity?.image?.[currentImageIndex].fileName}`}
           alt={`Image ${currentImageIndex + 1}`}
           className="w-full h-full object-cover"
         />
@@ -625,7 +624,7 @@ const ActivityDetails = () => {
       <div className="row-span-2">
         <img
           //src={activity?.image?.[0]?.fileName || ""}
-          src={`/img/${id}/${activityDetail?.images?.[0]}`}
+          src={`${activity?.image?.[0].fileName}`}
           alt="images1"
           className="w-full h-full object-cover rounded-l-lg"
         />
@@ -634,28 +633,28 @@ const ActivityDetails = () => {
       <>
         <div className="row-span-2">
           <img
-            src={`/img/${id}/${activityDetail?.images?.[1]}`}
+            src={`${activity?.image?.[1].fileName}`}
             alt="images2"
             className="w-full h-full object-cover"
           />
         </div>
         <div>
           <img
-            src={`/img/${id}/${activityDetail?.images?.[2]}`}
+            src={`${activity?.image?.[2].fileName}`}
             alt="images3"
             className="w-full h-full object-cover"
           />
         </div>
         <div>
           <img
-            src={`/img/${id}/${activityDetail?.images?.[3]}`}
+            src={`${activity?.image?.[3].fileName}`}
             alt="images4"
             className="w-full h-full object-cover"
           />
         </div>
         <div className="row-span-2">
           <img
-            src={`/img/${id}/${activityDetail?.images?.[4]}`}
+            src={`${activity?.image[4].fileName}`}
             alt="images5"
             className="w-full h-full object-cover rounded-r-lg"
           />
@@ -793,97 +792,32 @@ const ActivityDetails = () => {
                 style={{ borderBottom: "solid 1px #dddddd" }}
               >
                 {/* ข้อมูลส่วนหน้าพื้นที่ 60 % */}
-                <div className="h-auto w-full lg:w-[60%]">
+                <div className="h-auto w-full lg:w-[60%]" style={{}}>
                   <div
-                    className="flex justify-between items-center pt-12 pb-6"
+                    className="pb-[48px]"
                     style={{ borderBottom: "solid 1px #dddddd" }}
                   >
-                    <div className="flex flex-col gap-1">
-                      <div className="font-CerFont font-semibold text-[22px]">
-                        {i18n.language === "en"
-                          ? "Activity by Nightlife.run Event"
-                          : "จัดโดย Nightlife.run Event"}
-                      </div>
-                      <div className="flex">
-                        <div className="font-CerFont text-base">
-                          {activity?.duration / 60}{" "}
-                          {i18n.language === "en" ? "Hours" : "ชั่วโมง"}
-                        </div>
-                        {/* <div className="font-CerFont text-base">.</div> */}
-                        {/* <div className="font-CerFont text-base">
-                          {i18n.language === "en"
-                            ? " Thai & English Activity"
-                            : " จัดเป็นภาษาไทยและอังกฤษ"}
-                        </div> */}
-                      </div>
-                    </div>
-                    <div>
-                      {activityDetail && activityDetail.hostImage && (
-                        <img
-                          src={`/img/${id}/${activityDetail.hostImage}`}
-                          alt="Profile picture"
-                          className="w-14 h-14 rounded-full"
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* <div
-                  className=" py-[32px] flex flex-col gap-4"
-                  style={{ borderBottom: "solid 1px #dddddd" }}
-                >
-                  <div className="flex items-start gap-2">
-                    <BsPersonCheck size={20} />
-                    <div className="flex flex-col">
-                      <div className="font-CerFont text-[16px] font-bold">
-                        ปรับให้เหมาะกับคุณ
-                      </div>
-                      <div className="font-CerFont text-[14px] text-grayAirbnb">
-                        ผู้จัดปรับแต่งให้ตรงกับความสนใจของคุณ
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CiStar size={23} />
-                    <div className="flex flex-col">
-                      <div className="font-CerFont text-[16px] font-bold">
-                        โฮสต์มือโปร
-                      </div>
-                      <div className="font-CerFont text-[14px] text-grayAirbnb">
-                        Petz ได้รับคะแนนรีวิว 5
-                        ดาวจากการจัดเอ็กซ์พีเรียนซ์มาแล้ว 392 ครั้ง
-                      </div>
-                    </div>
-                  </div>
-                </div> */}
-
-                  <div
-                    className="py-[48px]"
-                    style={{ borderBottom: "solid 1px #dddddd" }}
-                  >
-                    <div className="font-CerFont text-[22px] font-bold">
-                      {i18n.language === "en"
-                        ? "What we'll do"
-                        : "รายละเอียดกิจกรรม"}
-                    </div>
                     <br />
                     <div className="font-CerFont text-[16px]">
-                      {activityDetail &&
-                        activityDetail.descriptionTH &&
+                      {activity?.descriptionTH &&
                         (i18n.language === "en" ? (
                           <div
                             className="font-CerFont text-[16px]"
                             dangerouslySetInnerHTML={{
-                              __html:
-                                activityDetail.descriptionEN.join("<br/>"),
+                              __html: activity?.descriptionEN
+                                ?.map((item) => item.text)
+                                .filter(Boolean)
+                                .join("<br/><br/>"),
                             }}
                           />
                         ) : (
                           <div
                             className="font-CerFont text-[16px]"
                             dangerouslySetInnerHTML={{
-                              __html:
-                                activityDetail.descriptionTH.join("<br/>"),
+                              __html: activity?.descriptionTH
+                                ?.map((item) => item.text)
+                                .filter(Boolean)
+                                .join("<br/><br/>"),
                             }}
                           />
                         ))}
@@ -901,8 +835,8 @@ const ActivityDetails = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-4">
-                      {activityDetail &&
-                        activityDetail.included.map((item) => (
+                      {activity &&
+                        activity.included.map((item) => (
                           <div
                             key={item.id}
                             className="py-[24px] px-[16px] flex flex-col rounded-lg"
@@ -940,29 +874,36 @@ const ActivityDetails = () => {
                   </div>
 
                   <div
-                    className="py-[48px]"
+                    className="py-[60px]"
                     style={{ borderBottom: "solid 1px #dddddd" }}
                   >
                     {/* 1 */}
                     <div className="flex flex-row gap-4 mb-[24px]">
-                      {activityDetail && activityDetail.hostImage && (
+                      {activity && activity.hostImage && (
                         <img
-                          src={`/img/${id}/${activityDetail.hostImage}`}
+                          src={`/img/${activity.hostImage}`}
                           alt="Profile picture"
-                          className="w-14 h-14 rounded-full"
+                          className="w-24 h-24 rounded-full"
                         />
                       )}
                       <div className="flex flex-col">
-                        <div className="font-CerFont text-[22px] font-bold">
-                          {i18n.language === "en"
-                            ? activityDetail?.aboutHostHeaderEN
-                            : activityDetail?.aboutHostHeaderTH}
+                        <div className="font-CerFont text-[24px] font-bold">
+                          {i18n.language === "en" ? (
+                            <div
+                              className="font-CerFont text-[22px]"
+                              dangerouslySetInnerHTML={{
+                                __html: activity?.aboutHostHeaderEN
+                              }}
+                            />
+                          ) : (
+                            <div
+                              className="font-CerFont text-[22px]"
+                              dangerouslySetInnerHTML={{
+                                __html: activity?.aboutHostHeaderTH
+                              }}
+                            />
+                          )}
                         </div>
-                        {/* <div className="font-CerFont text-[14px] text-grayAirbnb">
-                          {i18n.language === "en"
-                            ? "Collaboration between Puen Deracharn Mini Zoo and HealWorld.me"
-                            : "ความร่วมมือระหว่าง สวนสัตว์เพื่อนเดรัจฉาน และ HealWorld.me"}
-                        </div> */}
                       </div>
                     </div>
                     {/* 2 */}
@@ -973,15 +914,14 @@ const ActivityDetails = () => {
                     </div>
                   </div> */}
                     <div className="flex flex-col">
-                      {activityDetail &&
-                        activityDetail.descriptionTH &&
+                      {activity &&
+                        activity.descriptionTH &&
                         (i18n.language === "en" ? (
                           <>
                             <div
                               className="font-CerFont text-[16px]"
                               dangerouslySetInnerHTML={{
-                                __html:
-                                  activityDetail?.aboutHostEN.join("<br/>"),
+                                __html: activity?.aboutHostEN.join("<br/>"),
                               }}
                             />
                           </>
@@ -990,8 +930,7 @@ const ActivityDetails = () => {
                             <div
                               className="font-CerFont text-[16px]"
                               dangerouslySetInnerHTML={{
-                                __html:
-                                  activityDetail?.aboutHostTH.join("<br/>"),
+                                __html: activity?.aboutHostTH.join("<br/>"),
                               }}
                             />
                           </>
@@ -1332,7 +1271,7 @@ const ActivityDetails = () => {
                   handlePaymentNavigation={handlePaymentNavigation}
                   formatTime={formatTime}
                   formatThaiDate={formatThaiDate}
-                  activityDetail={activityDetail}
+                  activityDetail={activity}
                 />
               )}
               {/* บรรทัดสุดท้าย bro */}
@@ -1905,7 +1844,6 @@ const FloatingBar = ({
               className="flex flex-col gap-5 p-4"
               style={{ border: "1px solid #dddddd" }}
             >
-              
               {/******************* ผู้ใหญ่ *******************/}
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
@@ -1938,7 +1876,7 @@ const FloatingBar = ({
                   </button>
                 </div>
               </div>
-              
+
               {/*******************  เด็ก ***********************/}
               {/* <div className="flex justify-between items-center">
                 <div className="flex flex-col">
