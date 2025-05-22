@@ -804,20 +804,14 @@ const ActivityDetails = () => {
                           <div
                             className="font-CerFont text-[16px]"
                             dangerouslySetInnerHTML={{
-                              __html: activity?.descriptionEN
-                                ?.map((item) => item.text)
-                                .filter(Boolean)
-                                .join("<br/><br/>"),
+                              __html: activity?.descriptionEN,
                             }}
                           />
                         ) : (
                           <div
                             className="font-CerFont text-[16px]"
                             dangerouslySetInnerHTML={{
-                              __html: activity?.descriptionTH
-                                ?.map((item) => item.text)
-                                .filter(Boolean)
-                                .join("<br/><br/>"),
+                              __html: activity?.descriptionTH,
                             }}
                           />
                         ))}
@@ -892,14 +886,14 @@ const ActivityDetails = () => {
                             <div
                               className="font-CerFont text-[22px]"
                               dangerouslySetInnerHTML={{
-                                __html: activity?.aboutHostHeaderEN
+                                __html: activity?.aboutHostHeaderEN,
                               }}
                             />
                           ) : (
                             <div
                               className="font-CerFont text-[22px]"
                               dangerouslySetInnerHTML={{
-                                __html: activity?.aboutHostHeaderTH
+                                __html: activity?.aboutHostHeaderTH,
                               }}
                             />
                           )}
