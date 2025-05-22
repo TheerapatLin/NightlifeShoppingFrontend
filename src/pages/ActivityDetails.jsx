@@ -789,7 +789,7 @@ const ActivityDetails = () => {
               {/* แบ่งเป็นสอง div */}
               <div
                 className="flex justify-between"
-                style={{ borderBottom: "solid 1px #dddddd" }}
+                style={{ borderBottom: "solid 1px #dddddd", color: "black" }}
               >
                 {/* ข้อมูลส่วนหน้าพื้นที่ 60 % */}
                 <div className="h-auto w-full lg:w-[60%]" style={{}}>
@@ -798,11 +798,15 @@ const ActivityDetails = () => {
                     style={{ borderBottom: "solid 1px #dddddd" }}
                   >
                     <br />
-                    <div className="font-CerFont text-[16px]">
+                    <div
+                      className="font-CerFont text-[16px]"
+                      style={{ color: "black" }}
+                    >
                       {activity?.descriptionTH &&
                         (i18n.language === "en" ? (
                           <div
                             className="font-CerFont text-[16px]"
+                            style={{ color: "black" }}
                             dangerouslySetInnerHTML={{
                               __html: activity?.descriptionEN,
                             }}
@@ -810,6 +814,7 @@ const ActivityDetails = () => {
                         ) : (
                           <div
                             className="font-CerFont text-[16px]"
+                            style={{ color: "black" }}
                             dangerouslySetInnerHTML={{
                               __html: activity?.descriptionTH,
                             }}
