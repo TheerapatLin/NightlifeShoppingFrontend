@@ -286,7 +286,7 @@ function VideotextnightlifeMobile() {
                     <img src="/img/logo_mingle.png" style={{ width: "100%" }} />
                   </b>
                   <br />
-                  Get New Friends,
+                  Meet New Friends,
                   <br />
                   Enjoy Good Vibes & Music!
                 </div>
