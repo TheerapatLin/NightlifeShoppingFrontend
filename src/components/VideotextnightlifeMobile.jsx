@@ -87,7 +87,7 @@ function VideotextnightlifeMobile() {
       style={{
         position: "relative",
         width: "100%",
-        height: "105vh",
+        height: "100.5vh",
       }}
     >
       <video
@@ -243,7 +243,7 @@ function VideotextnightlifeMobile() {
         }}
       >
         <div>
-          <img src="/img/home_header2_2.png" style={{ width: "90%" }} />
+          <img src="/img/home_header2_2.png" style={{ width: "70%" }} />
         </div>
         <div>
           <div
