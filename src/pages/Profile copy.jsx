@@ -3,7 +3,6 @@ import CalendarSchedule from "../components/CalendarSchedule";
 import ActivitiesForm from "../components/ActivitiesForm";
 import UserDeals from "../components/UserDeals";
 import UserEvents from "../components/UserEvents";
-import UserProfile from "../components/UserProfile";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 
@@ -71,9 +70,25 @@ function Profile() {
       <div>
         {selectedTab === "deals" && <UserDeals />}
 
-        {selectedTab === "events" && <UserEvents />}
-
-        {selectedTab === "profile" && <UserProfile />}
+        {selectedTab === "events" && (
+          <UserEvents />
+          // <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2 w-full">
+          //   <div className="w-full lg:w-[70%]">
+          //     <CalendarSchedule
+          //       onDateSelect={handleDateSelect}
+          //       events={events}
+          //       onEventClick={handleEventClick}
+          //     />
+          //   </div>
+          //   <div className="w-full lg:w-[30%] bg-white rounded-lg p-2 mt-2 lg:mt-0">
+          //     <ActivitiesForm
+          //       selectedDate={selectedDate}
+          //       selectedEvent={selectedEvent}
+          //       onClose={handleCloseForm}
+          //     />
+          //   </div>
+          // </div>
+        )}
       </div>
     </div>
   );

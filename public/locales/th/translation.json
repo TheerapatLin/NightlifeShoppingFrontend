@@ -1,5 +1,20 @@
 {
   "profile": {
+    "title": "ข้อมูลผู้ใช้",
+    "loading": "กำลังโหลด...",
+    "name": "ชื่อ",
+    "gender": {
+      "label": "เพศ",
+      "unspecified": "ไม่ระบุ",
+      "male": "ชาย",
+      "female": "หญิง",
+      "other": "อื่น ๆ"
+    },
+    "birthday": "วันเกิด",
+    "nationality": "สัญชาติ",
+    "nationalId": "รหัสประชาชน",
+    "email": "อีเมล",
+    "saveChanges": "บันทึกการแก้ไข",
     "expiredDealsHeader": "ดีล/คูปองที่หมดอายุ",
     "showExpiredDeals": "แสดงดีลและคูปองที่หมดอายุแล้ว",
     "purchasedDeals": "ดีล/คูปอง ของคุณ",

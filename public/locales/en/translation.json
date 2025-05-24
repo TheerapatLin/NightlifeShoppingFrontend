@@ -1,5 +1,20 @@
 {
     "profile": {
+        "title": "Profile",
+        "loading": "Loading...",
+        "name": "Name",
+        "gender": {
+            "label": "Gender",
+            "unspecified": "Unspecified",
+            "male": "Male",
+            "female": "Female",
+            "other": "Other"
+        },
+        "birthday": "Birthday",
+        "nationality": "Nationality",
+        "nationalId": "National ID",
+        "email": "Email",
+        "saveChanges": "Save Changes",
         "expiredDealsHeader": "Expired Deals/Coupons",
         "showExpiredDeals": "Show Expired Deals/Coupons",
         "purchasedDeals": "Your Deals/Coupons",
