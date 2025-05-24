@@ -165,11 +165,9 @@ export default function CompletePage() {
                   width: "30vw",
                 }}
               >
-                <div style={{ fontSize: "40px" }}>
+                <div style={{ fontSize: "32px" , color:'white' }}>
                   <Lottie options={defaultOptions} height={250} width={250} />
-                  ออร์เดอร์ได้รับการบันทึก
-                  <br />
-                  เรียบร้อยแล้ว
+                  Order Completed!
                 </div>
                 {/* <div style={{ fontSize: "18px" }}>
                   หมายเลขออเดอร์ <br />
@@ -187,7 +185,7 @@ export default function CompletePage() {
                     style={{ width: "300px" }}
                   >
                     <span className="text-sm font-semibold">
-                      กลับสู่หน้าแรก
+                      Back Home
                     </span>
                   </div>
                 </Link>

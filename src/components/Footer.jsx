@@ -2,8 +2,16 @@ import React from "react";
 import GooglePlay from "../img/google_play.png";
 import AppStore from "../img/app_store.png";
 import "../public/css/Footer.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function Footer() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleTestEventClick = () => {
+    navigate("/activityDetails/6831f00d7c0efc221fa46694");
+  };
+
   return (
     <footer style={{ padding: "0px", margin: "0px" }}>
       <center>
@@ -11,7 +19,7 @@ function Footer() {
           className="container"
           style={{
             margin: "0px",
-            width:'100vw',
+            width: "100vw",
             maxWidth: "100%",
             backgroundColor: "transparent",
             padding: "15px",
@@ -42,7 +50,8 @@ function Footer() {
               <p style={{ display: 'block', marginBlock: 20 }}>Mon - Sat 10 a.m. - 6 p.m.</p>
             </div>
           </div> */}
-          <div style={{color:'white'}}>
+          <div style={{ color: "white" }}>
+            <button onClick={handleTestEventClick}>HiddenGem</button>
             <p>&copy; 2024 Nightlife.run All rights reserved.</p>
           </div>
         </div>

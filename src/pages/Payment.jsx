@@ -14,12 +14,7 @@ import CompletePage from "./CompletePayment";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-// const stripePromise = loadStripe(
-//   "pk_test_51NigrKCQKredYD0SRv7ivWjWuiHQIxjb5OrykOyx1Zvu3xLWlS7T6yqyv03bF1QoRKF82MeckE6H8pmP0meRqFLp005UQtTW3j"
-// );
-const stripePromise = loadStripe(
-  "pk_live_51NigrKCQKredYD0SBwj7z0WPCQusOAMy6vCB10eLsuX0ij3oCaGdYYDaRZ1uKi0DkN0E4T7tJ6s2U7vh0wqwG4gQ007MTlWDhR"
-);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const Payment = () => {
   var isIntentLoading = false;
