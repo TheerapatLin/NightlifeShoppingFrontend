@@ -57,5 +57,16 @@
     },
     "auth": {
         "orLoginWith": "or log in with"
+    },
+    "venue": {
+        "type": "Venue Type",
+        "area": "Area",
+        "address": "Address",
+        "openMap": "Open Map",
+        "dressCode": "Dress Code",
+        "vibes": "Vibes",
+        "special": "Special",
+        "about": "About",
+        "bookNow": "Book Now"
     }
 }

@@ -59,7 +59,7 @@ function UserProfile() {
   if (!profile) return <div className="text-white text-center text-base">{t("profile.loading")}</div>;
 
   return (
-    <div className="max-w-xl mx-auto mt-4 p-4 space-y-4">
+    <div className="max-w-xl mx-auto mt-4 p-10 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-white">{t("profile.title")}</h2>
         <button onClick={() => setEditMode(!editMode)} className="bg-white text-black rounded p-1 border border-yellow-500">

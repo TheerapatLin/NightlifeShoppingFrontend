@@ -1,9 +1,11 @@
+// src/pages/InfoVenues.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 const PLACEHOLDER_IMG = "https://via.placeholder.com/300x300?text=No+Image";
-const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL; // <<==== ใช้ตัวเดียวกับ Home
+const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
 function formatPriceLevel(level) {
   if (!level || isNaN(level)) return "-";
@@ -14,6 +16,7 @@ function field(val) {
 }
 
 const InfoVenues = () => {
+  const { t, i18n } = useTranslation();
   const { venue_id } = useParams();
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +43,7 @@ const InfoVenues = () => {
           justifyContent: "center",
         }}
       >
-        Loading venue info...
+        {t("venue.loading")}
       </div>
     );
   }
@@ -56,17 +59,14 @@ const InfoVenues = () => {
           justifyContent: "center",
         }}
       >
-        Venue not found.
+        {t("venue.notFound")}
       </div>
     );
   }
 
-  // Data fallback
   const coverImage = venue.image?.[0] || PLACEHOLDER_IMG;
   const name = field(venue.name);
-  const priceLevel = venue.priceLevel
-    ? formatPriceLevel(venue.priceLevel)
-    : "-";
+  const priceLevel = venue.priceLevel ? formatPriceLevel(venue.priceLevel) : "-";
   const type = field(venue.type);
   const reviewStar = venue.reviewStar ?? "-";
   const reviewCount = venue.reviewCount ?? "-";
@@ -77,10 +77,9 @@ const InfoVenues = () => {
       ? `https://maps.google.com/maps?q=${venue.location.coordinates[1]},${venue.location.coordinates[0]}&output=embed`
       : "";
   const dressCode = field(venue.dressCode);
-  //const vibes = venue.vibes?.join(", ") || "-";  field(venue.dressCode)
   const vibes = field(venue.vibes) || "-";
   const bts = field(venue.nearestBTS || "-");
-  const description = venue.descriptionEN || venue.descriptionTH || "-";
+  const description = venue[`description${i18n.language.toUpperCase()}`] || "-";
   const gallery =
     Array.isArray(venue.gallery) && venue.gallery.length
       ? venue.gallery
@@ -92,7 +91,6 @@ const InfoVenues = () => {
       ? venue.artistRosters
       : [];
   const menuImage = venue.menuImage || "";
-  //const tags = venue.tags || [];
   const tags = venue.special || "";
 
   return (
@@ -113,23 +111,18 @@ const InfoVenues = () => {
           display: "block",
         }}
         className="venue-banner"
-      >
-        {/* Banner จะถูกเปลี่ยนภาพผ่าน CSS media query */}
-      </div>
+      />
       <style>
         {`
           @media (max-width: 650px) {
         .venue-banner {
-         background-image: url(${
-           venue.shortBannerImg || coverImage
-         }) !important;
+         background-image: url(${venue.shortBannerImg || coverImage}) !important;
           height: 300px !important;
         }
         }
       `}
       </style>
 
-      {/* Main Info Grid */}
       <div
         className="container-main"
         style={{
@@ -144,7 +137,6 @@ const InfoVenues = () => {
           zIndex: 1,
         }}
       >
-        {/* Left */}
         <div style={{ flex: 2, minWidth: 0 }}>
           <div style={{ color: "#ccc", fontSize: 14, marginBottom: 8 }}>
             {area} &nbsp;&gt;&nbsp; <b>{name}</b>
@@ -169,29 +161,27 @@ const InfoVenues = () => {
               fontSize: 15,
             }}
           >
-            <div>Venue Type:</div>
+            <div>{t("venue.type")}:</div>
             <div>{type}</div>
-            <div>Area:</div>
+            <div>{t("venue.area")}:</div>
             <div>{area}</div>
-            <div>Address:</div>
+            <div>{t("venue.address")}:</div>
             <a href={address}>Open Link</a>
-            <div>Dress Code:</div>
+            <div>{t("venue.dressCode")}:</div>
             <div>{dressCode}</div>
-            <div>Vibes:</div>
+            <div>{t("venue.vibes")}:</div>
             <div>{vibes}</div>
-            <div>Special:</div>
+            <div>{t("venue.special")}:</div>
             <div>{tags}</div>
-            {/* <div>{tags.length ? tags.join(", ") : "-"}</div> */}
           </div>
           <div style={{ margin: "30px 0 0" }}>
-            <h3>About {name}</h3>
+            <h3>{t("venue.about")} {name}</h3>
             <div
               style={{ color: "#ccc", maxWidth: 600 }}
               dangerouslySetInnerHTML={{ __html: description }}
             />
           </div>
         </div>
-        {/* Right */}
         <div
           style={{
             flex: 1,
@@ -202,53 +192,28 @@ const InfoVenues = () => {
             gap: 18,
           }}
         >
-          {venue.isBookable ? (
-            // ถ้า bookable จริง กดแล้วไม่ต้องทำอะไร (หรือใส่ onClick ทีหลัง)
-            <button
-              type="button"
-              style={{
-                background: "#2269FF",
-                color: "#fff",
-                fontWeight: 700,
-                border: 0,
-                borderRadius: 8,
-                padding: "12px 0",
-                fontSize: 20,
-                marginBottom: 10,
-                cursor: "pointer",
-                width: "100%",
-              }}
-              // onClick={() => ... } // ใส่ฟังก์ชันจองจริงทีหลัง
-            >
-              Book Now
-            </button>
-          ) : (
-            // ถ้า unbookable เป็นลิงก์ออกไป แต่หน้าตาเหมือนปุ่ม
-            <a
-              //href={venue.linkWhenUnbookable || "#"}
-              href="/activityDetails/67c595419a49e9a1544f0b36"
-              target="_self"
-              rel="noopener noreferrer"
-              style={{
-                display: "block",
-                background: "#2269FF", // ให้เหมือนปุ่ม
-                color: "#fff",
-                fontWeight: 700,
-                border: 0,
-                borderRadius: 8,
-                padding: "12px 0",
-                fontSize: 20,
-                marginBottom: 10,
-                cursor: "pointer",
-                textAlign: "center",
-                width: "100%",
-                textDecoration: "none",
-              }}
-            >
-              Book Now
-            </a>
-          )}
-          {/* Google Map */}
+          <a
+            href={venue.linkWhenUnbookable || "#"}
+            target="_self"
+            rel="noopener noreferrer"
+            style={{
+              display: "block",
+              background: "#2269FF",
+              color: "#fff",
+              fontWeight: 700,
+              border: 0,
+              borderRadius: 8,
+              padding: "12px 0",
+              fontSize: 20,
+              marginBottom: 10,
+              cursor: "pointer",
+              textAlign: "center",
+              width: "100%",
+              textDecoration: "none",
+            }}
+          >
+            {t("venue.bookNow")}
+          </a>
           <div
             style={{
               background: "#191c22",
@@ -273,13 +238,12 @@ const InfoVenues = () => {
               ></iframe>
             ) : (
               <div style={{ color: "#888", padding: 28, textAlign: "center" }}>
-                No Map
+                {t("venue.noMap")}
               </div>
             )}
           </div>
         </div>
       </div>
-      {/* Responsive BREAKPOINT */}
       <style>
         {`
         @media (max-width: 900px) {
@@ -298,7 +262,6 @@ const InfoVenues = () => {
         }
         `}
       </style>
-      {/* ----------- Gallery Section ----------- */}
       <div
         className="container-gallery"
         style={{
@@ -329,11 +292,10 @@ const InfoVenues = () => {
           <div
             style={{ gridColumn: "1/-1", color: "#aaa", textAlign: "center" }}
           >
-            No images
+            {t("venue.noImages")}
           </div>
         )}
       </div>
-      {/* ----------- DJ/Artist Rosters ----------- */}
       {artists.length > 0 && (
         <div
           style={{
@@ -343,7 +305,7 @@ const InfoVenues = () => {
           }}
         >
           <h2 style={{ fontSize: 24, margin: "32px 0 14px" }}>
-            DJ/Artist Rosters
+            {t("venue.artistRoster")}
           </h2>
           <div
             style={{
@@ -370,46 +332,6 @@ const InfoVenues = () => {
           </div>
         </div>
       )}
-      
-      {/* ----------- Menu ----------- */}
-      {/* <div
-        style={{
-          maxWidth: 1280,
-          margin: "44px auto 0",
-          padding: "0 5vw",
-        }}
-      >
-        <h2 style={{ fontSize: 24, margin: "32px 0 14px" }}>Menu</h2>
-        {menuImage ? (
-          <img
-            src={menuImage}
-            alt="Menu"
-            style={{
-              width: 140,
-              borderRadius: 12,
-              objectFit: "contain",
-              background: "#fff",
-              aspectRatio: "1/1",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 140,
-              height: 140,
-              borderRadius: 12,
-              background: "#181818",
-              color: "#888",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            No menu image
-          </div>
-        )}
-      </div> */}
-      {/* <div style={{ height: 80 }} /> */}
     </div>
   );
 };
