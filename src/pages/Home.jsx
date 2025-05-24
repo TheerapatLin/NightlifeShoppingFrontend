@@ -297,6 +297,7 @@ function Home() {
         intervalTime={3000}
         bottomPadding={20}
         cardWidth={300}
+        showPrevNextButtons={true}
         detailHeight={50}
         ratio={1.6}
         isStartAtRim={true}
@@ -451,7 +452,7 @@ function Home() {
       </div>
 
       {/***************** Test Banner ****************/}
-      <div className="container" style={{ marginTop: 50, maxWidth: "90%" }}>
+      {/* <div className="container" style={{ marginTop: 50, maxWidth: "90%" }}>
         <div
           style={{
             width: "100%",
@@ -479,7 +480,7 @@ function Home() {
           console.log(data);
           navigate(`/info_event`, { state: { eventData: data } });
         }}
-      />
+      /> */}
     </div>
   );
 }
