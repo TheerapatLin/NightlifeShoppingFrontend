@@ -36,9 +36,20 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 //import ElfsightWidget from "../views/ElfsightWidget";
 import useSyncDayjsLocale from "../components/useSyncDayjsLocale";
 import useEmblaCarousel from "embla-carousel-react";
+import EmblaCarousel from "./EmblaCarousel";
+import "./base.css";
+import "./sandbox.css";
+import "./embla.css";
 
 dayjs.locale("th");
 
+const OPTIONS = {};
+const SLIDE_COUNT = 5;
+const SLIDES = [
+  { id: 1, src: "https://picsum.photos/id/1015/600/300" },
+  { id: 2, src: "https://picsum.photos/id/1016/600/300" },
+  { id: 3, src: "https://picsum.photos/id/1018/600/300" },
+];
 const inlineStyles = {
   datePicker: {
     cursor: "pointer",
@@ -252,18 +263,7 @@ const ActivityDetails = () => {
       }
     };
 
-    const fetchActivityDetail = async () => {
-      try {
-        const response = await fetch(`/data/activity/${id}.json`);
-        const data = await response.json();
-        setActivityDetail(data);
-      } catch (error) {
-        console.error("Error fetching activity detail:", error);
-      }
-    };
-
     fetchActivityData();
-    //fetchActivityDetail();
   }, [id]);
 
   const formatTime = (timeStr) => {
@@ -583,88 +583,6 @@ const ActivityDetails = () => {
     );
   };
 
-  // Mobile Image Carousel
-  const MobileImageCarousel = ({ activity }) => {
-    const images = activity?.image || [];
-
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-    const [selectedIndex, setSelectedIndex] = useState(0);
-
-    const onSelect = useCallback(() => {
-      if (!emblaApi) return;
-      setSelectedIndex(emblaApi.selectedScrollSnap());
-    }, [emblaApi]);
-
-    useEffect(() => {
-      if (!emblaApi) return;
-      emblaApi.on("select", onSelect);
-      onSelect();
-    }, [emblaApi, onSelect]);
-
-    useEffect(() => {
-      if (!emblaApi) return;
-      const interval = setInterval(() => {
-        emblaApi.scrollNext();
-      }, 4000);
-      return () => clearInterval(interval);
-    }, [emblaApi]);
-
-    if (!activity || !images.length) {
-      return <div className="text-center py-10 text-gray-400">ไม่มีภาพ</div>;
-    }
-
-    return (
-      <div className="relative w-screen overflow-hidden">
-        <div ref={emblaRef} className="overflow-hidden">
-          <div className="flex">
-            {images.map((img, idx) => (
-              <div
-                key={idx}
-                className="min-w-full shrink-0 grow-0 basis-full h-[300px]"
-              >
-                <img
-                  src={img.fileName}
-                  alt={`Slide ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Dots */}
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2 z-10">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => emblaApi && emblaApi.scrollTo(index)}
-              style={{ width: "8px", height: "8px",padding:'0px',margin:'2px' }} // 👈 ลดขนาด dot
-              className={`rounded-full transition ${
-                selectedIndex === index ? "bg-white" : "bg-white/50"
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Arrows */}
-        <button
-          onClick={() => emblaApi?.scrollPrev()}
-          style={{color:'white',fontSize:'20px'}}
-          className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/10 p-2 rounded-full z-10"
-        >
-          &lt;
-        </button>
-        <button
-          onClick={() => emblaApi?.scrollNext()}
-          style={{color:'white',fontSize:'20px'}}
-          className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/10 p-2 rounded-full z-10"
-        >
-          &gt;
-        </button>
-      </div>
-    );
-  };
-
   // Desktop Image Grid
   const DesktopImageGrid = () => (
     <div className="grid grid-rows-2 grid-flow-col gap-2 pt-[32px] max-h-[500px]">
@@ -716,14 +634,16 @@ const ActivityDetails = () => {
         className="mt-[0px] md:mt-[20px] flex justify-center"
         style={{ paddingTop: "60px" }}
       >
-        <div className="bg-white w-full max-w-7xl rounded-none md:rounded-xl px-4 md:px-10 pb-8 md:py-8">
+        <div className="bg-white w-full max-w-7xl rounded-none md:rounded-xl px-0 md:px-10 pb-8 md:py-8">
           {isMobile && (
-            <button
-              onClick={handleGoBack}
-              className="bg-black flex justify-center rounded-full my-[10px]"
-            >
-              <IoChevronBackOutline size={20} style={{ color: "white" }} />
-            </button>
+            <div className="px-10">
+              <button
+                onClick={handleGoBack}
+                className="bg-black flex justify-center rounded-full my-[10px]"
+              >
+                <IoChevronBackOutline size={20} style={{ color: "white" }} />
+              </button>
+            </div>
           )}
 
           {activity ? (
@@ -732,7 +652,7 @@ const ActivityDetails = () => {
               {isMobile && (
                 <>
                   <span
-                    className="text-[26px] font-semibold font-CerFont mb-2"
+                    className="text-[26px] font-semibold font-CerFont mb-2  px-5"
                     style={{ lineHeight: "30px" }}
                   >
                     {i18n.language === "en"
@@ -748,7 +668,7 @@ const ActivityDetails = () => {
                         }`}{" "}
                   </span>
 
-                  <div className="flex justify-between mb-4">
+                  <div className="flex justify-between mb-4 px-10">
                     <a
                       href={activity?.location?.googleMapUrl ?? ""}
                       target="_blank"
@@ -780,15 +700,22 @@ const ActivityDetails = () => {
                   </div>
                 </>
               )}
-              {isMobile && (
-                <div className="-mx-4 sm:mx-0 w-screen max-w-none">
-                  <MobileImageCarousel activity={activity} />
-                </div>
+              <div
+                style={{ width: "200px" }}
+                //className="-mx-4 sm:mx-0 w-screen max-w-none"
+              ></div>
+              {/* <MobileImageCarousel activity={activity} /> */}
+
+              {isMobile && activity?.image && (
+                <EmblaCarousel
+                  slides={activity.image}
+                  options={{ loop: true }}
+                />
               )}
               {/* Desktop Layout */}
               {!isMobile && (
                 <>
-                  <span className="text-[26px] font-semibold font-CerFont mb-2">
+                  <span className="text-[26px] font-semibold font-CerFont mb-2 ">
                     {i18n.language === "en"
                       ? `${activity?.nameEn}${
                           activity?.minorNameEn?.trim()
@@ -838,7 +765,7 @@ const ActivityDetails = () => {
 
               {/* แบ่งเป็นสอง div */}
               <div
-                className="flex justify-between"
+                className="flex justify-between  px-5"
                 style={{ borderBottom: "solid 1px #dddddd", color: "black" }}
               >
                 {/* ข้อมูลส่วนหน้าพื้นที่ 60 % */}
