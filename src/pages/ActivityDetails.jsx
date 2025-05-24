@@ -37,7 +37,6 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import useSyncDayjsLocale from "../components/useSyncDayjsLocale";
 import useEmblaCarousel from "embla-carousel-react";
 import EmblaCarousel from "./EmblaCarousel";
-import "./base.css";
 import "./sandbox.css";
 import "./embla.css";
 
