@@ -111,7 +111,7 @@ function RouteContainer() {
           setTimeout(() => {
             localStorage.clear();
             window.location.reload(true);
-          }, 1500);
+          }, 1100);
         } else {
           localStorage.setItem("appVersion", version);
         }
