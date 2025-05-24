@@ -74,6 +74,31 @@ const EventSlider4 = ({
     padding: "10px",
     zIndex: "2",
   };
+  const touchStartX = useRef(null);
+  const touchEndX = useRef(null);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.changedTouches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const delta = touchStartX.current - touchEndX.current;
+    if (Math.abs(delta) < 50) return; // ปาดน้อยกว่า 50px ไม่ทำอะไร
+
+    if (delta > 0) {
+      // ปาดซ้าย
+      nextEvent();
+    } else {
+      // ปาดขวา
+      prevEvent();
+    }
+  };
 
   // ======== Normalize data for gallery (defensive, no error if missing field) ========
   // ใช้ gallery จาก image ถ้าไม่มี gallery (รองรับข้อมูลหลากหลายรูปแบบ)
@@ -195,6 +220,8 @@ const EventSlider4 = ({
   return (
     <div
       className="container eventslide"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       style={{
         maxWidth: maxWidth,
         width: width,
