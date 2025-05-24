@@ -112,6 +112,30 @@ function RouteContainer() {
   const { width } = useWindowSize();
   const isActivityDetails = location.pathname.startsWith("/activityDetails/");
   const isPayment = location.pathname === "/payment";
+
+  useEffect(() => {
+    const checkVersion = async () => {
+      // alert('ss');
+      try {
+        const res = await fetch("/meta.json", { cache: "no-cache" });
+        const { version } = await res.json();
+        const currentVersion = localStorage.getItem("appVersion");
+
+        if (currentVersion && currentVersion !== version) {
+          console.log("🔄 New version detected. Reloading...");
+          localStorage.clear(); // Optional: ล้างข้อมูล localStorage
+          window.location.reload(true); // Force reload (hard refresh)
+        } else {
+          localStorage.setItem("appVersion", version);
+        }
+      } catch (err) {
+        console.warn("⚠️ Version check failed:", err);
+      }
+    };
+
+    checkVersion();
+  }, [location.pathname]);
+
   return (
     <>
       <TopNavigation duration=".6s" />
@@ -166,7 +190,7 @@ function RouteContainer() {
             }
           />
           <Route
-            path="/info_venues/:venue_id" 
+            path="/info_venues/:venue_id"
             element={
               <MotionPage>
                 <InfoVenues />
