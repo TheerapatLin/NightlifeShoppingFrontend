@@ -56,12 +56,12 @@ function UserProfile() {
     }
   };
 
-  if (!profile) return <div className="text-white text-center">{t("profile.loading")}</div>;
+  if (!profile) return <div className="text-white text-center text-base">{t("profile.loading")}</div>;
 
   return (
     <div className="max-w-xl mx-auto mt-4 p-4 space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-white">{t("profile.title")}</h2>
+        <h2 className="text-2xl font-bold text-white">{t("profile.title")}</h2>
         <button onClick={() => setEditMode(!editMode)} className="bg-white text-black rounded p-1 border border-yellow-500">
           <Pencil size={20} />
         </button>
@@ -96,7 +96,7 @@ function UserProfile() {
 
       {editMode && (
         <div className="text-center">
-          <button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          <button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-base">
             {t("profile.saveChanges")}
           </button>
         </div>
@@ -119,15 +119,15 @@ function Field({ label, name, value, onChange, editable, type = "text", options 
   };
 
   return (
-    <div className="mb-2">
-      <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">{label}</label>
+    <div className="mb-3">
+      <label className="block text-sm text-gray-300 uppercase tracking-wide mb-1">{label}</label>
       {editable ? (
         type === "select" ? (
           <select
             name={name}
             value={value}
             onChange={onChange}
-            className="w-full bg-white text-black px-2 py-1 rounded-none border border-gray-400"
+            className="w-full bg-white text-black px-3 py-2 rounded-none border border-gray-400 text-base"
           >
             {options.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -141,11 +141,11 @@ function Field({ label, name, value, onChange, editable, type = "text", options 
             name={name}
             value={value}
             onChange={onChange}
-            className="w-full bg-white text-black px-2 py-1 rounded-none border border-gray-400"
+            className="w-full bg-white text-black px-3 py-2 rounded-none border border-gray-400 text-base"
           />
         )
       ) : (
-        <div className="text-white text-sm font-medium">
+        <div className="text-white text-base font-medium">
           {type === "date" ? formatDate(value) : value || "-"}
         </div>
       )}
