@@ -29,6 +29,12 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [hasUserDeals, setHasUserDeals] = useState(false);
+  const [isDealPromptVisible, setIsDealPromptVisible] = useState(false);
+  const [hidePromptTimer, setHidePromptTimer] = useState(null);
+  const [isPromptExpanded, setIsPromptExpanded] = useState(true);
+  const isAtThePageThatShowsDeal =
+    location.pathname === "/profile" ||
+    location.pathname.startsWith("/activityDetails");
 
   const styles = {
     menuItem: {
@@ -64,6 +70,34 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
     i18n.changeLanguage(lng);
     localStorage.setItem("language", lng);
   };
+
+  const expandPromptWithTimeout = () => {
+    setIsPromptExpanded(true);
+
+    if (hidePromptTimer) clearTimeout(hidePromptTimer);
+
+    const timer = setTimeout(() => {
+      // ✅ ปล่อยให้ DOM มีเวลาคิด แล้วค่อย animate
+      requestAnimationFrame(() => {
+        setIsPromptExpanded(false);
+      });
+    }, 4000);
+
+    setHidePromptTimer(timer);
+  };
+
+  useEffect(() => {
+    if (hasUserDeals && isLoggedIn && !isAtThePageThatShowsDeal) {
+      setIsDealPromptVisible(true);
+      setIsPromptExpanded(true);
+
+      const timer = setTimeout(() => {
+        setIsPromptExpanded(false); // shrink after 4s
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [hasUserDeals, isLoggedIn, isAtThePageThatShowsDeal]);
 
   useEffect(() => {
     const fetchUserDeals = async () => {
@@ -126,9 +160,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
       updateCurrentPage("profile", 7);
     }
   }, [location.pathname]);
-  const isAtThePageThatShowsDeal =
-    location.pathname === "/profile" ||
-    location.pathname.startsWith("/activityDetails");
+
   return (
     <>
       <div style={{ zIndex: "10000000" }}>
@@ -406,21 +438,35 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
           </div>
         )}
       </div>
-      {windowSize.width <= 768 && (
+      {windowSize.width <= 768 && isDealPromptVisible && (
         <div
-          onClick={() => navigate("/profile?tab=userdeal")}
+          onClick={() => {
+            if (!isPromptExpanded) {
+              expandPromptWithTimeout(); // ✅ ขยายและเริ่มนับใหม่
+            } else {
+              if (hidePromptTimer) clearTimeout(hidePromptTimer); // ยกเลิกก่อน navigate
+              navigate("/profile?tab=userdeal");
+            }
+          }}
           style={{
             position: "fixed",
             bottom: "20px",
             right: 0,
-            transform:
-              hasUserDeals && isLoggedIn && !isAtThePageThatShowsDeal
-                ? "translateX(0%)"
-                : "translateX(120%)",
+            transform: `
+    ${
+      hasUserDeals && isLoggedIn && !isAtThePageThatShowsDeal
+        ? isPromptExpanded
+          ? "translateX(0%) scaleX(1)"
+          : "translateX(75%) scaleX(1)"
+        : "translateX(120%) scaleX(1)"
+    }
+  `,
+            transformOrigin: "right center", // 🔥 หดจากด้านขวา
             transition: "transform 0.4s ease",
+            willChange: "transform",
             backgroundColor: "white",
             color: "black",
-            padding: "10px 16px",
+            padding: "10px 16px", // ✅ ไม่ต้องเปลี่ยนขนาด padding
             borderTopRightRadius: 0,
             borderBottomRightRadius: 0,
             borderTopLeftRadius: "50px",
@@ -429,9 +475,18 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
             fontSize: "14px",
             fontWeight: "bold",
             zIndex: 9999,
+            whiteSpace: "nowrap",
           }}
         >
-          🎟 {t("profile.purchasedDeals")}
+          🎟{" "}
+          <span
+            style={{
+              opacity: isPromptExpanded ? 1 : 0,
+              transition: "opacity 0.3s ease",
+            }}
+          >
+            {t("profile.purchasedDeals")}
+          </span>
         </div>
       )}
     </>
