@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
@@ -584,80 +584,40 @@ const ActivityDetails = () => {
   };
 
   // Mobile Image Carousel
-  const MobileImageCarousel = ({ activity }) => {
-    const images = activity?.image || [];
-
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-    const [selectedIndex, setSelectedIndex] = useState(0);
-
-    const scrollTo = useCallback(
-      (index) => emblaApi && emblaApi.scrollTo(index),
-      [emblaApi]
-    );
-
-    const onSelect = useCallback(() => {
-      if (!emblaApi) return;
-      setSelectedIndex(emblaApi.selectedScrollSnap());
-    }, [emblaApi]);
-
-    useEffect(() => {
-      if (!emblaApi) return;
-      emblaApi.on("select", onSelect);
-      onSelect();
-    }, [emblaApi, onSelect]);
-
-    if (images.length === 0) {
-      return <div className="text-center py-10 text-gray-500">ไม่มีภาพ</div>;
-    }
-
-    return (
-      <div className="relative w-full overflow-hidden">
-        <div className="embla" ref={emblaRef}>
-          <div className="embla__container flex">
-            {images.map((img, idx) => (
-              <div
-                key={idx}
-                className="embla__slide min-w-full h-[300px] flex-shrink-0"
-              >
-                <img
-                  src={img.fileName}
-                  alt={`Slide ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Dots */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
-          {images.map((_, index) => (
+  const MobileImageCarousel = () => (
+    <div className="relative w-full h-[300px]">
+      <>
+        <img
+          src={`${activity?.image?.[currentImageIndex].fileName}`}
+          alt={`Image ${currentImageIndex + 1}`}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+          {Array.from({ length: 5 }).map((_, index) => (
             <button
               key={index}
-              onClick={() => scrollTo(index)}
-              className={`w-2 h-2 rounded-full transition ${
-                selectedIndex === index ? "bg-white" : "bg-white/50"
+              className={`w-2 h-2 rounded-full ${
+                index === currentImageIndex ? "bg-white" : "bg-white/50"
               }`}
+              onClick={() => setCurrentImageIndex(index)}
             />
           ))}
         </div>
-
-        {/* Arrow buttons */}
         <button
-          onClick={() => emblaApi && emblaApi.scrollPrev()}
-          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full z-10"
+          onClick={handlePrevImage}
+          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full"
         >
-          &lt;
+          <span className="text-lg">&lt;</span> {/* ลูกศรซ้าย */}
         </button>
         <button
-          onClick={() => emblaApi && emblaApi.scrollNext()}
-          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full z-10"
+          onClick={handleNextImage}
+          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full"
         >
-          &gt;
+          <span className="text-lg">&gt;</span> {/* ลูกศรขวา */}
         </button>
-      </div>
-    );
-  };
+      </>
+    </div>
+  );
 
   // Desktop Image Grid
   const DesktopImageGrid = () => (
@@ -772,13 +732,10 @@ const ActivityDetails = () => {
                     </div>
                   </div> */}
                   </div>
+                  <MobileImageCarousel />
                 </>
               )}
-              {isMobile && (
-                <>
-                  <MobileImageCarousel activity={activity} />
-                </>
-              )}
+
               {/* Desktop Layout */}
               {!isMobile && (
                 <>
