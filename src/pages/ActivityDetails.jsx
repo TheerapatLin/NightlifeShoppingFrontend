@@ -590,11 +590,6 @@ const ActivityDetails = () => {
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    const scrollTo = useCallback(
-      (index) => emblaApi && emblaApi.scrollTo(index),
-      [emblaApi]
-    );
-
     const onSelect = useCallback(() => {
       if (!emblaApi) return;
       setSelectedIndex(emblaApi.selectedScrollSnap());
@@ -606,18 +601,26 @@ const ActivityDetails = () => {
       onSelect();
     }, [emblaApi, onSelect]);
 
-    if (images.length === 0) {
-      return <div className="text-center py-10 text-gray-500">ไม่มีภาพ</div>;
+    useEffect(() => {
+      if (!emblaApi) return;
+      const interval = setInterval(() => {
+        emblaApi.scrollNext();
+      }, 4000);
+      return () => clearInterval(interval);
+    }, [emblaApi]);
+
+    if (!activity || !images.length) {
+      return <div className="text-center py-10 text-gray-400">ไม่มีภาพ</div>;
     }
 
     return (
-      <div className="relative w-full overflow-hidden">
-        <div className="embla" ref={emblaRef}>
-          <div className="embla__container flex">
+      <div className="relative w-screen overflow-hidden">
+        <div ref={emblaRef} className="overflow-hidden">
+          <div className="flex">
             {images.map((img, idx) => (
               <div
                 key={idx}
-                className="embla__slide min-w-full h-[300px] flex-shrink-0"
+                className="min-w-full shrink-0 grow-0 basis-full h-[300px]"
               >
                 <img
                   src={img.fileName}
@@ -630,28 +633,31 @@ const ActivityDetails = () => {
         </div>
 
         {/* Dots */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
+        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2 z-10">
           {images.map((_, index) => (
             <button
               key={index}
-              onClick={() => scrollTo(index)}
-              className={`w-2 h-2 rounded-full transition ${
+              onClick={() => emblaApi && emblaApi.scrollTo(index)}
+              style={{ width: "8px", height: "8px",padding:'0px',margin:'2px' }} // 👈 ลดขนาด dot
+              className={`rounded-full transition ${
                 selectedIndex === index ? "bg-white" : "bg-white/50"
               }`}
             />
           ))}
         </div>
 
-        {/* Arrow buttons */}
+        {/* Arrows */}
         <button
-          onClick={() => emblaApi && emblaApi.scrollPrev()}
-          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full z-10"
+          onClick={() => emblaApi?.scrollPrev()}
+          style={{color:'white',fontSize:'20px'}}
+          className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/10 p-2 rounded-full z-10"
         >
           &lt;
         </button>
         <button
-          onClick={() => emblaApi && emblaApi.scrollNext()}
-          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full z-10"
+          onClick={() => emblaApi?.scrollNext()}
+          style={{color:'white',fontSize:'20px'}}
+          className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/10 p-2 rounded-full z-10"
         >
           &gt;
         </button>
