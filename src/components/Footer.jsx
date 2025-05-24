@@ -51,8 +51,7 @@ function Footer() {
             </div>
           </div> */}
           <div style={{ color: "white" }}>
-            <button onClick={handleTestEventClick}>HiddenGem</button>
-            <p>&copy; 2024 Nightlife.run All rights reserved.</p>
+            <p onClick={handleTestEventClick} >&copy; 2024 Nightlife.run All rights reserved.</p>
           </div>
         </div>
       </center>

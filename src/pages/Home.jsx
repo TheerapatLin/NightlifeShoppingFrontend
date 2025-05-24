@@ -427,7 +427,7 @@ function Home() {
       </div>
 
       {/***************** Test Banner ****************/}
-      <div className="container" style={{ marginTop: 70, maxWidth: "90%" }}>
+      {/* <div className="container" style={{ marginTop: 70, maxWidth: "90%" }}>
         <div
           style={{
             width: "100%",
@@ -449,7 +449,7 @@ function Home() {
           src="img/testbanner1.jpg"
           style={{ width: "100%", borderRadius: "10px" }}
         ></img>
-      </div>
+      </div> */}
 
       {/***************** Test Banner ****************/}
       {/* <div className="container" style={{ marginTop: 50, maxWidth: "90%" }}>
