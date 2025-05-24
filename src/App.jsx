@@ -112,7 +112,8 @@ function RouteContainer() {
   const { width } = useWindowSize();
   const isActivityDetails = location.pathname.startsWith("/activityDetails/");
   const isPayment = location.pathname === "/payment";
-
+  const [showReloadNotice, setShowReloadNotice] = useState(false);
+  
   useEffect(() => {
     const checkVersion = async () => {
       // alert('ss');
@@ -123,9 +124,11 @@ function RouteContainer() {
 
         if (currentVersion && currentVersion !== version) {
           console.log("🔄 New version detected. Reloading...");
-          alert("🔄 New version detected. Reloading...");
-          localStorage.clear(); // Optional: ล้างข้อมูล localStorage
-          window.location.reload(true); // Force reload (hard refresh)
+          setShowReloadNotice(true);
+          setTimeout(() => {
+            localStorage.clear();
+            window.location.reload(true);
+          }, 4000); // รอ 4 วินาทีแล้ว reload
         } else {
           localStorage.setItem("appVersion", version);
         }
