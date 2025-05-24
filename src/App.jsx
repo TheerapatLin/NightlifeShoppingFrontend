@@ -1,5 +1,4 @@
 // App.jsx
-
 import {
   BrowserRouter as Router,
   Routes,
@@ -16,7 +15,6 @@ import Profile from "./pages/Profile";
 import ActivityDetails from "./pages/ActivityDetails";
 import Payment from "./pages/Payment";
 import CompletePage from "./pages/CompletePayment";
-
 import Event from "./views/Event";
 import Nightclub from "./views/ManageProfile";
 import Venues from "./views/Venues";
@@ -37,19 +35,14 @@ import MyBooking from "./views/MY_BOOKING";
 import MyCoin from "./views/MY_COIN";
 import React from "react";
 import { Elements } from "@stripe/react-stripe-js";
-
 import Videotextnightlife from "../src/components/Videotextnightlife";
 import VideotextnightlifeMobile from "../src/components/VideotextnightlifeMobile";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 import { loadStripe } from "@stripe/stripe-js";
 import { AuthProvider } from "./context/AuthContext";
-
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
-// const stripePromise = loadStripe(
-//   "pk_test_51NigrKCQKredYD0SRv7ivWjWuiHQIxjb5OrykOyx1Zvu3xLWlS7T6yqyv03bF1QoRKF82MeckE6H8pmP0meRqFLp005UQtTW3j"
-// );
 const stripePromise = loadStripe(
   "pk_live_51NigrKCQKredYD0SBwj7z0WPCQusOAMy6vCB10eLsuX0ij3oCaGdYYDaRZ1uKi0DkN0E4T7tJ6s2U7vh0wqwG4gQ007MTlWDhR"
 );
@@ -87,20 +80,13 @@ const MotionPage = ({ children }) => {
 };
 
 function useWindowSize() {
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-  });
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth });
 
   useEffect(() => {
     function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-      });
+      setWindowSize({ width: window.innerWidth });
     }
-
     window.addEventListener("resize", handleResize);
-
-    // Cleanup
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -110,13 +96,10 @@ function useWindowSize() {
 function RouteContainer() {
   const location = useLocation();
   const { width } = useWindowSize();
-  const isActivityDetails = location.pathname.startsWith("/activityDetails/");
-  const isPayment = location.pathname === "/payment";
   const [showReloadNotice, setShowReloadNotice] = useState(false);
-  
+
   useEffect(() => {
     const checkVersion = async () => {
-      // alert('ss');
       try {
         const res = await fetch("/meta.json", { cache: "no-cache" });
         const { version } = await res.json();
@@ -128,7 +111,7 @@ function RouteContainer() {
           setTimeout(() => {
             localStorage.clear();
             window.location.reload(true);
-          }, 4000); // รอ 4 วินาทีแล้ว reload
+          }, 2000);
         } else {
           localStorage.setItem("appVersion", version);
         }
@@ -136,12 +119,44 @@ function RouteContainer() {
         console.warn("⚠️ Version check failed:", err);
       }
     };
-
     checkVersion();
   }, [location.pathname]);
 
   return (
     <>
+      {showReloadNotice && (
+        <>
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "rgba(255, 255, 255, 0.8)",
+              zIndex: 99999998,
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              background: "#222",
+              color: "#fff",
+              padding: "5px 15px",
+              borderRadius: 10,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+              zIndex: 99999999,
+              fontSize: 16,
+              textAlign: "center",
+            }}
+          >
+            🔄 Website updated!<br/>Reloading...
+          </div>
+        </>
+      )}
       <TopNavigation duration=".6s" />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
