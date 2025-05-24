@@ -775,9 +775,9 @@ const ActivityDetails = () => {
                 </>
               )}
               {isMobile && (
-                <>
+                <div className="-mx-4 sm:mx-0 w-screen max-w-none">
                   <MobileImageCarousel activity={activity} />
-                </>
+                </div>
               )}
               {/* Desktop Layout */}
               {!isMobile && (
