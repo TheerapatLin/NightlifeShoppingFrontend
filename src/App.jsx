@@ -123,6 +123,7 @@ function RouteContainer() {
 
         if (currentVersion && currentVersion !== version) {
           console.log("🔄 New version detected. Reloading...");
+          alert("🔄 New version detected. Reloading...");
           localStorage.clear(); // Optional: ล้างข้อมูล localStorage
           window.location.reload(true); // Force reload (hard refresh)
         } else {
