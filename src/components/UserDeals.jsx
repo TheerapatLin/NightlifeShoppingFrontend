@@ -69,13 +69,14 @@ function UserDeals() {
     if (!confirm) return;
 
     // ตรวจสอบสถานะการล็อกอินและ refresh token
-    await checkAuthStatus();
-    const refreshedUser = useAuth().user;
 
-    if (!refreshedUser) {
-      alert(t("profile.sessionExpired")); // ต้องมี translation key นี้
-      return;
-    }
+    //await checkAuthStatus();
+    //const refreshedUser = useAuth().user;
+    
+    // if (!refreshedUser) {
+    //   alert(t("profile.sessionExpired")); // ต้องมี translation key นี้
+    //   return;
+    // }
 
     try {
       const response = await axios.post(
@@ -86,7 +87,7 @@ function UserDeals() {
           withCredentials: true,
         }
       );
-
+      alert(JSON.stringify(response.data));
       const { serialNumber, expiresAt } = response.data;
 
       setSerialNumbers((prev) => ({ ...prev, [userDealId]: serialNumber }));
@@ -109,6 +110,7 @@ function UserDeals() {
           withCredentials: true,
         }
       );
+      alert(JSON.stringify(updatedDealRes.data));
       setUserDeals(updatedDealRes.data);
     } catch (error) {
       alert(error.response?.data?.error || t("profile.useFailed"));
