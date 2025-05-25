@@ -1,5 +1,6 @@
 {
     "profile": {
+        "edit": "edit",
         "sessionExpired": "Session expired. Please log in again.",
         "title": "Profile",
         "loading": "Loading...",
