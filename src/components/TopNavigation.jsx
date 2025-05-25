@@ -390,14 +390,11 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
             className={`drawer ${isScrolled ? "scrolled" : ""}`}
             style={{ left: !isDrawerOpen ? windowSize.width : "0px" }}
           >
-            {/* <a href="jaideeipos://ipos/acrossPrintPage?orderId=1233-dsfds-21&businessId=3432403-334-sdsd">
-            เปิดแอป JaideeIPOS แบบมี
-          </a> */}
             <Link
               to="/"
               className={`item02_m ${currentPage.name === "" ? "active" : ""}`}
             >
-              Home
+              <span style={{ fontSize: "18px" }}>Home</span>
             </Link>
 
             {/* <Link
@@ -413,13 +410,19 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
               <div className="flex flex-col justify-center items-center">
                 <Link
                   to={"/profile"}
-                  style={styles.menuItem}
                   className={`${
                     currentPage.name === "profile" ? "active" : ""
                   }`}
+                  style={{
+                    ...styles.menuItem,
+                    margin: "10px",
+                    fontWeight: "bold",
+                  }}
                 >
                   <FaUser className="text-lg text-black " />
-                  <span className=" text-black">{user?.name || "ผู้ใช้"}</span>
+                  <span className=" text-black" style={{ fontSize: "24px" }}>
+                    {user?.name || "ผู้ใช้"}
+                  </span>
                 </Link>
 
                 <a
@@ -431,7 +434,11 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                 </a>
               </div>
             ) : (
-              <Link to="/signup" className="item02" style={styles.menuItem}>
+              <Link
+                to="/signup"
+                className="item02"
+                style={{ ...styles.menuItem, fontSize: "20px" }}
+              >
                 {i18n.language === "en" ? "Login" : "เข้าสู่ระบบ/ลงทะเบียน"}
               </Link>
             )}

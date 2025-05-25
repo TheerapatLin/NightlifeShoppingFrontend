@@ -101,20 +101,20 @@ const AllEventsInclude = () => {
       <div className="flex justify-center gap-4 mb-8">
         <button
           onClick={() => setActiveSection("WEEKDAYS")}
-          className={`px-4 py-2 rounded-full text-lg font-semibold transition-all duration-200 ${
+          className={`px-4 py-2 rounded-full text-lg  transition-all duration-200 ${
             activeSection === "WEEKDAYS"
-              ? "bg-yellow-400 text-black hover:bg-yellow-500"
-              : "border-2 border-yellow-400 text-yellow-400 hover:bg-yellow-400/10"
+              ? "bg-yellow-400 text-black font-bold hover:bg-yellow-500"
+              : "bg-transparent border-2 font-normal border-yellow-400 text-yellow-400 hover:bg-yellow-400/10"
           }`}
         >
           Mingle Tingle
         </button>
         <button
           onClick={() => setActiveSection("WEEKENDS")}
-          className={`px-4 py-2 rounded-full text-lg font-semibold transition-all duration-200 ${
+          className={`px-4 py-2 rounded-full text-lg transition-all duration-200 ${
             activeSection === "WEEKENDS"
-              ? "bg-yellow-400 text-black hover:bg-yellow-500"
-              : "border-2 border-yellow-400 text-yellow-400 hover:bg-yellow-400/10"
+              ? "bg-yellow-400 text-black font-bold hover:bg-yellow-500"
+              : "bg-transparent border-2 font-normal border-yellow-400 text-yellow-400 hover:bg-yellow-400/10"
           }`}
         >
           Bar Crawl

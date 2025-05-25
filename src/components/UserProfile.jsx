@@ -16,6 +16,7 @@ function UserProfile() {
   const [formData, setFormData] = useState({});
   const [imageTimestamp, setImageTimestamp] = useState(Date.now());
   const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState(null);
 
   const fetchProfile = async () => {
@@ -128,7 +129,7 @@ function UserProfile() {
       // ถ้าเป็น path ที่มาจากระบบ OSS ของเรา
       if (raw.startsWith("profile") || raw.startsWith("/profile")) {
         const normalized = raw.startsWith("/") ? raw : `/${raw}`;
-        return `${OSS_URL}${normalized}?t=${imageTimestamp}`;
+        return `${OSS_URL}${normalized}`;
       }
     }
 
@@ -137,117 +138,136 @@ function UserProfile() {
   })();
 
   return (
-    <div className="max-w-xl mx-auto mt-0 p-10 space-y-4">
-      <div className="relative flex justify-center mb-6 mt-[-18px]">
-        <div className="relative w-32 h-32 group">
+    <>
+      {isImagePreviewOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          onClick={() => setIsImagePreviewOpen(false)}
+        >
           <img
             src={profileImageUrl}
-            alt="Profile"
-            className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
+            alt="Full Preview"
+            className="max-w-full max-h-full object-contain cursor-zoom-out"
           />
-
-          {editMode && (
-            <>
-              <label
-                htmlFor="profile-upload"
-                className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 hover:bg-opacity-60 rounded-full cursor-pointer transition-all"
-              >
-                <Camera className="h-6 w-6 text-white opacity-90 group-hover:opacity-100" />
-              </label>
-              <input
-                id="profile-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">{t("profile.title")}</h2>
-        <button
-          onClick={() => setEditMode(!editMode)}
-          className="flex items-center gap-1 bg-white text-black rounded px-2 py-1 border border-yellow-500 text-sm font-medium"
-        >
-          <Pencil size={16} />
-          {t("profile.edit")} {/* คุณมี i18n อยู่แล้ว */}
-        </button>
-      </div>
-
-      <Field
-        label={t("profile.name")}
-        name="name"
-        value={formData.name}
-        editable={editMode}
-        onChange={handleChange}
-      />
-      {!editMode && <hr className="border-t border-white/20 my-3" />}
-      <Field
-        label={t("profile.gender.label")}
-        name="gender"
-        value={formData.gender}
-        editable={editMode}
-        onChange={handleChange}
-        type="select"
-        options={[
-          { value: "unspecified", label: t("profile.gender.unspecified") },
-          { value: "male", label: t("profile.gender.male") },
-          { value: "female", label: t("profile.gender.female") },
-          { value: "other", label: t("profile.gender.other") },
-        ]}
-      />
-      {!editMode && <hr className="border-t border-white/20 my-3" />}
-      <Field
-        label={t("profile.birthday")}
-        name="birthday"
-        value={formData.birthday}
-        editable={editMode}
-        onChange={handleChange}
-        type="date"
-      />
-      {!editMode && <hr className="border-t border-white/20 my-3" />}
-      <Field
-        label={t("profile.nationality")}
-        name="nationality"
-        value={formData.nationality}
-        editable={editMode}
-        onChange={handleChange}
-      />
-      {!editMode && <hr className="border-t border-white/20 my-3" />}
-      <Field
-        label={t("profile.nationalId")}
-        name="nationalId"
-        value={formData.nationalId}
-        editable={editMode}
-        onChange={handleChange}
-      />
-      {!editMode && <hr className="border-t border-white/20 my-3" />}
-      <Field
-        label={t("profile.email")}
-        value={profile.user.email}
-        editable={false}
-        type="text"
-      />
-
-      {editMode && (
-        <div className="text-center">
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className={`px-4 py-2 rounded text-base transition-all ${
-              isSaving
-                ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
-          >
-            {isSaving ? t("profile.saving") : t("profile.saveChanges")}
-          </button>
         </div>
       )}
-    </div>
+      <div className="max-w-xl mx-auto mt-0 p-10 space-y-4">
+        <div className="relative flex justify-center mb-6 mt-[-18px]">
+          <div className="relative w-[188px] h-[188px] group">
+            <img
+              src={profileImageUrl}
+              alt="Profile"
+              className="w-[188px] h-[188px] rounded-full object-cover border-4 border-white shadow-md"
+              onClick={() => {
+                if (!editMode) setIsImagePreviewOpen(true);
+              }}
+            />
+
+            {editMode && (
+              <>
+                <label
+                  htmlFor="profile-upload"
+                  className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 hover:bg-opacity-60 rounded-full cursor-pointer transition-all"
+                >
+                  <Camera className="h-6 w-6 text-white opacity-90 group-hover:opacity-100" />
+                </label>
+                <input
+                  id="profile-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-white">
+            {t("profile.title")}
+          </h2>
+          <button
+            onClick={() => setEditMode(!editMode)}
+            className="flex items-center gap-1 bg-white text-black rounded px-2 py-1 border border-yellow-500 text-sm font-medium"
+          >
+            <Pencil size={16} />
+            {t("profile.edit")} {/* คุณมี i18n อยู่แล้ว */}
+          </button>
+        </div>
+
+        <Field
+          label={t("profile.name")}
+          name="name"
+          value={formData.name}
+          editable={editMode}
+          onChange={handleChange}
+        />
+        {!editMode && <hr className="border-t border-white/20 my-3" />}
+        <Field
+          label={t("profile.gender.label")}
+          name="gender"
+          value={formData.gender}
+          editable={editMode}
+          onChange={handleChange}
+          type="select"
+          options={[
+            { value: "unspecified", label: t("profile.gender.unspecified") },
+            { value: "male", label: t("profile.gender.male") },
+            { value: "female", label: t("profile.gender.female") },
+            { value: "other", label: t("profile.gender.other") },
+          ]}
+        />
+        {!editMode && <hr className="border-t border-white/20 my-3" />}
+        <Field
+          label={t("profile.birthday")}
+          name="birthday"
+          value={formData.birthday}
+          editable={editMode}
+          onChange={handleChange}
+          type="date"
+        />
+        {!editMode && <hr className="border-t border-white/20 my-3" />}
+        <Field
+          label={t("profile.nationality")}
+          name="nationality"
+          value={formData.nationality}
+          editable={editMode}
+          onChange={handleChange}
+        />
+        {!editMode && <hr className="border-t border-white/20 my-3" />}
+        <Field
+          label={t("profile.nationalId")}
+          name="nationalId"
+          value={formData.nationalId}
+          editable={editMode}
+          onChange={handleChange}
+        />
+        {!editMode && <hr className="border-t border-white/20 my-3" />}
+        <Field
+          label={t("profile.email")}
+          value={profile.user.email}
+          editable={false}
+          type="text"
+        />
+
+        {editMode && (
+          <div className="text-center">
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className={`px-4 py-2 rounded text-base transition-all ${
+                isSaving
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              {isSaving ? t("profile.saving") : t("profile.saveChanges")}
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 

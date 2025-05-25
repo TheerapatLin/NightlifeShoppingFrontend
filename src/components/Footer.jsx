@@ -18,12 +18,17 @@ function Footer() {
         <div
           className="container"
           style={{
+            // position: "fixed",
+            // bottom:'0px',
+            // zIndex: "999999",
+            fontSize: "12px",
             margin: "0px",
             width: "100vw",
             maxWidth: "100%",
             backgroundColor: "transparent",
             padding: "15px",
             color: "white",
+            opacity:'0.5'
           }}
         >
           {/* <div className="footer-service" style={{ padding: '0px', margin: '0px' }}>
@@ -51,7 +56,9 @@ function Footer() {
             </div>
           </div> */}
           <div style={{ color: "white" }}>
-            <p onClick={handleTestEventClick} >&copy; 2024 Nightlife.run All rights reserved.</p>
+            <p onClick={handleTestEventClick}>
+              &copy; 2024 Nightlife.run All rights reserved.
+            </p>
           </div>
         </div>
       </center>
