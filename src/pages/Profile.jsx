@@ -7,7 +7,7 @@ import UserProfile from "../components/UserProfile";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
-import axios from "axios";
+// import axios from "axios";
 
 function Profile() {
   const { t, i18n } = useTranslation();
