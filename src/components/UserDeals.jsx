@@ -72,7 +72,7 @@ function UserDeals() {
 
     //await checkAuthStatus();
     //const refreshedUser = useAuth().user;
-    
+
     // if (!refreshedUser) {
     //   alert(t("profile.sessionExpired")); // ต้องมี translation key นี้
     //   return;
@@ -87,7 +87,7 @@ function UserDeals() {
           withCredentials: true,
         }
       );
-      alert(JSON.stringify(response.data));
+      //alert(JSON.stringify(response.data));
       const { serialNumber, expiresAt } = response.data;
 
       setSerialNumbers((prev) => ({ ...prev, [userDealId]: serialNumber }));
@@ -110,7 +110,7 @@ function UserDeals() {
           withCredentials: true,
         }
       );
-      alert(JSON.stringify(updatedDealRes.data));
+      //alert(JSON.stringify(updatedDealRes.data));
       setUserDeals(updatedDealRes.data);
     } catch (error) {
       alert(error.response?.data?.error || t("profile.useFailed"));
