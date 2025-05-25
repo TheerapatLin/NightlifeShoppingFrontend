@@ -16,9 +16,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(
         `${BASE_URL}/auth/refresh-web`,
-        {
-          fingerprint: "12345678",
-        },
+        { fingerprint: "12345678" },
         {
           headers: {
             "Content-Type": "application/json",
@@ -28,19 +26,19 @@ export const AuthProvider = ({ children }) => {
           withCredentials: true,
         }
       );
-      //alert(response.status);
       if (response.status === 200) {
         setIsLoggedIn(true);
-        //alert(`test = ${JSON.stringify(response.data.data.user)}`);
         setUser(response.data.data.user);
+        return true; // ✅ เพิ่ม return
       } else {
         setIsLoggedIn(false);
         setUser(null);
+        return false;
       }
     } catch (error) {
-      //alert(error);
       setIsLoggedIn(false);
       setUser(null);
+      return false;
     }
   };
 
@@ -72,7 +70,7 @@ export const AuthProvider = ({ children }) => {
 
         if (response.status === 200) {
           setIsLoggedIn(true);
-          setUser(response.data.data.user );
+          setUser(response.data.data.user);
           await checkAuthStatus();
           isRefreshingToken = false;
         } else {

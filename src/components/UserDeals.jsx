@@ -8,8 +8,9 @@ import "./UserDeals.css";
 
 function UserDeals() {
   const { t, i18n } = useTranslation();
+
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
-  const { user } = useAuth();
+  const { user, checkAuthStatus } = useAuth();
 
   const [userDeals, setUserDeals] = useState([]);
   const [flipStates, setFlipStates] = useState({});
@@ -66,6 +67,15 @@ function UserDeals() {
   const handleUseDeal = async (userDealId) => {
     const confirm = window.confirm(t("profile.confirmUse"));
     if (!confirm) return;
+
+    // ตรวจสอบสถานะการล็อกอินและ refresh token
+    await checkAuthStatus();
+    const refreshedUser = useAuth().user;
+
+    if (!refreshedUser) {
+      alert(t("profile.sessionExpired")); // ต้องมี translation key นี้
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -157,13 +167,21 @@ function UserDeals() {
           ) : (
             finalDeals.map((userDeal, index) => (
               <React.Fragment key={userDeal._id}>
-                {showExpired && index === sortedDeals.length && expired.length > 0 && (
-                  <div className="col-span-full text-center text-sm text-gray-400 my-2">
-                    ----------- {t("profile.expiredDealsHeader") || "Expired Deals"} -----------
-                  </div>
-                )}
+                {showExpired &&
+                  index === sortedDeals.length &&
+                  expired.length > 0 && (
+                    <div className="col-span-full text-center text-sm text-gray-400 my-2">
+                      -----------{" "}
+                      {t("profile.expiredDealsHeader") || "Expired Deals"}{" "}
+                      -----------
+                    </div>
+                  )}
 
-                <div className={`flip-card ${flipStates[userDeal._id] ? "flipped" : ""}`}>
+                <div
+                  className={`flip-card ${
+                    flipStates[userDeal._id] ? "flipped" : ""
+                  }`}
+                >
                   <div className="flip-card-inner">
                     <div className="flip-card-front flex flex-col items-center justify-center text-center px-4">
                       {userDeal.dealId?.images?.[0] && (
@@ -177,31 +195,40 @@ function UserDeals() {
                               userDeal.isActiveSession ||
                               serialNumbers[userDeal._id]
                             ) {
-                              setFlipStates((prev) => ({ ...prev, [userDeal._id]: true }));
+                              setFlipStates((prev) => ({
+                                ...prev,
+                                [userDeal._id]: true,
+                              }));
                             }
                           }}
                         />
                       )}
                       <div className="font-bold mb-2">
-                        {userDeal.dealId?.title?.[i18n.language] || t("profile.noTitle")}
+                        {userDeal.dealId?.title?.[i18n.language] ||
+                          t("profile.noTitle")}
                       </div>
                       <div className="text-sm text-gray-600">
                         {userDeal.pricePaid === 0
                           ? t("profile.claimedOn")
                           : t("profile.purchasedOn")}
-                        : {new Date(userDeal.claimedAt).toLocaleDateString(
+                        :{" "}
+                        {new Date(userDeal.claimedAt).toLocaleDateString(
                           i18n.language === "th" ? "th-TH" : "en-GB"
                         )}
                       </div>
                       <div className="text-sm text-gray-600">
-                        {t("profile.status")}: {t(
-                          userDeal.isUsed || userDeal.isActiveSession || serialNumbers[userDeal._id]
+                        {t("profile.status")}:{" "}
+                        {t(
+                          userDeal.isUsed ||
+                            userDeal.isActiveSession ||
+                            serialNumbers[userDeal._id]
                             ? "profile.used"
                             : "profile.unused"
                         )}
                       </div>
                       <div className="text-sm text-gray-600">
-                        {t("profile.paidPrice")}: {userDeal.pricePaid === 0
+                        {t("profile.paidPrice")}:{" "}
+                        {userDeal.pricePaid === 0
                           ? t("profile.free")
                           : `${userDeal.pricePaid} ${t("profile.currency")}`}
                       </div>
@@ -216,7 +243,10 @@ function UserDeals() {
                         <button
                           className="mt-3 px-4 py-2 rounded text-white w-full bg-blue-600 hover:bg-blue-700"
                           onClick={() =>
-                            setFlipStates((prev) => ({ ...prev, [userDeal._id]: true }))
+                            setFlipStates((prev) => ({
+                              ...prev,
+                              [userDeal._id]: true,
+                            }))
                           }
                         >
                           {t("profile.viewQR")}
@@ -228,7 +258,10 @@ function UserDeals() {
                       <button
                         className="absolute top-2 right-3 text-gray-500 text-xl font-bold z-10"
                         onClick={() =>
-                          setFlipStates((prev) => ({ ...prev, [userDeal._id]: false }))
+                          setFlipStates((prev) => ({
+                            ...prev,
+                            [userDeal._id]: false,
+                          }))
                         }
                       >
                         ×
@@ -239,20 +272,28 @@ function UserDeals() {
                           src={userDeal.dealId.images[0]}
                           alt="Deal Preview"
                           className="w-full object-cover"
-                          style={{ aspectRatio: "1.6", objectFit: "cover", width: "90%" }}
+                          style={{
+                            aspectRatio: "1.6",
+                            objectFit: "cover",
+                            width: "90%",
+                          }}
                         />
                       )}
 
                       <div className="absolute bottom-2 left-5 text-left text-sm text-gray-700 z-10">
                         <div>
-                          {t("profile.status")}: {t(
-                            userDeal.isUsed || userDeal.isActiveSession || serialNumbers[userDeal._id]
+                          {t("profile.status")}:{" "}
+                          {t(
+                            userDeal.isUsed ||
+                              userDeal.isActiveSession ||
+                              serialNumbers[userDeal._id]
                               ? "profile.used"
                               : "profile.unused"
                           )}
                         </div>
                         <div>
-                          {t("profile.usedAt")}: {userDeal.lastUsedAt
+                          {t("profile.usedAt")}:{" "}
+                          {userDeal.lastUsedAt
                             ? new Date(userDeal.lastUsedAt).toLocaleString(
                                 i18n.language === "th" ? "th-TH" : "en-GB",
                                 {
@@ -270,7 +311,11 @@ function UserDeals() {
                       {serialNumbers[userDeal._id] && (
                         <div className="absolute bottom-2 right-2 w-[90px] h-[90px] bg-white p-1 rounded shadow-md z-10">
                           <QRCode
-                            value={`${window.location.origin}/check-deal/${userDeal.dealId?.dealPrefix}-${serialNumbers[userDeal._id].toString().padStart(4, "0")}`}
+                            value={`${window.location.origin}/check-deal/${
+                              userDeal.dealId?.dealPrefix
+                            }-${serialNumbers[userDeal._id]
+                              .toString()
+                              .padStart(4, "0")}`}
                             size={80}
                           />
                         </div>
@@ -278,14 +323,24 @@ function UserDeals() {
 
                       <div className="px-4 pt-2 pb-3">
                         <div className="text-lg font-bold">
-                          {t("profile.dealSerial")}: {serialNumbers[userDeal._id] !== undefined && userDeal.dealId?.dealPrefix
-                            ? `${userDeal.dealId.dealPrefix}-${serialNumbers[userDeal._id].toString().padStart(4, "0")}`
+                          {t("profile.dealSerial")}:{" "}
+                          {serialNumbers[userDeal._id] !== undefined &&
+                          userDeal.dealId?.dealPrefix
+                            ? `${userDeal.dealId.dealPrefix}-${serialNumbers[
+                                userDeal._id
+                              ]
+                                .toString()
+                                .padStart(4, "0")}`
                             : "-"}
                         </div>
                         <div className="mt-2 text-sm text-gray-700">
                           {countdowns[userDeal._id] !== undefined
                             ? countdowns[userDeal._id] > 0
-                              ? `${t("profile.remainingTime")}: ${Math.floor(countdowns[userDeal._id] / 60)}:${(countdowns[userDeal._id] % 60).toString().padStart(2, "0")} ${t("profile.minutes")}`
+                              ? `${t("profile.remainingTime")}: ${Math.floor(
+                                  countdowns[userDeal._id] / 60
+                                )}:${(countdowns[userDeal._id] % 60)
+                                  .toString()
+                                  .padStart(2, "0")} ${t("profile.minutes")}`
                               : t("profile.expired")
                             : t("profile.noExpiration")}
                         </div>
