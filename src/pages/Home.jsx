@@ -421,7 +421,7 @@ function Home() {
       {/* ************** All Events Include **************** */}
       <div
         className="container"
-        style={{ paddingTop: "70px", maxWidth: "90%" }}
+        style={{ paddingTop: "70px", maxWidth: "100%" }}
       >
         <AllEventsInclude />
       </div>

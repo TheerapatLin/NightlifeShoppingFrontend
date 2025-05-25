@@ -38,13 +38,13 @@ function Venues() {
         console.error("Error fetching data:", error);
       }
 
-      try {
-        const response = await fetch("/data/data_event.json");
-        const data = await response.json();
-        setEventData2(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      // try {
+      //   const response = await fetch("/data/data_event.json");
+      //   const data = await response.json();
+      //   setEventData2(data);
+      // } catch (error) {
+      //   console.error("Error fetching data:", error);
+      // }
 
       try {
         const response = await fetch("/data/data_venue.json");
@@ -144,7 +144,7 @@ function Venues() {
         onCardClick={(data, index) => {
           // alert(`คุณคลิกการ์ดที่ ${index}`);
           //...เขียนการทำงานเพิ่มเติมตรงนี้ได้เลย
-          console.log(data);
+          //console.log(data);
           navigate(`/info_venues`, { state: { eventData: data } });
         }}
         detailElement={(data, index) => (
