@@ -80,7 +80,7 @@ const Payment = () => {
       // alert(`startDate : ${startDate}`);
       try {
         const response = await fetch(
-          `${BASE_URL}/order/create-payment-intent`,
+          `${BASE_URL}/activity-order/create-payment-intent`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

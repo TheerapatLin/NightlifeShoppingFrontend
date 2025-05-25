@@ -157,7 +157,7 @@ function UserProfile() {
             <img
               src={profileImageUrl}
               alt="Profile"
-              className="w-[188px] h-[188px] rounded-full object-cover border-4 border-white shadow-md"
+              className="w-[188px] h-[188px] rounded-full object-cover border-0 border-white shadow-md"
               onClick={() => {
                 if (!editMode) setIsImagePreviewOpen(true);
               }}
