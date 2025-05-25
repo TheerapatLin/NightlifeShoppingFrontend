@@ -17,6 +17,7 @@
     "nationalId": "รหัสประชาชน",
     "email": "อีเมล",
     "saveChanges": "บันทึกการแก้ไข",
+    "saving": "กำลังบันทึก...",
     "expiredDealsHeader": "ดีล/คูปองที่หมดอายุ",
     "showExpiredDeals": "แสดงดีลและคูปองที่หมดอายุแล้ว",
     "purchasedDeals": "ดีล/คูปอง ของคุณ",

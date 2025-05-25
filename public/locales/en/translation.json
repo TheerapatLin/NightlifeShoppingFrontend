@@ -17,6 +17,7 @@
         "nationalId": "National ID",
         "email": "Email",
         "saveChanges": "Save Changes",
+        "saving": "Saving...",
         "expiredDealsHeader": "Expired Deals/Coupons",
         "showExpiredDeals": "Show Expired Deals/Coupons",
         "purchasedDeals": "Your Deals/Coupons",

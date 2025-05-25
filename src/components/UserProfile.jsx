@@ -10,7 +10,7 @@ function UserProfile() {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL?.replace(/\/$/, "");
   const OSS_URL = import.meta.env.VITE_IMAGE_OSS_URL;
   const { t } = useTranslation();
-
+  const [isSaving, setIsSaving] = useState(false);
   const [profile, setProfile] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
@@ -54,7 +54,8 @@ function UserProfile() {
 
   const handleSave = async () => {
     try {
-      // 1. ถ้ามีรูป → อัปโหลดก่อน
+      setIsSaving(true); // ⏳ เริ่มเซฟ
+
       if (selectedImageFile) {
         const compressedFile = await imageCompression(selectedImageFile, {
           maxSizeMB: 0.5,
@@ -78,7 +79,6 @@ function UserProfile() {
         );
       }
 
-      // 2. อัปเดตข้อมูลฟอร์ม
       await axios.put(`${BASE_URL}/accounts/update`, formData, {
         headers: { "device-fingerprint": "12345678" },
         withCredentials: true,
@@ -91,6 +91,8 @@ function UserProfile() {
       fetchProfile();
     } catch (err) {
       console.error("Update failed:", err);
+    } finally {
+      setIsSaving(false); // ✅ เสร็จแล้ว
     }
   };
 
@@ -111,7 +113,7 @@ function UserProfile() {
     if (previewImageUrl) return previewImageUrl;
 
     const raw = profile.userData?.profileImage;
-    
+
     if (
       typeof raw === "string" &&
       raw.trim() !== "" &&
@@ -234,9 +236,14 @@ function UserProfile() {
         <div className="text-center">
           <button
             onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-base"
+            disabled={isSaving}
+            className={`px-4 py-2 rounded text-base transition-all ${
+              isSaving
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
           >
-            {t("profile.saveChanges")}
+            {isSaving ? t("profile.saving") : t("profile.saveChanges")}
           </button>
         </div>
       )}
