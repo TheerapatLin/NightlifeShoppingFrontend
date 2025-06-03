@@ -68,7 +68,7 @@ const ActivityDetails = () => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [startDate, setStartDate] = useState(null);
+  const [startDate, setStartDate] = useState(today);
   const datePickerRef = useRef(null);
   const containerRef = useRef(null);
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
@@ -199,9 +199,9 @@ const ActivityDetails = () => {
     if (activity && activity?.schedule) {
       setFilteredSchedules([]);
       //alert("activitylastStartDate = " + activity.lastStartDate);
-      setStartDate(activity.lastStartDate);
-      const initialDate = new Date(activity.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
-      handleDateChange(initialDate);
+      //setStartDate(activity.lastStartDate);
+      //const initialDate = new Date(activity.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
+      handleDateChange(today);
     }
   }, [activity]);
 
@@ -552,8 +552,8 @@ const ActivityDetails = () => {
             {/* <b>{dayjs(startDate).format("DD/MM/YYYY")}</b> */}
             <DatePicker
               ref={datePickerRef}
-              //selected={startDate}
-              selected={today}
+              selected={startDate}
+              //selected={today}
               onChange={handleDateChange}
               dateFormat="dd/MM/yyyy"
               locale="th"
