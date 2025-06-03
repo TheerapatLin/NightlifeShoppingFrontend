@@ -380,7 +380,7 @@ const Checkout = () => {
                     style={{
                       border: "solid 1px #aaaaaa",
                       top: "100px",
-                      position: "sticky",
+                      //position: "sticky",
                     }}
                   >
                     <div

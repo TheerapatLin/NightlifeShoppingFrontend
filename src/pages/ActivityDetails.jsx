@@ -96,10 +96,7 @@ const ActivityDetails = () => {
     cost,
     startDate
   ) => {
-    // alert(`ActivityId : ${activityId}`);
-    // alert(`ScheduleId : ${scheduleId}`);
-    // alert(`Output Adults : ${adults}`);
-    // alert(`Output Children : ${children}`);
+    //alert(`startDate : ${startDate}`);
     const paymentState = {
       activityId,
       scheduleId,
@@ -983,55 +980,6 @@ const ActivityDetails = () => {
                   </div>
                 </div>
               </div>
-              {/* กิจกรรมเฉพาะบุคคล */}
-              {/* <div
-              className="py-[64px]"
-              style={{ borderBottom: "solid 1px #dddddd" }}
-            >
-              <div className="flex flex-col gap-10">
-                <div className="font-CerFont font-bold text-[32px]">
-                  กิจกรรมเฉพาะบุคคล
-                </div>
-                <div className="flex flex-col md:flex-row justify-between gap-3">
-                  <div className="flex items-center gap-5">
-                    <FaMapMarkedAlt size={60} />
-                    <div>
-                      <div className="font-CerFont font-bold text-[17px]">
-                        กำหนดการเดินทางที่จัดทำขึ้นเพื่อคุณ
-                      </div>
-                      <div className="font-CerFont font-normal text-[15px]">
-                        ผู้จัดจะปรับเปลี่ยนเอ็กซ์พีเรียนซ์ให้เหมาะกับความสนใจและความต้องการของคุณ
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-5">
-                    <FaRegClock size={60} />
-                    <div>
-                      <div className="font-CerFont font-bold text-[17px]">
-                        วันหยุดที่ช่วยผ่อนคลายสมองรออยู่นะ
-                      </div>
-                      <div className="font-CerFont font-normal text-[15px]">
-                        เที่ยวแบบชิวๆ มีคนมาช่วยจัดการวางแผนเที่ยวให้เสร็จสรรพ
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-5">
-                    <RiMapPin2Fill size={60} />
-                    <div>
-                      <div className="font-CerFont font-bold text-[17px]">
-                        เดินทางแบบคนท้องถิ่น
-                      </div>
-                      <div className="font-CerFont font-normal text-[15px]">
-                        ดูเคล็ดลับจากคนวงในและเข้าถึงสถานที่ท่องเที่ยวลับๆ
-                        ที่มีแต่คนท้องถิ่นเท่านั้นที่รู้
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> */}
 
               <div
                 className="py-[48px] flex flex-col gap-6"
@@ -1077,163 +1025,6 @@ const ActivityDetails = () => {
                 </div>
               </div>
 
-              {/* <div
-              className="py-[48px] flex flex-col gap-6"
-              style={{ borderBottom: "solid 1px #dddddd" }}
-            >
-              <div className="font-CerFont font-bold text-[22px] pb-[24px]">
-                เลือกจากวันที่ว่าง
-                <div className="font-CerFont font-normal text-grayAirbnb text-[16px]">
-                  ว่าง {parentId?.length} ที่ในช่วง 11 ก.ย. – 21 พ.ย.
-                </div>
-              </div>
-
-              <DateSelectorCarousel
-                dates={parentId?.map((item) => item)}
-                handlePaymentNavigation={handlePaymentNavigation}
-                formatTime={formatTime}
-                formatThaiDate={formatThaiDate}
-                cost={activity?.cost}
-                adults={adults}
-                children={children}
-              />
-            </div> */}
-
-              {/* รายละเอียดของ Activity */}
-              {/* <div
-              className="pt-[20px] md:pb-[48px] md:pt-[40px] flex flex-col md:flex-wrap"
-              style={isMobile ? {} : { borderBottom: "solid 1px #dddddd" }}
-            >
-              <div className="hidden md:block font-CerFont font-bold text-[22px] pl-2 pb-4">
-                ข้อควรทราบ
-              </div>
-              <MobileActivityDetails />
-              <div className="hidden md:flex flex-wrap">
-                <div className="flex-1 min-w-[50%] px-2">
-                  <div className="mb-4">
-                    <h3 className="text-black">รายละเอียดราคา</h3>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      มีอะไรรวมอยู่บ้าง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · กำหนดการเดินทางที่กำหนดเอง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · เอ็กซ์พีเรียนซ์นำเที่ยว 5 หรือ 6 ชั่วโมง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ข้อมูลเชิงลึกในท้องถิ่นและเคล็ดลับจากคนวงใน
-                    </span>
-                  </div>
-                  <div className="flex flex-col mt-4 mb-[32px]">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      สิ่งที่ไม่รวมในบริการ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเข้าชม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · อาหารและเครื่องดื่ม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเดินทาง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายส่วนตัวอื่นๆ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายเพิ่มเติม: ผู้เข้าร่วมจะเป็นผู้จ่ายค่าเข้าชม
-                      ค่าอาหารกลางวัน
-                      และค่าเดินทางที่ไม่ใช่ขนส่งสาธารณะให้ผู้จัด
-                    </span>
-                  </div>
-                </div>
-                <div className=" flex-1 min-w-[50%] px-2">
-                  <div className="mb-4">
-                    <h3 className="text-black">รายละเอียดราคา</h3>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      มีอะไรรวมอยู่บ้าง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · กำหนดการเดินทางที่กำหนดเอง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · เอ็กซ์พีเรียนซ์นำเที่ยว 5 หรือ 6 ชั่วโมง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ข้อมูลเชิงลึกในท้องถิ่นและเคล็ดลับจากคนวงใน
-                    </span>
-                  </div>
-                  <div className="flex flex-col mt-4 mb-[32px]">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      สิ่งที่ไม่รวมในบริการ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเข้าชม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · อาหารและเครื่องดื่ม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเดินทาง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายส่วนตัวอื่นๆ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายเพิ่มเติม: ผู้เข้าร่วมจะเป็นผู้จ่ายค่าเข้าชม
-                      ค่าอาหารกลางวัน
-                      และค่าเดินทางที่ไม่ใช่ขนส่งสาธารณะให้ผู้จัด
-                    </span>
-                  </div>
-                </div>
-                <div className=" flex-1 min-w-[50%] px-2">
-                  <div className="mb-4">
-                    <h3 className="text-black">รายละเอียดราคา</h3>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      มีอะไรรวมอยู่บ้าง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · กำหนดการเดินทางที่กำหนดเอง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · เอ็กซ์พีเรียนซ์นำเที่ยว 5 หรือ 6 ชั่วโมง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ข้อมูลเชิงลึกในท้องถิ่นและเคล็ดลับจากคนวงใน
-                    </span>
-                  </div>
-                  <div className="flex flex-col mt-4 ">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      สิ่งที่ไม่รวมในบริการ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเข้าชม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · อาหารและเครื่องดื่ม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเดินทาง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายส่วนตัวอื่นๆ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายเพิ่มเติม: ผู้เข้าร่วมจะเป็นผู้จ่ายค่าเข้าชม
-                      ค่าอาหารกลางวัน
-                      และค่าเดินทางที่ไม่ใช่ขนส่งสาธารณะให้ผู้จัด
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div> */}
               {isMobile && (
                 <FloatingBar
                   activity={activity}
@@ -1714,13 +1505,14 @@ const FloatingBar = ({
             cursor: selectedDate ? "pointer" : "not-allowed", // เปลี่ยน cursor ตามค่า selectedDate
           }}
           onClick={() => {
+            //alert(startDate);
             handlePaymentNavigation(
               activity._id,
               schedule._id,
               adultsCount,
               childrenCount,
               schedule.cost,
-              startDate
+              selectedDate
             );
           }}
           disabled={!selectedDate}
@@ -1728,6 +1520,7 @@ const FloatingBar = ({
           <center>{i18n.language === "en" ? "Book" : "จองกิจกรรม"}</center>
         </button>
       ))}
+
       {/* ปฏิทิน mobile */}
       {modalCalendar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-22250">
