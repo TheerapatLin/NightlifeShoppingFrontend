@@ -14,14 +14,7 @@ import {
   IoChevronForwardOutline,
   IoClose,
 } from "react-icons/io5";
-// import { MdFavoriteBorder } from "react-icons/md";
-// import { BsPersonCheck } from "react-icons/bs";
-// import { CiStar } from "react-icons/ci";
-// import { HiMiniUserGroup } from "react-icons/hi2";
-// import { GiCheckedShield } from "react-icons/gi";
 import { FaMapMarkedAlt, FaChevronDown } from "react-icons/fa";
-// import { FaRegClock } from "react-icons/fa6";
-// import { RiMapPin2Fill } from "react-icons/ri";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -32,8 +25,6 @@ import { useTranslation } from "react-i18next";
 import i18n from "../i18n";
 import Footer from "../components/Footer";
 import { FaMapMarkerAlt } from "react-icons/fa";
-//import { use } from "react";
-//import ElfsightWidget from "../views/ElfsightWidget";
 import useSyncDayjsLocale from "../components/useSyncDayjsLocale";
 import useEmblaCarousel from "embla-carousel-react";
 import EmblaCarousel from "./EmblaCarousel";
@@ -87,6 +78,34 @@ const ActivityDetails = () => {
   const [filteredSchedules, setFilteredSchedules] = useState([]);
 
   useSyncDayjsLocale();
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      const existing = JSON.parse(localStorage.getItem("affiliateRef"));
+
+      const now = Date.now();
+      const expireInMs = 7 * 24 * 60 * 60 * 1000; // 7 days = 604800000 ms
+
+      if (
+        !existing ||
+        existing.ref !== ref ||
+        (existing.expiresAt && existing.expiresAt < now)
+      ) {
+        localStorage.setItem(
+          "affiliateRef",
+          JSON.stringify({
+            ref,
+            storedAt: now,
+            expiresAt: now + expireInMs,
+          })
+        );
+      }
+
+      // ล้างจาก URL
+      navigate(window.location.pathname, { replace: true });
+    }
+  }, [searchParams]);
 
   const handlePaymentNavigation = (
     activityId,
@@ -202,14 +221,14 @@ const ActivityDetails = () => {
     }
   }, [activity]);
 
-  useEffect(() => {
-    const affiliate = searchParams.get("affiliate");
-    if (affiliate) {
-      setAffiliate(affiliate);
+  // useEffect(() => {
+  //   const affiliate = searchParams.get("affiliate");
+  //   if (affiliate) {
+  //     setAffiliate(affiliate);
 
-      navigate(window.location.pathname, { replace: true });
-    }
-  }, [searchParams, setAffiliate]);
+  //     navigate(window.location.pathname, { replace: true });
+  //   }
+  // }, [searchParams, setAffiliate]);
 
   // Mobile check
   useEffect(() => {

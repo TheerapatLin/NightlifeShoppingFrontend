@@ -71,5 +71,12 @@
     "special": "สิ่งพิเศษ",
     "about": "เกี่ยวกับ",
     "bookNow": "จองโต๊ะ"
+  },
+  "affiliate": {
+    "your_ref_code": "รหัสผู้แนะนำของคุณ:",
+    "copy": "คัดลอก",
+    "copy_link": "คัดลอกลิงก์",
+    "copied": "คัดลอกแล้ว!",
+    "no_affiliate_activities": "ยังไม่มีกิจกรรมแนะนำ"
   }
 }

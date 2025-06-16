@@ -74,10 +74,13 @@ const Payment = () => {
   useEffect(() => {
     event.preventDefault();
     //alert('payment_page');
+
     const createPaymentIntent = async () => {
       // alert(`activityId : ${activityId}`);
       // alert(`scheduleId : ${scheduleId}`);
       // alert(`startDate : ${startDate}`);
+      const stored = localStorage.getItem("affiliateRef");
+      const affiliateCode = stored ? JSON.parse(stored)?.ref : null;
       try {
         const response = await fetch(
           `${BASE_URL}/activity-order/create-payment-intent`,
@@ -96,6 +99,7 @@ const Payment = () => {
                   startDate,
                 },
               ],
+              affiliateCode,
             }),
           }
         );

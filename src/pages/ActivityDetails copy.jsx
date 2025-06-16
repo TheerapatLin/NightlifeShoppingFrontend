@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
@@ -36,9 +36,19 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 //import ElfsightWidget from "../views/ElfsightWidget";
 import useSyncDayjsLocale from "../components/useSyncDayjsLocale";
 import useEmblaCarousel from "embla-carousel-react";
+import EmblaCarousel from "./EmblaCarousel";
+import "./sandbox.css";
+import "./embla.css";
 
 dayjs.locale("th");
 
+const OPTIONS = {};
+const SLIDE_COUNT = 5;
+const SLIDES = [
+  { id: 1, src: "https://picsum.photos/id/1015/600/300" },
+  { id: 2, src: "https://picsum.photos/id/1016/600/300" },
+  { id: 3, src: "https://picsum.photos/id/1018/600/300" },
+];
 const inlineStyles = {
   datePicker: {
     cursor: "pointer",
@@ -58,7 +68,7 @@ const ActivityDetails = () => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [startDate, setStartDate] = useState(null);
+  const [startDate, setStartDate] = useState(today);
   const datePickerRef = useRef(null);
   const containerRef = useRef(null);
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
@@ -86,10 +96,7 @@ const ActivityDetails = () => {
     cost,
     startDate
   ) => {
-    // alert(`ActivityId : ${activityId}`);
-    // alert(`ScheduleId : ${scheduleId}`);
-    // alert(`Output Adults : ${adults}`);
-    // alert(`Output Children : ${children}`);
+    //alert(`startDate : ${startDate}`);
     const paymentState = {
       activityId,
       scheduleId,
@@ -189,9 +196,9 @@ const ActivityDetails = () => {
     if (activity && activity?.schedule) {
       setFilteredSchedules([]);
       //alert("activitylastStartDate = " + activity.lastStartDate);
-      setStartDate(activity.lastStartDate);
-      const initialDate = new Date(activity.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
-      handleDateChange(initialDate);
+      //setStartDate(activity.lastStartDate);
+      //const initialDate = new Date(activity.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
+      handleDateChange(today);
     }
   }, [activity]);
 
@@ -252,18 +259,7 @@ const ActivityDetails = () => {
       }
     };
 
-    const fetchActivityDetail = async () => {
-      try {
-        const response = await fetch(`/data/activity/${id}.json`);
-        const data = await response.json();
-        setActivityDetail(data);
-      } catch (error) {
-        console.error("Error fetching activity detail:", error);
-      }
-    };
-
     fetchActivityData();
-    //fetchActivityDetail();
   }, [id]);
 
   const formatTime = (timeStr) => {
@@ -553,8 +549,8 @@ const ActivityDetails = () => {
             {/* <b>{dayjs(startDate).format("DD/MM/YYYY")}</b> */}
             <DatePicker
               ref={datePickerRef}
-              //selected={startDate}
-              selected={today}
+              selected={startDate}
+              //selected={today}
               onChange={handleDateChange}
               dateFormat="dd/MM/yyyy"
               locale="th"
@@ -582,42 +578,6 @@ const ActivityDetails = () => {
       </div>
     );
   };
-
-  // Mobile Image Carousel
-  const MobileImageCarousel = () => (
-    <div className="relative w-full h-[300px]">
-      <>
-        <img
-          src={`${activity?.image?.[currentImageIndex].fileName}`}
-          alt={`Image ${currentImageIndex + 1}`}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <button
-              key={index}
-              className={`w-2 h-2 rounded-full ${
-                index === currentImageIndex ? "bg-white" : "bg-white/50"
-              }`}
-              onClick={() => setCurrentImageIndex(index)}
-            />
-          ))}
-        </div>
-        <button
-          onClick={handlePrevImage}
-          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full"
-        >
-          <span className="text-lg">&lt;</span> {/* ลูกศรซ้าย */}
-        </button>
-        <button
-          onClick={handleNextImage}
-          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full"
-        >
-          <span className="text-lg">&gt;</span> {/* ลูกศรขวา */}
-        </button>
-      </>
-    </div>
-  );
 
   // Desktop Image Grid
   const DesktopImageGrid = () => (
@@ -670,14 +630,16 @@ const ActivityDetails = () => {
         className="mt-[0px] md:mt-[20px] flex justify-center"
         style={{ paddingTop: "60px" }}
       >
-        <div className="bg-white w-full max-w-7xl rounded-none md:rounded-xl px-4 md:px-10 pb-8 md:py-8">
+        <div className="bg-white w-full max-w-7xl rounded-none md:rounded-xl px-0 md:px-10 pb-8 md:py-8">
           {isMobile && (
-            <button
-              onClick={handleGoBack}
-              className="bg-black flex justify-center rounded-full my-[10px]"
-            >
-              <IoChevronBackOutline size={20} style={{ color: "white" }} />
-            </button>
+            <div className="px-10">
+              <button
+                onClick={handleGoBack}
+                className="bg-black flex justify-center rounded-full my-[10px]"
+              >
+                <IoChevronBackOutline size={20} style={{ color: "white" }} />
+              </button>
+            </div>
           )}
 
           {activity ? (
@@ -686,7 +648,7 @@ const ActivityDetails = () => {
               {isMobile && (
                 <>
                   <span
-                    className="text-[26px] font-semibold font-CerFont mb-2"
+                    className="text-[26px] font-semibold font-CerFont mb-2  px-5"
                     style={{ lineHeight: "30px" }}
                   >
                     {i18n.language === "en"
@@ -702,7 +664,7 @@ const ActivityDetails = () => {
                         }`}{" "}
                   </span>
 
-                  <div className="flex justify-between mb-4">
+                  <div className="flex justify-between mb-4 px-10">
                     <a
                       href={activity?.location?.googleMapUrl ?? ""}
                       target="_blank"
@@ -732,14 +694,24 @@ const ActivityDetails = () => {
                     </div>
                   </div> */}
                   </div>
-                  <MobileImageCarousel />
                 </>
               )}
+              <div
+                style={{ width: "200px" }}
+                //className="-mx-4 sm:mx-0 w-screen max-w-none"
+              ></div>
+              {/* <MobileImageCarousel activity={activity} /> */}
 
+              {isMobile && activity?.image && (
+                <EmblaCarousel
+                  slides={activity.image}
+                  options={{ loop: true }}
+                />
+              )}
               {/* Desktop Layout */}
               {!isMobile && (
                 <>
-                  <span className="text-[26px] font-semibold font-CerFont mb-2">
+                  <span className="text-[26px] font-semibold font-CerFont mb-2 ">
                     {i18n.language === "en"
                       ? `${activity?.nameEn}${
                           activity?.minorNameEn?.trim()
@@ -789,7 +761,7 @@ const ActivityDetails = () => {
 
               {/* แบ่งเป็นสอง div */}
               <div
-                className="flex justify-between"
+                className="flex justify-between  px-5"
                 style={{ borderBottom: "solid 1px #dddddd", color: "black" }}
               >
                 {/* ข้อมูลส่วนหน้าพื้นที่ 60 % */}
@@ -1008,55 +980,6 @@ const ActivityDetails = () => {
                   </div>
                 </div>
               </div>
-              {/* กิจกรรมเฉพาะบุคคล */}
-              {/* <div
-              className="py-[64px]"
-              style={{ borderBottom: "solid 1px #dddddd" }}
-            >
-              <div className="flex flex-col gap-10">
-                <div className="font-CerFont font-bold text-[32px]">
-                  กิจกรรมเฉพาะบุคคล
-                </div>
-                <div className="flex flex-col md:flex-row justify-between gap-3">
-                  <div className="flex items-center gap-5">
-                    <FaMapMarkedAlt size={60} />
-                    <div>
-                      <div className="font-CerFont font-bold text-[17px]">
-                        กำหนดการเดินทางที่จัดทำขึ้นเพื่อคุณ
-                      </div>
-                      <div className="font-CerFont font-normal text-[15px]">
-                        ผู้จัดจะปรับเปลี่ยนเอ็กซ์พีเรียนซ์ให้เหมาะกับความสนใจและความต้องการของคุณ
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-5">
-                    <FaRegClock size={60} />
-                    <div>
-                      <div className="font-CerFont font-bold text-[17px]">
-                        วันหยุดที่ช่วยผ่อนคลายสมองรออยู่นะ
-                      </div>
-                      <div className="font-CerFont font-normal text-[15px]">
-                        เที่ยวแบบชิวๆ มีคนมาช่วยจัดการวางแผนเที่ยวให้เสร็จสรรพ
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-5">
-                    <RiMapPin2Fill size={60} />
-                    <div>
-                      <div className="font-CerFont font-bold text-[17px]">
-                        เดินทางแบบคนท้องถิ่น
-                      </div>
-                      <div className="font-CerFont font-normal text-[15px]">
-                        ดูเคล็ดลับจากคนวงในและเข้าถึงสถานที่ท่องเที่ยวลับๆ
-                        ที่มีแต่คนท้องถิ่นเท่านั้นที่รู้
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> */}
 
               <div
                 className="py-[48px] flex flex-col gap-6"
@@ -1102,163 +1025,6 @@ const ActivityDetails = () => {
                 </div>
               </div>
 
-              {/* <div
-              className="py-[48px] flex flex-col gap-6"
-              style={{ borderBottom: "solid 1px #dddddd" }}
-            >
-              <div className="font-CerFont font-bold text-[22px] pb-[24px]">
-                เลือกจากวันที่ว่าง
-                <div className="font-CerFont font-normal text-grayAirbnb text-[16px]">
-                  ว่าง {parentId?.length} ที่ในช่วง 11 ก.ย. – 21 พ.ย.
-                </div>
-              </div>
-
-              <DateSelectorCarousel
-                dates={parentId?.map((item) => item)}
-                handlePaymentNavigation={handlePaymentNavigation}
-                formatTime={formatTime}
-                formatThaiDate={formatThaiDate}
-                cost={activity?.cost}
-                adults={adults}
-                children={children}
-              />
-            </div> */}
-
-              {/* รายละเอียดของ Activity */}
-              {/* <div
-              className="pt-[20px] md:pb-[48px] md:pt-[40px] flex flex-col md:flex-wrap"
-              style={isMobile ? {} : { borderBottom: "solid 1px #dddddd" }}
-            >
-              <div className="hidden md:block font-CerFont font-bold text-[22px] pl-2 pb-4">
-                ข้อควรทราบ
-              </div>
-              <MobileActivityDetails />
-              <div className="hidden md:flex flex-wrap">
-                <div className="flex-1 min-w-[50%] px-2">
-                  <div className="mb-4">
-                    <h3 className="text-black">รายละเอียดราคา</h3>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      มีอะไรรวมอยู่บ้าง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · กำหนดการเดินทางที่กำหนดเอง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · เอ็กซ์พีเรียนซ์นำเที่ยว 5 หรือ 6 ชั่วโมง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ข้อมูลเชิงลึกในท้องถิ่นและเคล็ดลับจากคนวงใน
-                    </span>
-                  </div>
-                  <div className="flex flex-col mt-4 mb-[32px]">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      สิ่งที่ไม่รวมในบริการ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเข้าชม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · อาหารและเครื่องดื่ม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเดินทาง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายส่วนตัวอื่นๆ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายเพิ่มเติม: ผู้เข้าร่วมจะเป็นผู้จ่ายค่าเข้าชม
-                      ค่าอาหารกลางวัน
-                      และค่าเดินทางที่ไม่ใช่ขนส่งสาธารณะให้ผู้จัด
-                    </span>
-                  </div>
-                </div>
-                <div className=" flex-1 min-w-[50%] px-2">
-                  <div className="mb-4">
-                    <h3 className="text-black">รายละเอียดราคา</h3>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      มีอะไรรวมอยู่บ้าง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · กำหนดการเดินทางที่กำหนดเอง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · เอ็กซ์พีเรียนซ์นำเที่ยว 5 หรือ 6 ชั่วโมง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ข้อมูลเชิงลึกในท้องถิ่นและเคล็ดลับจากคนวงใน
-                    </span>
-                  </div>
-                  <div className="flex flex-col mt-4 mb-[32px]">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      สิ่งที่ไม่รวมในบริการ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเข้าชม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · อาหารและเครื่องดื่ม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเดินทาง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายส่วนตัวอื่นๆ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายเพิ่มเติม: ผู้เข้าร่วมจะเป็นผู้จ่ายค่าเข้าชม
-                      ค่าอาหารกลางวัน
-                      และค่าเดินทางที่ไม่ใช่ขนส่งสาธารณะให้ผู้จัด
-                    </span>
-                  </div>
-                </div>
-                <div className=" flex-1 min-w-[50%] px-2">
-                  <div className="mb-4">
-                    <h3 className="text-black">รายละเอียดราคา</h3>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      มีอะไรรวมอยู่บ้าง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · กำหนดการเดินทางที่กำหนดเอง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · เอ็กซ์พีเรียนซ์นำเที่ยว 5 หรือ 6 ชั่วโมง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ข้อมูลเชิงลึกในท้องถิ่นและเคล็ดลับจากคนวงใน
-                    </span>
-                  </div>
-                  <div className="flex flex-col mt-4 ">
-                    <span className="font-CerFont text-[14px] font-bold">
-                      สิ่งที่ไม่รวมในบริการ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเข้าชม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · อาหารและเครื่องดื่ม
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าเดินทาง
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายส่วนตัวอื่นๆ
-                    </span>
-                    <span className="font-CerFont text-[14px]">
-                      · ค่าใช้จ่ายเพิ่มเติม: ผู้เข้าร่วมจะเป็นผู้จ่ายค่าเข้าชม
-                      ค่าอาหารกลางวัน
-                      และค่าเดินทางที่ไม่ใช่ขนส่งสาธารณะให้ผู้จัด
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div> */}
               {isMobile && (
                 <FloatingBar
                   activity={activity}
@@ -1739,13 +1505,14 @@ const FloatingBar = ({
             cursor: selectedDate ? "pointer" : "not-allowed", // เปลี่ยน cursor ตามค่า selectedDate
           }}
           onClick={() => {
+            //alert(startDate);
             handlePaymentNavigation(
               activity._id,
               schedule._id,
               adultsCount,
               childrenCount,
               schedule.cost,
-              startDate
+              selectedDate
             );
           }}
           disabled={!selectedDate}
@@ -1753,6 +1520,7 @@ const FloatingBar = ({
           <center>{i18n.language === "en" ? "Book" : "จองกิจกรรม"}</center>
         </button>
       ))}
+
       {/* ปฏิทิน mobile */}
       {modalCalendar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-22250">

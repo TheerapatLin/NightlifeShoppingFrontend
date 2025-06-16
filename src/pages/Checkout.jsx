@@ -43,7 +43,9 @@ const Checkout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const { windowSize } = useGlobalEvent();
-  const { affiliate } = useAuth();
+  //const { affiliate } = useAuth();
+  const stored = localStorage.getItem("affiliateRef");
+  const affiliate = stored ? JSON.parse(stored)?.ref : null;
   var isLoading = false;
 
   useEffect(() => {
@@ -180,25 +182,6 @@ const Checkout = () => {
       minute: "2-digit",
     });
   };
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
-  //   if (!stripe || !elements) return;
-
-  //   const cardElement = elements.getElement(CardElement);
-
-  //   const { error, paymentIntent } = await stripe.confirmCardPayment(
-  //     clientSecret,
-  //     {
-  //       payment_method: { card: cardElement },
-  //     }
-  //   );
-
-  //   if (error) {
-  //     console.error(error.message);
-  //   } else {
-  //     console.log("Payment successful!", paymentIntent);
-  //   }
-  // };
 
   const handleBack = () => {
     navigate(`/activityDetails/${activityId}`, {
@@ -290,6 +273,13 @@ const Checkout = () => {
                       : `ผู้ใหญ่ ${adults} คน , เด็ก ${children} คน`}
                   </div>
                 </div>
+                {affiliate && (
+                  <div className="text-[14px] font-normal text-gray-600 font-CerFont">
+                    {i18n.language === "en"
+                      ? `Referral Code: ${affiliate}`
+                      : `รหัสผู้แนะนำ: ${affiliate}`}
+                  </div>
+                )}
               </div>
               {/* <div
                 className="py-7"

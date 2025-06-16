@@ -71,5 +71,12 @@
         "special": "Special",
         "about": "About",
         "bookNow": "Book Now"
+    },
+    "affiliate": {
+        "your_ref_code": "Your Reference Code:",
+        "copy": "Copy",
+        "copy_link": "Copy Link",
+        "copied": "Copied to clipboard!",
+        "no_affiliate_activities": "No affiliate activity found yet."
     }
 }

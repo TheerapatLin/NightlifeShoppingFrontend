@@ -4,6 +4,7 @@ import ActivitiesForm from "../components/ActivitiesForm";
 import UserDeals from "../components/UserDeals";
 import UserEvents from "../components/UserEvents";
 import UserProfile from "../components/UserProfile";
+import AffiliateLinks from "../components/AffiliateLinks";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -72,6 +73,16 @@ function Profile() {
     <div className="flex flex-col gap-2 mt-[65px] w-full">
       <div className="flex justify-center">
         <div className="mt-2 flex items-center bg-gray-800 p-2 overflow-x-auto rounded-full space-x-2">
+           <button
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
+              selectedTab === "profile"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            }`}
+            onClick={() => setSelectedTab("profile")}
+          >
+            Profile
+          </button>
           <button
             className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
               selectedTab === "deals"
@@ -92,15 +103,16 @@ function Profile() {
           >
             Events
           </button>
+         
           <button
             className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
-              selectedTab === "profile"
+              selectedTab === "affiliate"
                 ? "bg-blue-500 text-white"
                 : "bg-gray-700 text-gray-300 hover:bg-gray-600"
             }`}
-            onClick={() => setSelectedTab("profile")}
+            onClick={() => setSelectedTab("affiliate")}
           >
-            Profile
+            Affiliate
           </button>
         </div>
       </div>
@@ -111,6 +123,8 @@ function Profile() {
         {selectedTab === "events" && <UserEvents />}
 
         {selectedTab === "profile" && <UserProfile />}
+
+        {selectedTab === "affiliate" && <AffiliateLinks />}
       </div>
     </div>
   );
