@@ -27,6 +27,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import CartProvider from "./context/CartContext";
 import SignUpForm from "./views/SignUp";
+import ResetPassword from "./views/ResetPassword";
 import ManageProfile from "./views/ManageProfile";
 import MyPurchase from "./views/MY_PURCHASE";
 import MyTicket from "./views/MY_TICKET";
@@ -243,6 +244,14 @@ function RouteContainer() {
             element={
               <MotionPage>
                 <SignUpForm />
+              </MotionPage>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <MotionPage>
+                <ResetPassword />
               </MotionPage>
             }
           />

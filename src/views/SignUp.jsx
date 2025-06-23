@@ -29,12 +29,16 @@ function SignUpForm() {
   const [isLoadingLottieLoad, setIsLoadingLottieLoad] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isJustSignup, setIsJustSignup] = useState(false);
+
   // Oreq Dev
   const [isJustForgotPassword, setIsJustForgotPassword] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotMessage, setForgotMessage] = useState("");
   const [isForgotSuccess, setIsForgotSuccess] = useState(false);
+  const [showLoginContent, setShowLoginContent] = useState(true);
 
+
+  //-------------------------------------------------------------------------------
 
   const [emailSentText, setEmailSentText] = useState(
     "ลงทะเบียนเรียบร้อยแล้ว!\nกรุณาตรวจสอบอีเมล\nก่อน Log in ครั้งแรก"
@@ -125,7 +129,7 @@ function SignUpForm() {
   const handleForgotPasswordSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${BASE_URL}/auth/forgot-password`, {
+      await axios.post(`${BASE_URL}/auth/forgot-password`, {
         email: forgotEmail.toLowerCase().trim(),
       });
       setForgotMessage("กรุณาตรวจสอบอีเมลของคุณเพื่อรีเซ็ตรหัสผ่าน");
@@ -134,14 +138,17 @@ function SignUpForm() {
       if (error.response && error.response.status === 404) {
         setForgotMessage("ไม่พบอีเมลนี้ในระบบ");
       } else {
-        setForgotMessage("เกิดข้อผิดพลาด กรุณาลองใหม่");
+        setForgotMessage("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้งในภายหลัง");
       }
       setIsForgotSuccess(false);
     }
   };
-
+  //---
   const handleClick = () => {
-    if (flipped) setIsJustSignup(false);
+    if (flipped) {
+      setIsJustForgotPassword(false)
+      setIsJustSignup(false)
+    }
     setFlipped(!flipped);
   };
 
@@ -344,6 +351,23 @@ function SignUpForm() {
     }
   }, [isJustSignup]);
 
+  // Oreq Dev useEffect
+  useEffect(() => {
+    if (!isJustForgotPassword) {
+      const timer = setTimeout(() => {
+        setShowLoginContent(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    } else {
+      // ซ่อน login content ทันทีตอนกดลืมรหัสผ่าน
+      setShowLoginContent(false);
+    }
+  }, [isJustForgotPassword]);
+
+  // ---
+
+
   return (
     <>
       <div
@@ -380,7 +404,7 @@ function SignUpForm() {
                 position: "relative",
                 width: "100%",
                 overflow: "hidden",
-                transition: "all 1s ease",
+                transition: "all 0.5s ease",
                 maxHeight: isJustSignup ? "400px" : "0px",
               }}
             >
@@ -462,6 +486,8 @@ function SignUpForm() {
                   zIndex: 10,
                 }}
                 onClick={() => setIsJustForgotPassword(false)}
+
+
               >
                 <img src={closeIcon} alt="close" style={{ width: "20px", height: "20px" }} />
               </div>
@@ -484,7 +510,7 @@ function SignUpForm() {
                     textAlign: "center",
                   }}
                 >
-                  🔒 Forgot your password?
+                  🔒 {t("auth.forgotpassword")}
                 </div>
 
                 <form
@@ -534,7 +560,7 @@ function SignUpForm() {
               </div>
             </div>
 
-            {!isJustForgotPassword && (
+            {!isJustForgotPassword && showLoginContent && (
             <form
               key={"loginForm"}
               onSubmit={handleLoginSubmit}
@@ -544,6 +570,7 @@ function SignUpForm() {
                 color: "red",
               }}
             >
+              {showLoginContent && (
               <div
                 style={{
                   display: "flex",
@@ -607,7 +634,7 @@ function SignUpForm() {
                         textDecoration: "underline",
                       }}
                     >
-                      Forgot Password?
+                      {t("auth.forgotpassword")}
                     </button>
                   </div>
 
@@ -637,6 +664,7 @@ function SignUpForm() {
 
                 <GoogleLoginButton BASE_URL={BASE_URL} />
               </div>
+              )}
             </form>
             )}
             <div
