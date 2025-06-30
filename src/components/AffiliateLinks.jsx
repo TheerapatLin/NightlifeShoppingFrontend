@@ -57,11 +57,13 @@ function AffiliateLinks() {
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {activities.map((activity) => {
           const activityId = activity._id;
+          const activityCode = activity.activityCode;
           const image =
             activity.image?.[0]?.fileName || "/img/img_placeholder1.gif";
           const name = activity.nameTh || activity.nameEn || "Untitled";
           const refCode = user?.affiliateCode || "unknown";
-          const link = `${FRONTEND_URL}/activityDetails/${activityId}?ref=${refCode}`;
+          //const link = `${FRONTEND_URL}/activityDetails/${activityId}?ref=${refCode}`;
+          const link = `${FRONTEND_URL}/a/${refCode}${activityCode}`;
 
           return (
             <div
