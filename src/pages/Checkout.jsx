@@ -38,8 +38,20 @@ const Checkout = () => {
     location.state?.startDate || localStorage.getItem("startDate") || ""
   );
 
+  const [codeModalOpen, setCodeModalOpen] = useState(false);
+  const [enteredCode, setEnteredCode] = useState("");
+  const [appliedCode, setAppliedCode] = useState(() => {
+    location.state?.appliedDiscountCode ||
+      localStorage.getItem("appliedDiscountCode") ||
+      "";
+    // const stored = localStorage.getItem("appliedDiscountCode");
+    // return stored ? JSON.parse(stored) : null;
+  });
+  const [checkingCode, setCheckingCode] = useState(false);
+
   const [activity, setActivity] = useState(null);
   const [schedule, setSchedule] = useState(null);
+  const [discount, setDiscount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const { windowSize } = useGlobalEvent();
@@ -155,17 +167,6 @@ const Checkout = () => {
     }).format(amount);
   };
 
-  const formatDateTime = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleString("th-TH", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const formatDate = (isoString, language = "th-TH") => {
     const date = new Date(isoString);
     return date.toLocaleDateString(language, {
@@ -196,6 +197,52 @@ const Checkout = () => {
     });
   };
 
+  const handleUseCode = async () => {
+    if (!enteredCode) return;
+    setCheckingCode(true);
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/discount-code/validate`,
+        { code: enteredCode },
+        {
+          headers: { "device-fingerprint": "12345678" },
+          withCredentials: true,
+        }
+      );
+
+      if (res.data.valid) {
+        setAppliedCode(enteredCode);
+        localStorage.setItem("appliedDiscountCode", enteredCode);
+        setCodeModalOpen(false);
+        setEnteredCode("");
+        setDiscount(res.data.discountValue);
+        //alert(discount);
+        //alert(JSON.stringify(res.data.discountValue, null, 2));
+        alert("✅ Code applied successfully!");
+      } else {
+        // ใช้ข้อความจาก backend หากมี
+        const message =
+          res.data.message || "❌ Invalid code. Please try again.";
+        alert(`❌ ${message}`);
+      }
+    } catch (err) {
+      console.error(err);
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "❌ Error validating code. Please try again.";
+      alert(`❌ ${message}`);
+    } finally {
+      setCheckingCode(false);
+    }
+  };
+
+  const subtotal = cost * (adults + children);
+  const discountAmount =
+    appliedCode && appliedCode.discountType === "amount"
+      ? appliedCode.discountValue
+      : 0;
+  const total = Math.max(0, subtotal - discountAmount);
   return (
     <>
       <div className="mt-[0px] md:mt-[80px]  flex justify-center">
@@ -261,7 +308,7 @@ const Checkout = () => {
                     )}
                   </span>
                 </div>
-                <div className="pb-7">
+                <div className="pb-1">
                   <span className="text-[16px] font-semibold font-CerFont">
                     {i18n.language === "en" ? "Participants" : "ผู้เข้าร่วม"}
                   </span>
@@ -273,6 +320,39 @@ const Checkout = () => {
                       : `ผู้ใหญ่ ${adults} คน , เด็ก ${children} คน`}
                   </div>
                 </div>
+                {!appliedCode ? (
+                  <button
+                    className="mt-3 px-4 py-2 pb-2 mb-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 active:bg-blue-800 transition duration-150 ease-in-out font-semibold text-sm"
+                    onClick={() => setCodeModalOpen(true)}
+                  >
+                    {i18n.language === "en"
+                      ? "+ Enter Discount Code"
+                      : "+ ใส่โค้ดส่วนลด"}
+                  </button>
+                ) : (
+                  <div className="mt-2 flex items-center space-x-2">
+                    <span className="text-green-700 font-semibold text-sm">
+                      {appliedCode}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setAppliedCode("");
+                        setDiscount(0);
+                        localStorage.removeItem("appliedDiscountCode");
+                      }}
+                      className="text-red-600 underline text-xs"
+                    >
+                      Remove
+                    </button>
+                    <button
+                      onClick={() => setCodeModalOpen(true)}
+                      className="text-blue-600 underline text-xs"
+                    >
+                      Change
+                    </button>
+                  </div>
+                )}
+
                 {affiliate && (
                   <div className="text-[14px] font-normal text-gray-600 font-CerFont">
                     {i18n.language === "en"
@@ -281,37 +361,6 @@ const Checkout = () => {
                   </div>
                 )}
               </div>
-              {/* <div
-                className="py-7"
-                style={{ borderBottom: "solid 1px #dddddd" }}
-              >
-                <span className="flex text-[22px] font-semibold font-CerFont">
-                  ต้องดำเนินการ
-                </span>
-
-                <div className="flex justify-between pt-3 ">
-                  <div className="flex flex-col">
-                    <span className="text-[16px] font-normal font-CerFont">
-                      เบอร์โทร
-                    </span>
-                    <span className="text-[16px] font-normal font-CerFont">
-                      เพิ่มและยืนยันเบอร์โทรเพื่อรับอัพเดท
-                    </span>
-                  </div>
-                  <div>
-                    <button
-                      className="py-[7px] px-[15px] rounded-lg font-CerFont text-[14px] font-bold bg-transparent hover:bg-slate-100"
-                      style={{
-                        border: "solid 1px black",
-                        width: "auto",
-                        maxWidth: "170px",
-                      }}
-                    >
-                      เพิ่ม
-                    </button>
-                  </div>
-                </div>
-              </div> */}
 
               <div
                 className="py-7"
@@ -332,14 +381,6 @@ const Checkout = () => {
                       ) : (
                         "ผู้เข้าร่วมทุกคนต้องมีอายุอย่างน้อย 20 ปี "
                       )}
-                      {/* <span
-                        className="text-[16px] underline  cursor-pointer"
-                        onClick={() => setIsModalOpen(true)}
-                      >
-                        {i18n.language === "en"
-                          ? "Important Notice : "
-                          : "ดูข้อมูลเพิ่มเติม"}
-                      </span> */}
                     </span>
                   </div>
                 </div>
@@ -453,6 +494,18 @@ const Checkout = () => {
                             </div>
                           )}
                         </div>
+                        {appliedCode && discount > 0 && (
+                          <div className="flex justify-between text-green-700 mt-2">
+                            <div className="font-CerFont text-[16px]">
+                              {i18n.language === "th"
+                                ? `ส่วนลด (${appliedCode})`
+                                : `Discount (${appliedCode})`}
+                            </div>
+                            <div className="font-CerFont text-[16px]">
+                              -{formatCurrency(discount)}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div
@@ -466,8 +519,12 @@ const Checkout = () => {
                             <span className="underline font-medium">(THB)</span>
                           </b>
                         </div>
-                        <div className="font-CerFont text-[18px]">
-                          <b>{formatCurrency(cost * (adults + children))}</b>
+                        <div className="font-CerFont text-[24px]">
+                          <b>
+                            {formatCurrency(
+                              cost * (adults + children) - discount
+                            )}
+                          </b>{" "}
                         </div>
                       </div>
                     </div>
@@ -483,9 +540,6 @@ const Checkout = () => {
                         {i18n.language === "th"
                           ? "ไม่มีนโยบายให้ยกการจอง โดยเงินที่ชำระมาจะนำไปบริจาคช่วยเหลือสถานที่ที่ไปร่วมกิจกรรมแทน"
                           : "There is no cancellation policy. The paid amount will be donated to support the venue of the activity."}
-                        {/* <span className="underline font-bold font-CerFont">
-                      ดูข้อมูลเพิ่มเติม
-                    </span> */}
                       </div>
                     </div>
                   </div>
@@ -496,19 +550,6 @@ const Checkout = () => {
               )}
 
               <StripeContainer />
-
-              {/* <div className="py-[32px] text-[13px] font-CerFont font-normal">
-                การเลือกปุ่มด้านล่างถือเป็นการยอมรับ
-                <span className="underline font-bold">
-                  การสละสิทธิ์และยกเว้นความรับผิดของผู้เข้าร่วม
-                  นโยบายยกเลิกการจอง นโยบายการคืนเงินให้ผู้เข้าพัก
-                </span>{" "}
-                และ
-                <span className="underline font-bold">
-                  คำแนะนำของ Airbnb ว่าด้วยการรักษาระยะห่างระหว่างบุคคลและ
-                  COVID-19
-                </span>
-              </div> */}
             </div>
 
             {/* 45% */}
@@ -612,8 +653,12 @@ const Checkout = () => {
                           <span className="underline font-medium">(THB)</span>
                         </b>
                       </div>
-                      <div className="font-CerFont text-[18px]">
-                        <b>{formatCurrency(cost * (adults + children))}</b>
+                      <div className="font-CerFont text-[24px]">
+                        <b>
+                          {formatCurrency(
+                            cost * (adults + children) - discount
+                          )}
+                        </b>
                       </div>
                     </div>
                   </div>
@@ -629,9 +674,6 @@ const Checkout = () => {
                       {i18n.language === "th"
                         ? "ไม่มีนโยบายให้ยกการจอง โดยเงินที่ชำระมาจะนำไปบริจาคช่วยเหลือสถานที่ที่ไปร่วมกิจกรรมแทน"
                         : "There is no cancellation policy. The paid amount will be donated to support the venue of the activity."}
-                      {/* <span className="underline font-bold font-CerFont">
-                      ดูข้อมูลเพิ่มเติม
-                    </span> */}
                     </div>
                   </div>
                 </div>
@@ -640,6 +682,38 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+
+      {codeModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-80 shadow-lg relative">
+            <button
+              onClick={() => setCodeModalOpen(false)}
+              className="absolute top-2 right-3 text-gray-600 text-lg"
+            >
+              ✕
+            </button>
+            <h2 className="text-lg font-bold mb-3 text-center">
+              Enter Discount Code
+            </h2>
+            <input
+              type="text"
+              value={enteredCode}
+              onChange={(e) => setEnteredCode(e.target.value)}
+              className="border rounded p-2 w-full mb-3"
+              placeholder="Enter your code"
+            />
+            <button
+              onClick={handleUseCode}
+              disabled={checkingCode}
+              className={`bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition ${
+                checkingCode ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {checkingCode ? "Checking..." : "Use Code"}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -75,30 +75,28 @@ const StripeContainer = () => {
       return;
     }
 
-    setIsLoading(true);
+    // ไม่เรียก setIsLoading(true) ตรงนี้
+    // setIsLoading(true);
 
-    // เช็คว่าอีเมลมีในฐานข้อมูลหรือไม่
     const emailExists = await checkEmailExists(email);
 
     if (emailExists && !user) {
-      // ถ้าอีเมลมีในฐานข้อมูล ให้แสดง SweetAlert ถามว่าจะยืนยันการชำระเงินหรือไม่
-      Swal.fire({
-        title: "ยืนยันการชำระเงิน",
-        text: "อีเมลนี้มีในระบบแล้ว คุณต้องการยืนยันการชำระเงินหรือไม่?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "ยืนยัน",
-        cancelButtonText: "ยกเลิก",
-      }).then(async (result) => {
-        setIsLoading(false); // Reset isLoading back to false here
-
-        if (result.isConfirmed) {
-          // ถ้ายืนยัน จะทำการชำระเงิน
-          await confirmPayment();
-        }
-      });
+      await confirmPayment();
+      // Swal.fire({
+      //   title: "ยืนยันการชำระเงิน",
+      //   text: "อีเมลนี้มีในระบบแล้ว คุณต้องการยืนยันการชำระเงินหรือไม่?",
+      //   icon: "question",
+      //   showCancelButton: true,
+      //   confirmButtonText: "ยืนยัน",
+      //   cancelButtonText: "ยกเลิก",
+      // }).then(async (result) => {
+      //   if (result.isConfirmed) {
+      //     await confirmPayment(); // setIsLoading อยู่ในนี้
+      //   } else {
+      //     setIsLoading(false); // RESET ให้แน่ใจเมื่อกดยกเลิก
+      //   }
+      // });
     } else {
-      // ถ้าอีเมลไม่มีในฐานข้อมูล ให้ทำการยืนยันการชำระเงินทันที
       await confirmPayment();
     }
   };

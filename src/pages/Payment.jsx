@@ -22,6 +22,11 @@ const Payment = () => {
   const location = useLocation();
   const [clientSecret, setClientSecret] = useState("");
   const [paymentState, setPaymentState] = useState(location.state);
+  const [appliedDiscountCode, setAppliedDiscountCode] = useState(
+    location.state?.appliedDiscountCode ||
+      localStorage.getItem("appliedDiscountCode") ||
+      ""
+  );
   const [activityId, setActivityId] = useState(
     location.state?.activityId || localStorage.getItem("activityId") || ""
   );
@@ -100,6 +105,7 @@ const Payment = () => {
                 },
               ],
               affiliateCode,
+              appliedDiscountCode,
             }),
           }
         );
