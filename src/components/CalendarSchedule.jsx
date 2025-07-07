@@ -1,3 +1,4 @@
+//CalendarSchedule.jsx
 import React from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -25,8 +26,8 @@ function CalendarSchedule({ onDateSelect, events, onEventClick }) {
 
     try {
       // เรียก API เพื่อตรวจสอบกิจกรรมด้วย eventId
-      const response = await axios.get(`${BASE_URL}/activity/${eventId}`, {
-        withCredentials: true, // ถ้ามีการใช้คุกกี้
+      const response = await axios.get(`${BASE_URL}/activity-slot/${eventId}`, {
+        withCredentials: true,
       });
 
       const fetchedEvent = response.data;
@@ -34,20 +35,26 @@ function CalendarSchedule({ onDateSelect, events, onEventClick }) {
       if (fetchedEvent) {
         // ส่งข้อมูลที่ดึงมาไปยังฟังก์ชัน onEventClick ผ่าน props
         onEventClick({
-          id: fetchedEvent.id,
-          title: fetchedEvent.name,
-          start: fetchedEvent.activityTime.start,
-          end: fetchedEvent.activityTime.end,
-          parentId: fetchedEvent.parentId,
+          id: fetchedEvent._id,
+          title:
+            fetchedEvent.activityId?.nameTh ||
+            fetchedEvent.activityId?.nameEn ||
+            "กิจกรรม",
+          start: fetchedEvent.startTime,
+          end: fetchedEvent.endTime,
+          parentId: fetchedEvent.parentSlotId,
           extendedProps: {
-            description: fetchedEvent.description,
+            description: fetchedEvent.notes,
             expenses: fetchedEvent.cost,
             participantLimit: fetchedEvent.participantLimit,
-            images: fetchedEvent.image,
+            location: fetchedEvent.location,
+            creator: fetchedEvent.creator,
+            activityId: fetchedEvent.activityId?._id,
+            slotId: fetchedEvent._id,
           },
         });
-      }else{
-        console.log("onEventClick Error!!!")
+      } else {
+        console.log("onEventClick Error!!!");
       }
     } catch (error) {
       console.error("Error fetching event data:", error);
@@ -58,12 +65,12 @@ function CalendarSchedule({ onDateSelect, events, onEventClick }) {
   const renderEventContent = (eventInfo) => {
     const view = eventInfo.view.type;
     const maxTitleLength = 15; // กำหนดความยาวสูงสุดของชื่อกิจกรรม
-  
+
     let title = eventInfo.event.title;
     if (title.length > maxTitleLength) {
-      title = title.substring(0, maxTitleLength) + '...';
+      title = title.substring(0, maxTitleLength) + "...";
     }
-  
+
     return (
       <div className="flex items-center overflow-hidden">
         <span className="w-2 h-2 rounded-full bg-blue-500 mr-2 flex-shrink-0"></span>

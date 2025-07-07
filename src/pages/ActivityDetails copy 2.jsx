@@ -1,18 +1,10 @@
-//ActivityDetails.jsx
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import utc from "dayjs/plugin/utc";
 import "dayjs/locale/th";
 import {
@@ -40,8 +32,6 @@ import "./sandbox.css";
 import "./embla.css";
 
 dayjs.locale("th");
-dayjs.extend(isSameOrAfter);
-dayjs.extend(utc);
 
 const OPTIONS = {};
 const SLIDE_COUNT = 5;
@@ -69,7 +59,7 @@ const ActivityDetails = () => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [startDate, setStartDate] = useState(null);
+  const [startDate, setStartDate] = useState(today);
   const datePickerRef = useRef(null);
   const containerRef = useRef(null);
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
@@ -86,7 +76,6 @@ const ActivityDetails = () => {
   const [searchParams] = useSearchParams();
   const { setAffiliate, user } = useAuth();
   const [filteredSchedules, setFilteredSchedules] = useState([]);
-  const [slots, setSlots] = useState([]);
 
   useSyncDayjsLocale();
 
@@ -117,60 +106,6 @@ const ActivityDetails = () => {
       navigate(window.location.pathname, { replace: true });
     }
   }, [searchParams]);
-
-  // หาวันที่มีรอบ >= วันนี้
-  useEffect(() => {
-    if (!activity?.schedule) return;
-
-    const today = dayjs().startOf("day");
-    // หา slot ที่มากกว่า "วันนี้" จริง ๆ
-    const futureSlots = activity.schedule
-      .filter((slot) => dayjs(slot.startTime).isAfter(today))
-      .sort(
-        (a, b) => dayjs(a.startTime).valueOf() - dayjs(b.startTime).valueOf()
-      );
-
-    if (futureSlots.length > 0) {
-      setStartDate(dayjs(futureSlots[0].startTime).toDate());
-    } else {
-      setStartDate(null);
-    }
-  }, [activity]);
-
-  // ✅ ใส่ตรงนี้
-  const availableDates = React.useMemo(() => {
-    if (!activity?.schedule) return new Set();
-
-    return new Set(
-      activity.schedule.map((slot) =>
-        dayjs(slot.startTime).format("YYYY-MM-DD")
-      )
-    );
-  }, [activity]);
-
-  const [activitySlots, setActivitySlots] = useState([]);
-
-  useEffect(() => {
-    const fetchActivitySlots = async () => {
-      try {
-        const res = await axios.get(
-          `${
-            import.meta.env.VITE_BASE_API_URL_LOCAL
-          }/activity-slot?activityId=${activity._id}`,
-          {
-            withCredentials: true,
-          }
-        );
-        setActivitySlots(res.data);
-      } catch (error) {
-        console.error("Error fetching activity slots:", error);
-      }
-    };
-
-    if (activity?._id) {
-      fetchActivitySlots();
-    }
-  }, [activity]);
 
   const handlePaymentNavigation = (
     activityId,
@@ -282,7 +217,7 @@ const ActivityDetails = () => {
       //alert("activitylastStartDate = " + activity.lastStartDate);
       //setStartDate(activity.lastStartDate);
       //const initialDate = new Date(activity.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
-      //handleDateChange(today);
+      handleDateChange(today);
     }
   }, [activity]);
 
@@ -387,40 +322,11 @@ const ActivityDetails = () => {
     return `${thaiDay}. ${day} ${thaiMonths[month]}`;
   };
 
-  const ActivityList = ({
-    activity,
-    startDate,
-    schedules,
-    handlePaymentNavigation,
-    formatTime,
-    adults,
-    children,
-  }) => {
-    const { i18n } = useTranslation();
-
-    const filteredSchedules = useMemo(() => {
-      if (!schedules || !startDate || !activity?._id) return [];
-
-      return schedules.filter((schedule) => {
-        const scheduleDate = dayjs.utc(schedule.startTime).format("YYYY-MM-DD");
-        const selectedDate = dayjs.utc(startDate).format("YYYY-MM-DD"); // ✅ แก้ตรงนี้
-
-        const isSameDate = scheduleDate === selectedDate;
-
-        const isSameActivity =
-          schedule.activityId?._id === activity._id ||
-          schedule.activityId === activity._id;
-
-        return isSameDate && isSameActivity;
-      });
-    }, [schedules, startDate, activity]);
-
+  const ActivityList = () => {
     if (!filteredSchedules.length) {
       return (
         <div className="flex flex-col h-[300px] items-center justify-center text-gray-500">
-          {i18n.language === "en"
-            ? "No activity schedules for the selected date"
-            : "ไม่มีตารางกิจกรรมในวันที่เลือก"}
+          ไม่มีตารางกิจกรรมในวันที่เลือก
         </div>
       );
     }
@@ -435,12 +341,10 @@ const ActivityDetails = () => {
           >
             <div className="flex flex-col">
               <div className="font-CerFont text-[12px] font-bold">
-                {i18n.language === "en" ? "Session " : "รอบที่ "}
-                {index + 1}
+                {i18n.language === "en" ? "Session" : "รอบที่"} {index + 1}
               </div>
               <div className="font-CerFont text-[16px]">
-                {formatTime(schedule.startTime)} -{" "}
-                {formatTime(schedule.endTime)}
+                {formatTime(schedule.startTime)}-{formatTime(schedule.endTime)}
               </div>
             </div>
             <div className="flex flex-col items-end mr-2">
@@ -452,6 +356,7 @@ const ActivityDetails = () => {
                   : `฿ ${schedule.cost}`}{" "}
                 / {i18n.language === "en" ? "person" : "คน"}
               </div>
+
               <button
                 className="buttonSelectDate"
                 onClick={() =>
@@ -606,63 +511,47 @@ const ActivityDetails = () => {
     return date >= today.setHours(0, 0, 0, 0); // ป้องกันเลือกวันในอดีต
   };
 
-  const CalendarComponent = ({ schedules, startDate, setStartDate }) => {
-    const { i18n } = useTranslation();
-    const containerRef = useRef(null);
-    const datePickerRef = useRef(null);
-
-    // เช็คว่ามีรอบในอนาคตหรือไม่
-    const futureSchedules = useMemo(() => {
-      const today = dayjs().startOf("day");
-      return (
-        schedules?.filter((slot) =>
-          dayjs(slot.startTime).isSameOrAfter(today)
-        ) || []
-      );
-    }, [schedules]);
-
-    useEffect(() => {
-      if (futureSchedules.length > 0 && !startDate) {
-        const firstFutureSlot = futureSchedules.sort(
-          (a, b) => dayjs(a.startTime) - dayjs(b.startTime)
-        )[0];
-        setStartDate(dayjs(firstFutureSlot.startTime).toDate());
-      }
-    }, [futureSchedules, startDate, setStartDate]);
-
+  const CalendarComponent = ({ schedules }) => {
+    // ฟังก์ชันสำหรับกรองวันที่
     const filterDate = (date) => {
-      const formattedDate = dayjs(date).format("YYYY-MM-DD");
-      return futureSchedules.some((slot) => {
-        const slotDate = dayjs(slot.startTime).format("YYYY-MM-DD");
-        return slotDate === formattedDate;
-      });
-    };
+      if (!schedules || schedules.length === 0) return false;
 
-    const handleDateChange = (date) => {
-      setStartDate(date);
-    };
+      const dayOfWeek = date.getDay();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const openDatePicker = () => {
-      if (containerRef.current) {
-        containerRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }
-      if (datePickerRef.current) {
-        datePickerRef.current.setFocus();
-      }
-    };
+      // ตรวจสอบวันหยุด
+      const holidays = schedules
+        .flatMap((schedule) => schedule.holidays || [])
+        .map((holiday) => new Date(holiday));
 
-    if (!futureSchedules.length) {
       return (
-        <div className="text-center text-gray-500 font-semibold mt-4">
-          {i18n.language === "en"
-            ? `⚠️ No activity slots are available.`
-            : `⚠️ ไม่มีรอบกิจกรรมเปิดอยู่ในขณะนี้`}
-        </div>
+        date >= today &&
+        !isHoliday(date, holidays) && // ไม่แสดงวันที่ที่เป็นวันหยุด
+        schedules.some((schedule) => {
+          const dayString = schedule.dayString.toLowerCase();
+          const days = dayString.split(",").map((day) => day.trim());
+
+          if (days.includes("everyday")) {
+            return true;
+          } else if (days.includes("weekend")) {
+            return dayOfWeek === 0 || dayOfWeek === 6;
+          } else {
+            return days.includes(
+              [
+                "sunday",
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday",
+              ][dayOfWeek]
+            );
+          }
+        })
       );
-    }
+    };
 
     return (
       <div className="flex">
@@ -676,9 +565,11 @@ const ActivityDetails = () => {
             <label className="font-CerFont font-bold text-[12px]">
               {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
             </label>
+            {/* <b>{dayjs(startDate).format("DD/MM/YYYY")}</b> */}
             <DatePicker
               ref={datePickerRef}
               selected={startDate}
+              //selected={today}
               onChange={handleDateChange}
               dateFormat="dd/MM/yyyy"
               locale="th"
@@ -686,12 +577,15 @@ const ActivityDetails = () => {
                 i18n.language === "en" ? "Select Date" : "เลือกวันที่"
               }
               className="cursor-pointer font-CerFont"
-              filterDate={filterDate}
-              minDate={new Date()}
+              //filterDate={filterDate}
+              filterDate={everydayFromToday}
+              minDate={today}
+              style={{ display: "none" }}
             />
           </div>
           <FaChevronDown size={16} />
         </div>
+
         <div
           className="flex items-center rounded-r-lg p-3 w-[150px]"
           style={{ border: "1px solid black" }}
@@ -1080,24 +974,12 @@ const ActivityDetails = () => {
 
                     {/* วันที่ */}
                     <div className="flex justify-center mt-[24px] mb-[0px] lg:mb-[10px]">
-                      <CalendarComponent
-                        schedules={activitySlots}
-                        startDate={startDate}
-                        setStartDate={setStartDate}
-                      />
+                      <CalendarComponent schedules={activity?.schedule} />
                     </div>
 
                     {/* Activities container with fixed height and scrollable */}
                     <div className="flex flex-col h-[350px]">
-                      <ActivityList
-                        activity={activity}
-                        startDate={startDate}
-                        schedules={activitySlots} // ✅ ใช้ slot ที่ดึงจาก backend
-                        handlePaymentNavigation={handlePaymentNavigation}
-                        formatTime={formatTime}
-                        adults={adults}
-                        children={children}
-                      />
+                      <ActivityList />
                     </div>
 
                     {/* Show more button - always at bottom */}
@@ -1444,6 +1326,20 @@ const FloatingBar = ({
                   const today = new Date().setHours(0, 0, 0, 0);
                   return currentDate < today; // 🔥 ปิดวันก่อนวันนี้
                 }}
+                // shouldDisableDate={(date) => {
+                //   if (!dates) {
+                //     return true; // ปิดการใช้งานวันที่ทั้งหมดถ้า dates เป็น undefined หรือ null
+                //   }
+                //   const activityDates = dates.map((d) =>
+                //     new Date(d.activityTime.start).setHours(0, 0, 0, 0)
+                //   );
+                //   const currentDate = new Date(date).setHours(0, 0, 0, 0);
+                //   const today = new Date().setHours(0, 0, 0, 0);
+                //   // ปิดการใช้งานวันที่ที่ไม่มีใน activity และวันที่ในอดีต
+                //   return (
+                //     currentDate < today || !activityDates.includes(currentDate)
+                //   );
+                // }}
               />
             </LocalizationProvider>
 
@@ -1579,8 +1475,18 @@ const FloatingBar = ({
             : "(กรุณาเลือกวันที่ก่อน)"}
         </div>
       </div>
+      {/* <button
+        className="buttonShowDate-Mobile"
+        onClick={() => setIsDetailsOpen(true)}
+      >
+        แสดงวันที่
+      </button> */}
       <div>
         <button
+          // className="bg-transparent rounded-full px-3 text-sm font-CerFont"
+          // style={{
+          //   border: "1px solid #dddddd",
+          // }}
           className="buttonSelectDate"
           style={{ width: "120px", padding: "8px", margin: "5px" }}
           onClick={() => setModalParticipants(true)}
@@ -1667,6 +1573,20 @@ const FloatingBar = ({
                   const today = new Date().setHours(0, 0, 0, 0);
                   return currentDate < today; // 🔥 ปิดวันก่อนวันนี้
                 }}
+                // shouldDisableDate={(date) => {
+                //   if (!dates) {
+                //     return true; // ปิดการใช้งานวันที่ทั้งหมดถ้า dates เป็น undefined หรือ null
+                //   }
+                //   const activityDates = dates.map((d) =>
+                //     new Date(d.activityTime.start).setHours(0, 0, 0, 0)
+                //   );
+                //   const currentDate = new Date(date).setHours(0, 0, 0, 0);
+                //   const today = new Date().setHours(0, 0, 0, 0);
+                //   // ปิดการใช้งานวันที่ที่ไม่มีใน activity และวันที่ในอดีต
+                //   return (
+                //     currentDate < today || !activityDates.includes(currentDate)
+                //   );
+                // }}
               />
             </LocalizationProvider>
 

@@ -124,6 +124,36 @@ const Checkout = () => {
     }
   }, [activityId]);
 
+  useEffect(() => {
+    const fetchScheduleSlot = async () => {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/activity-slot?scheduleId=${scheduleId}`,
+          { withCredentials: true }
+        );
+
+        // ถ้ามีหลาย slot ควร filter เฉพาะที่ตรง activityId ด้วย
+        const matchedSlot = res.data.find(
+          (slot) =>
+            slot.activityId === activityId ||
+            slot.activityId?._id === activityId
+        );
+
+        if (matchedSlot) {
+          setSchedule(matchedSlot);
+        } else {
+          console.error("❌ No matching slot found for this scheduleId");
+        }
+      } catch (err) {
+        console.error("❌ Error fetching activity slot:", err);
+      }
+    };
+
+    if (activityId && scheduleId && !schedule) {
+      fetchScheduleSlot();
+    }
+  }, [activityId, scheduleId, schedule]);
+
   const formatThaiDate = (dateStr) => {
     const thaiMonths = {
       "01": "ม.ค.",
@@ -304,7 +334,9 @@ const Checkout = () => {
                         {formatTime(schedule.endTime)})
                       </>
                     ) : (
-                      "กำลังโหลด..."
+                      <>
+                        {i18n.language === "en" ? "Loading..." : "กำลังโหลด..."}
+                      </>
                     )}
                   </span>
                 </div>
