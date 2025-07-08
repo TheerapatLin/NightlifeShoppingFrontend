@@ -80,6 +80,19 @@ const Checkout = () => {
   ]);
 
   useEffect(() => {
+    // ✅ Clear discount code on entering the page
+    localStorage.removeItem("appliedDiscountCode");
+    setAppliedCode(""); // clear state
+    setDiscount(0); // clear state
+  }, []);
+  useEffect(() => {
+    return () => {
+      // ✅ Clear discount code on leaving the page
+      localStorage.removeItem("appliedDiscountCode");
+    };
+  }, []);
+
+  useEffect(() => {
     localStorage.removeItem("client_secret");
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -267,12 +280,6 @@ const Checkout = () => {
     }
   };
 
-  const subtotal = cost * (adults + children);
-  const discountAmount =
-    appliedCode && appliedCode.discountType === "amount"
-      ? appliedCode.discountValue
-      : 0;
-  const total = Math.max(0, subtotal - discountAmount);
   return (
     <>
       <div className="mt-[0px] md:mt-[80px]  flex justify-center">
@@ -554,7 +561,10 @@ const Checkout = () => {
                         <div className="font-CerFont text-[24px]">
                           <b>
                             {formatCurrency(
-                              cost * (adults + children) - discount
+                              Math.max(
+                                cost * (adults + children) - discount,
+                                15
+                              )
                             )}
                           </b>{" "}
                         </div>
@@ -688,7 +698,7 @@ const Checkout = () => {
                       <div className="font-CerFont text-[24px]">
                         <b>
                           {formatCurrency(
-                            cost * (adults + children) - discount
+                            Math.max(cost * (adults + children) - discount, 15)
                           )}
                         </b>
                       </div>

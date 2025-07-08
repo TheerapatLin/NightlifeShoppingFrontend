@@ -427,49 +427,91 @@ const ActivityDetails = () => {
 
     return (
       <div className="flex flex-col h-[300px] overflow-y-auto">
-        {filteredSchedules.map((schedule, index) => (
-          <div
-            key={schedule._id}
-            className="flex justify-between py-[15px]"
-            style={{ borderBottom: "solid 1px #dddddd" }}
-          >
-            <div className="flex flex-col">
-              <div className="font-CerFont text-[12px] font-bold">
-                {i18n.language === "en" ? "Session " : "รอบที่ "}
-                {index + 1}
+        {filteredSchedules.map((schedule, index) => {
+          const participantLimit = schedule.participantLimit || 0;
+
+          // ✅ นับจำนวนคนจริงจากผู้เข้าร่วมทั้งหมด
+          const participantsCount =
+            schedule.participants?.reduce((total, p) => {
+              const adults = p.adults || 0;
+              const children = p.children || 0;
+              return total + adults + children;
+            }, 0) || 0;
+
+          const spotsLeft = participantLimit - participantsCount;
+
+          // ✅ Determine availability status
+          const isSoldOut = spotsLeft <= 0;
+
+          return (
+            <div
+              key={schedule._id}
+              className="flex justify-between py-[15px]"
+              style={{ borderBottom: "solid 1px #dddddd" }}
+            >
+              <div className="flex flex-col">
+                <div className="font-CerFont text-[12px] font-bold">
+                  {i18n.language === "en" ? "Session " : "รอบที่ "}
+                  {index + 1}
+                </div>
+                <div className="font-CerFont text-[16px]">
+                  {formatTime(schedule.startTime)} -{" "}
+                  {formatTime(schedule.endTime)}
+                </div>
+
+                <div className="font-CerFont text-[12px] text-gray-500 mt-1">
+                  {isSoldOut
+                    ? i18n.language === "en"
+                      ? "Sold out"
+                      : "เต็มแล้ว"
+                    : i18n.language === "en"
+                    ? `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`
+                    : `เหลืออีก ${spotsLeft} ที่`}
+                </div>
               </div>
-              <div className="font-CerFont text-[16px]">
-                {formatTime(schedule.startTime)} -{" "}
-                {formatTime(schedule.endTime)}
+
+              <div className="flex flex-col items-end mr-2">
+                <div className="font-CerFont text-[14px] font-bold">
+                  {schedule.cost === 0
+                    ? i18n.language === "en"
+                      ? "Free"
+                      : "ฟรี"
+                    : `฿ ${schedule.cost}`}{" "}
+                  / {i18n.language === "en" ? "person" : "คน"}
+                </div>
+
+                <button
+                  className={`buttonSelectDate ${
+                    isSoldOut ? "opacity-30 cursor-not-allowed" : ""
+                  }`}
+                  onClick={() => {
+                    if (!isSoldOut) {
+                      handlePaymentNavigation(
+                        activity._id,
+                        schedule._id,
+                        adults,
+                        children,
+                        schedule.cost,
+                        startDate
+                      );
+                    }
+                  }}
+                  disabled={isSoldOut}
+                >
+                  <center>
+                    {isSoldOut
+                      ? i18n.language === "en"
+                        ? "Sold out"
+                        : "เต็มแล้ว"
+                      : i18n.language === "en"
+                      ? "Choose"
+                      : "เลือก"}
+                  </center>
+                </button>
               </div>
             </div>
-            <div className="flex flex-col items-end mr-2">
-              <div className="font-CerFont text-[14px] font-bold">
-                {schedule.cost === 0
-                  ? i18n.language === "en"
-                    ? "Free"
-                    : "ฟรี"
-                  : `฿ ${schedule.cost}`}{" "}
-                / {i18n.language === "en" ? "person" : "คน"}
-              </div>
-              <button
-                className="buttonSelectDate"
-                onClick={() =>
-                  handlePaymentNavigation(
-                    activity._id,
-                    schedule._id,
-                    adults,
-                    children,
-                    schedule.cost,
-                    startDate
-                  )
-                }
-              >
-                <center>{i18n.language === "en" ? "Choose" : "เลือก"}</center>
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };

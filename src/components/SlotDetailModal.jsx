@@ -121,10 +121,11 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
         onClose();
       } catch (err) {
         console.error(err);
+        const msg = err.response?.data?.message || "ไม่สามารถลบรอบได้";
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาด",
-          text: "ไม่สามารถลบรอบได้",
+          text: msg,
           didOpen: () => {
             document.querySelector(".swal2-container").style.zIndex = "1600";
           },
