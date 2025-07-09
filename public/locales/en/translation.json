@@ -77,6 +77,19 @@
         "copy": "Copy",
         "copy_link": "Copy Link",
         "copied": "Copied to clipboard!",
-        "no_affiliate_activities": "No affiliate activity found yet."
+        "no_affiliate_activities": "No affiliate activity found yet.",
+        "customer_discount": "Customer Discount",
+        "your_earning": "Your Earning",
+        "save": "Save",
+        "saving": "Saving...",
+        "saved_successfully": "Saved successfully",
+        "save_failed": "Save failed",
+        "no_negative_value": "Value cannot be negative",
+        "max_value": "Maximum value is",
+        "used_link": "used your link",
+        "earned": "earned",
+        "withdrawn": "withdrawn",
+        "view_details": "view details",
+        "summary_title": "Usage Details"
     }
 }

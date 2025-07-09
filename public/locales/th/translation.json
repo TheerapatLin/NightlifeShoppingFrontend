@@ -77,6 +77,18 @@
     "copy": "คัดลอก",
     "copy_link": "คัดลอกลิงก์",
     "copied": "คัดลอกแล้ว!",
-    "no_affiliate_activities": "ยังไม่มีกิจกรรมแนะนำ"
+    "no_affiliate_activities": "ยังไม่มีกิจกรรมแนะนำ",
+    "customer_discount": "ส่วนลดลูกค้า",
+    "your_earning": "รายได้ของคุณ",
+    "save": "บันทึก",
+    "saving": "กำลังบันทึก...",
+    "saved_successfully": "บันทึกสำเร็จ",
+    "save_failed": "บันทกล้มเหลว",
+    "no_negative_value": "ค่าห้ามติดลบ",
+    "max_value": "ค่าสูงสุดคือ",
+    "used_link": "ครั้งการใช้ลิงก์ของคุณ",
+    "earned": "earned",
+    "withdrawn": "withdrawn",
+    "view_details": "ดูรายละเอียด"
   }
 }
