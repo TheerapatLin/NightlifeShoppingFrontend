@@ -89,6 +89,8 @@
     "used_link": "ครั้งการใช้ลิงก์ของคุณ",
     "earned": "earned",
     "withdrawn": "withdrawn",
-    "view_details": "ดูรายละเอียด"
+    "view_details": "ดูรายละเอียด",
+    "summary_title": "การจองผ่านลิงก์ของคุณ",
+    "no_records": "(ยังไม่มีการสมัคร)"
   }
 }

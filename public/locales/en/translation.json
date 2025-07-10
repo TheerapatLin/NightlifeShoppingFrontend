@@ -90,6 +90,7 @@
         "earned": "earned",
         "withdrawn": "withdrawn",
         "view_details": "view details",
-        "summary_title": "Usage Details"
+        "summary_title": "Usage Details",
+        "no_records": "(no records)"
     }
 }

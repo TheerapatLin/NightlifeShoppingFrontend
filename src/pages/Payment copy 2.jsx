@@ -14,12 +14,7 @@ import CompletePage from "./CompletePayment";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-// const stripePromise = loadStripe(
-//   "pk_test_51NigrKCQKredYD0SRv7ivWjWuiHQIxjb5OrykOyx1Zvu3xLWlS7T6yqyv03bF1QoRKF82MeckE6H8pmP0meRqFLp005UQtTW3j"
-// );
-const stripePromise = loadStripe(
-  "pk_live_51NigrKCQKredYD0SBwj7z0WPCQusOAMy6vCB10eLsuX0ij3oCaGdYYDaRZ1uKi0DkN0E4T7tJ6s2U7vh0wqwG4gQ007MTlWDhR"
-);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const Payment = () => {
   var isIntentLoading = false;
@@ -27,23 +22,77 @@ const Payment = () => {
   const location = useLocation();
   const [clientSecret, setClientSecret] = useState("");
   const [paymentState, setPaymentState] = useState(location.state);
-  const { activityId, scheduleId, adults, children, cost, startDate } =
-    location.state || {};
+  
+  const [appliedDiscountCode, setAppliedDiscountCode] = useState(
+    location.state?.appliedDiscountCode ||
+      localStorage.getItem("appliedDiscountCode") ||
+      ""
+  );
+  const [activityId, setActivityId] = useState(
+    location.state?.activityId || localStorage.getItem("activityId") || ""
+  );
+  const [scheduleId, setScheduleId] = useState(
+    location.state?.scheduleId || localStorage.getItem("scheduleId") || ""
+  );
+  const [adults, setAdults] = useState(
+    location.state?.adults || parseInt(localStorage.getItem("adults")) || 0
+  );
+  const [children, setChildren] = useState(
+    location.state?.children || parseInt(localStorage.getItem("children")) || 0
+  );
+  const [cost, setCost] = useState(
+    location.state?.cost || localStorage.getItem("cost") || ""
+  );
+  const [startDate, setStartDate] = useState(
+    location.state?.startDate || localStorage.getItem("startDate") || ""
+  );
+  const [priceDetails, setPriceDetails] = useState({
+    originalPrice: null,
+    discountAmount: null,
+    affiliateDiscountAmount: null,
+    paidAmount: null,
+  });
 
   const appearance = {
     theme: "stripe",
   };
   const loader = "auto";
+  useEffect(() => {
+    if (location.state?.mode === "reloadFromLocal") {
+      setActivityId(localStorage.getItem("activityId"));
+      setScheduleId(localStorage.getItem("scheduleId"));
+      setAdults(parseInt(localStorage.getItem("adults")) || 1);
+      setChildren(parseInt(localStorage.getItem("children")) || 0);
+      setCost(localStorage.getItem("cost"));
+      setStartDate(localStorage.getItem("startDate"));
+    } else {
+      localStorage.setItem("activityId", activityId);
+      localStorage.setItem("scheduleId", scheduleId);
+      localStorage.setItem("adults", adults);
+      localStorage.setItem("children", children);
+      localStorage.setItem("cost", cost);
+      localStorage.setItem("startDate", startDate);
+    }
+  }, [
+    location.state,
+    activityId,
+    scheduleId,
+    adults,
+    children,
+    cost,
+    startDate,
+  ]);
 
   useEffect(() => {
-    event.preventDefault();
+    //event.preventDefault();
     //alert('payment_page');
+
     const createPaymentIntent = async () => {
-      // alert(`activityId : ${activityId}`);
-      // alert(`scheduleId : ${scheduleId}`);
+      const stored = localStorage.getItem("affiliateRef");
+      const affiliateCode = stored ? JSON.parse(stored)?.ref : null;
       try {
         const response = await fetch(
-          `${BASE_URL}/order/create-payment-intent`,
+          `${BASE_URL}/activity-order/create-payment-intent`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -59,6 +108,8 @@ const Payment = () => {
                   startDate,
                 },
               ],
+              affiliateCode,
+              appliedDiscountCode,
             }),
           }
         );
@@ -66,8 +117,15 @@ const Payment = () => {
           throw new Error("Failed to create payment intent");
         }
         const data = await response.json();
-        //localStorage.setItem("client_secret", data.clientSecret);
         setClientSecret(data.clientSecret);
+
+        setPriceDetails({
+          originalPrice: data.originalPrice,
+          discountAmount: data.discountAmount,
+          affiliateDiscountAmount: data.affiliateDiscountAmount,
+          paidAmount: data.paidAmount,
+        });
+
         isIntentLoading = false;
       } catch (error) {
         console.error("Error creating payment intent:", error);
@@ -83,7 +141,7 @@ const Payment = () => {
   return (
     <>
       {clientSecret && (
-        <div>
+        <div style={{ paddingTop: "60px" }}>
           <Elements
             options={{ clientSecret, appearance, loader }}
             stripe={stripePromise}
@@ -100,10 +158,12 @@ const Payment = () => {
                       children,
                       cost,
                       startDate,
+                      priceDetails, // เพิ่มตรงนี้
                     }}
                   />
                 }
               />
+
               <Route path="complete" element={<CompletePage />} />
             </Routes>
           </Elements>

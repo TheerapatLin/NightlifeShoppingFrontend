@@ -23,8 +23,7 @@ const paymentElementOptions = {
   layout: "accordion",
   paymentMethodOrder: ["card", "promptpay"],
 };
-
-const StripeContainer = () => {
+const StripeContainer = ({ clientSecret }) => {
   const { t, i18n } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -46,6 +45,7 @@ const StripeContainer = () => {
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  
   useEffect(() => {
     localStorage.removeItem("client_secret");
     const checkMobile = () => {

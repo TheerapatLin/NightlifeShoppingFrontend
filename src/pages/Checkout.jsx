@@ -13,12 +13,13 @@ import { useTranslation } from "react-i18next";
 import { loadStripe } from "@stripe/stripe-js";
 import i18n from "../i18n";
 
-const Checkout = () => {
+const Checkout = (props) => {
   const { t, i18n } = useTranslation();
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
+  const { setPriceDetails } = props.state;
   const [activityId, setActivityId] = useState(
     location.state?.activityId || localStorage.getItem("activityId") || ""
   );
@@ -37,16 +38,16 @@ const Checkout = () => {
   const [startDate, setStartDate] = useState(
     location.state?.startDate || localStorage.getItem("startDate") || ""
   );
-
+  const [dummyState, setDummyState] = useState(0);
   const [codeModalOpen, setCodeModalOpen] = useState(false);
   const [enteredCode, setEnteredCode] = useState("");
-  const [appliedCode, setAppliedCode] = useState(() => {
-    location.state?.appliedDiscountCode ||
+  const [appliedCode, setAppliedCode] = useState(
+    () =>
+      location.state?.appliedDiscountCode ||
       localStorage.getItem("appliedDiscountCode") ||
-      "";
-    // const stored = localStorage.getItem("appliedDiscountCode");
-    // return stored ? JSON.parse(stored) : null;
-  });
+      ""
+  );
+
   const [checkingCode, setCheckingCode] = useState(false);
 
   const [activity, setActivity] = useState(null);
@@ -58,6 +59,14 @@ const Checkout = () => {
   //const { affiliate } = useAuth();
   const stored = localStorage.getItem("affiliateRef");
   const affiliate = stored ? JSON.parse(stored)?.ref : null;
+  const priceDetails = props.state?.priceDetails ||
+    location.state?.priceDetails || {
+      originalPrice: null,
+      discountAmount: 0,
+      affiliateDiscountAmount: 0,
+      paidAmount: null,
+    };
+  const [clientSecret, setClientSecret] = useState("");
   var isLoading = false;
 
   useEffect(() => {
@@ -259,11 +268,11 @@ const Checkout = () => {
         setCodeModalOpen(false);
         setEnteredCode("");
         setDiscount(res.data.discountValue);
-        //alert(discount);
-        //alert(JSON.stringify(res.data.discountValue, null, 2));
         alert("✅ Code applied successfully!");
+
+        // ✅ Call create-payment-intent again
+        await refreshPaymentIntent();
       } else {
-        // ใช้ข้อความจาก backend หากมี
         const message =
           res.data.message || "❌ Invalid code. Please try again.";
         alert(`❌ ${message}`);
@@ -280,10 +289,156 @@ const Checkout = () => {
     }
   };
 
+  const handleRemoveCode = async () => {
+    setAppliedCode("");
+    setDiscount(0);
+    localStorage.removeItem("appliedDiscountCode");
+
+    await refreshPaymentIntent();
+  };
+
+  const refreshPaymentIntent = async () => {
+    const stored = localStorage.getItem("affiliateRef");
+    const affiliateCode = stored ? JSON.parse(stored)?.ref : null;
+    const previousPaymentIntentId =
+      localStorage.getItem("paymentIntentId") || null;
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/activity-order/create-payment-intent`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: [
+              {
+                id: "activity",
+                costPerPerson: cost,
+                amountAdults: adults,
+                amountChildren: children,
+                activityId,
+                scheduleId,
+                startDate,
+              },
+            ],
+            affiliateCode,
+            appliedDiscountCode: appliedCode || enteredCode,
+            previousPaymentIntentId, // ✅ ส่งไป backend
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to refresh payment intent");
+      }
+
+      const data = await response.json();
+
+      priceDetails.originalPrice = data.originalPrice;
+      priceDetails.discountAmount = data.discountAmount;
+      priceDetails.affiliateDiscountAmount = data.affiliateDiscountAmount;
+      priceDetails.paidAmount = data.paidAmount;
+
+      setPriceDetails({
+        originalPrice: data.originalPrice,
+        discountAmount: data.discountAmount,
+        affiliateDiscountAmount: data.affiliateDiscountAmount,
+        paidAmount: data.paidAmount,
+      });
+
+      props.state.setClientSecret(data.clientSecret);
+
+      if (data.paymentIntentId) {
+        localStorage.setItem("paymentIntentId", data.paymentIntentId);
+      }
+
+      return data.clientSecret;
+    } catch (error) {
+      console.error("Error refreshing payment intent:", error);
+    }
+  };
+
+  const renderPriceDetails = () => (
+    <>
+      <div className="flex flex-col">
+        <span className="font-CerFont font-medium text-[22px]">
+          {i18n.language === "th" ? "รายละเอียดราคา" : "Price Details"}
+        </span>
+        <div className="pt-3 w-full space-y-2">
+          <div className="flex justify-between">
+            <div className="font-CerFont text-[16px]">
+              {i18n.language === "th" ? "ราคาก่อนส่วนลด" : "Original Price"}
+            </div>
+            <div className="font-CerFont text-[16px]">
+              {priceDetails.originalPrice != null
+                ? formatCurrency(priceDetails.originalPrice)
+                : formatCurrency(0)}
+            </div>
+          </div>
+
+          {priceDetails.discountAmount > 0 && (
+            <div className="flex justify-between text-green-700">
+              <div className="font-CerFont text-[16px]">
+                {i18n.language === "th" ? "ส่วนลดโค้ด" : "Discount Code"}
+              </div>
+              <div className="font-CerFont text-[16px]">
+                -{formatCurrency(priceDetails.discountAmount)}
+              </div>
+            </div>
+          )}
+
+          {priceDetails.affiliateDiscountAmount > 0 && (
+            <div className="flex justify-between text-green-700">
+              <div className="font-CerFont text-[16px]">
+                {i18n.language === "th"
+                  ? "ส่วนลด Affiliate"
+                  : "Affiliate Discount"}
+              </div>
+              <div className="font-CerFont text-[16px]">
+                -{formatCurrency(priceDetails.affiliateDiscountAmount)}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="py-6 mt-4 border-t border-gray-300">
+        <div className="flex justify-between">
+          <div className="font-CerFont text-[18px]">
+            <b>
+              {i18n.language === "th" ? "รวม" : "Total"}{" "}
+              <span className="underline font-medium">(THB)</span>
+            </b>
+          </div>
+          <div className="font-CerFont text-[24px]">
+            <b>
+              {priceDetails.paidAmount != null
+                ? formatCurrency(priceDetails.paidAmount)
+                : formatCurrency(0)}
+            </b>
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-6">
+        <div className="font-CerFont font-bold text-[16px]">
+          {i18n.language === "th"
+            ? "นโยบายยกเลิกการจอง"
+            : "Cancellation Policy"}
+        </div>
+        <div className="font-CerFont text-[14px] font-normal">
+          {i18n.language === "th"
+            ? "ไม่มีนโยบายให้ยกการจอง โดยเงินที่ชำระมาจะนำไปบริจาคช่วยเหลือสถานที่ที่ไปร่วมกิจกรรมแทน"
+            : "There is no cancellation policy. The paid amount will be donated to support the venue of the activity."}
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <>
-      <div className="mt-[0px] md:mt-[80px]  flex justify-center">
-        <div className="bg-white w-full h-full max-w-7xl rounded-none md:rounded-xl  md:px-10 pb-8 md:py-8">
+      <div className="mt-[0px] md:mt-[80px] flex justify-center">
+        <div className="bg-white w-full h-full max-w-7xl rounded-none md:rounded-xl md:px-10 pb-8 md:py-8">
           <div className="sticky top-0 bg-white w-full md:relative flex justify-between md:justify-start items-center p-1">
             <button
               type="button"
@@ -292,31 +447,26 @@ const Checkout = () => {
             >
               <ChevronLeft />
             </button>
-
             <div className="block md:hidden w-6"></div>
           </div>
 
-          {/* แบ่งเป็นสอง */}
           <div className="flex flex-col md:flex-row px-[40px]">
             <div
               className="flex mt-5 gap-5 pb-5 md:hidden"
               style={{ borderBottom: "2px solid #ebebeb" }}
             >
               <div className="max-w-[128px]">
-                {/* <img
-                  src={activity?.image[0]?.fileName}
-                  alt="img1"
-                  className="w-full rounded-lg"
-                /> */}
+                {/* <img src={activity?.image[0]?.fileName} alt="img1" className="w-full rounded-lg" /> */}
               </div>
               <div className="flex flex-col gap-2">
                 <div className="font-CerFont text-lg">{activity?.name}</div>
               </div>
             </div>
-            {/* ยืนยันและชำระเงิน */}
+
+            {/* Left Section */}
             <div className="w-full md:w-[55%]">
-              <div className="" style={{ borderBottom: "solid 1px #dddddd" }}>
-                <span className="flex  text-[16px] font-CerFont">
+              <div style={{ borderBottom: "solid 1px #dddddd" }}>
+                <span className="flex text-[16px] font-CerFont">
                   {i18n.language === "en" ? "Your Activity" : "กิจกรรมของคุณ"}
                 </span>
                 <span className="text-[20px] font-bold font-CerFont mb-2">
@@ -336,14 +486,13 @@ const Checkout = () => {
                         {i18n.language === "en"
                           ? formatDate(startDate, "en-US")
                           : formatDate(startDate)}{" "}
-                        {isMobile ? <br /> : <></>}(
-                        {formatTime(schedule.startTime)} -{" "}
+                        {isMobile && <br />}({formatTime(schedule.startTime)} -{" "}
                         {formatTime(schedule.endTime)})
                       </>
+                    ) : i18n.language === "en" ? (
+                      "Loading..."
                     ) : (
-                      <>
-                        {i18n.language === "en" ? "Loading..." : "กำลังโหลด..."}
-                      </>
+                      "กำลังโหลด..."
                     )}
                   </span>
                 </div>
@@ -355,13 +504,14 @@ const Checkout = () => {
                     {i18n.language === "en"
                       ? `${adults} ${
                           adults > 1 ? "adults" : "adult"
-                        } , ${children}  ${children > 1 ? "children" : "child"}`
+                        }, ${children} ${children > 1 ? "children" : "child"}`
                       : `ผู้ใหญ่ ${adults} คน , เด็ก ${children} คน`}
                   </div>
                 </div>
+
                 {!appliedCode ? (
                   <button
-                    className="mt-3 px-4 py-2 pb-2 mb-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 active:bg-blue-800 transition duration-150 ease-in-out font-semibold text-sm"
+                    className="mt-3 px-4 py-2 mb-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 active:bg-blue-800 transition duration-150 ease-in-out font-semibold text-sm"
                     onClick={() => setCodeModalOpen(true)}
                   >
                     {i18n.language === "en"
@@ -374,11 +524,7 @@ const Checkout = () => {
                       {appliedCode}
                     </span>
                     <button
-                      onClick={() => {
-                        setAppliedCode("");
-                        setDiscount(0);
-                        localStorage.removeItem("appliedDiscountCode");
-                      }}
+                      onClick={handleRemoveCode}
                       className="text-red-600 underline text-xs"
                     >
                       Remove
@@ -405,319 +551,35 @@ const Checkout = () => {
                 className="py-7"
                 style={{ borderBottom: "solid 1px #dddddd" }}
               >
-                <span className="text-[16px] font-normal font-CerFont"></span>
-
-                <div className="flex pt-3 ">
-                  <div className="flex flex-col">
-                    <span className="text-[16px] font-normal font-CerFont">
-                      {i18n.language === "en"
-                        ? "Important Notice : "
-                        : "ข้อควรทราบ : "}
-                    </span>
-                    <span className="text-[20px] font-normal font-CerFont">
-                      {i18n.language === "en" ? (
-                        <>All participants must be at least 20 years old. </>
-                      ) : (
-                        "ผู้เข้าร่วมทุกคนต้องมีอายุอย่างน้อย 20 ปี "
-                      )}
-                    </span>
-                  </div>
+                <div className="flex flex-col">
+                  <span className="text-[16px] font-normal font-CerFont">
+                    {i18n.language === "en"
+                      ? "Important Notice :"
+                      : "ข้อควรทราบ :"}
+                  </span>
+                  <span className="text-[20px] font-normal font-CerFont">
+                    {i18n.language === "en"
+                      ? "All participants must be at least 20 years old."
+                      : "ผู้เข้าร่วมทุกคนต้องมีอายุอย่างน้อย 20 ปี "}
+                  </span>
                 </div>
-                {/* Modal */}
-                {isModalOpen && (
-                  <div className="fixed top-0 z-50 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white rounded-lg p-8 max-w-md w-full">
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => setIsModalOpen(false)}
-                      >
-                        X
-                      </span>
-                      <h2 className="text-lg font-bold mb-4">
-                        ข้อมูลเพิ่มเติม
-                      </h2>
-                      <p className="text-sm text-gray-700">
-                        นี่คือข้อมูลเพิ่มเติมเกี่ยวกับคุณสมบัติของผู้เข้าร่วม
-                      </p>
-                    </div>
-                  </div>
-                )}
               </div>
+
+              {/* Mobile Price Box */}
               {isMobile && (
-                <div className="md:block" style={{ marginBottom: "19px" }}>
-                  <div
-                    className="rounded-lg p-6"
-                    style={{
-                      border: "solid 1px #aaaaaa",
-                      top: "100px",
-                      //position: "sticky",
-                    }}
-                  >
-                    <div
-                      className={`flex pb-1`}
-                      // style={{ borderBottom: "solid 1px #dddddd" }}
-                    >
-                      <div className="max-w-[128px]">
-                        {/* <img
-                      src={activity?.image[0]?.fileName}
-                      alt="img1"
-                      className="w-full rounded-lg"
-                    /> */}
-                      </div>
-                      <div className="flex flex-col pl-4">
-                        <span className="font-CerFont">{activity?.name}</span>
-                      </div>
-                    </div>
-
-                    <div
-                      className="py-6"
-                      style={{ borderBottom: "solid 1px #dddddd" }}
-                    >
-                      <div className="flex flex-col">
-                        <span className="font-CerFont font-medium text-[22px]">
-                          {i18n.language === "th"
-                            ? "รายละเอียดราคา"
-                            : "Price Details"}
-                        </span>
-                        <div className="pt-3 w-full">
-                          {adults > 0 && children > 0 && (
-                            <div className="flex justify-between">
-                              <div className="font-CerFont text-[16px] flex flex-col">
-                                <div className="font-CerFont text-[16px]">
-                                  {formatCurrency(cost)} x {adults}{" "}
-                                  {i18n.language === "en"
-                                    ? "(adults)"
-                                    : "(ผู้ใหญ่)"}
-                                </div>
-                                <div className="font-CerFont text-[16px]">
-                                  {formatCurrency(cost)} x {children}{" "}
-                                  {i18n.language === "en"
-                                    ? "(children)"
-                                    : "(เด็ก)"}
-                                </div>
-                              </div>
-                              <div className="font-CerFont text-[16px]"></div>
-                              <div className="font-CerFont text-[16px] flex flex-col">
-                                <div className="font-CerFont text-[16px]">
-                                  {formatCurrency(cost * adults)}
-                                </div>
-                                <div className="font-CerFont text-[16px]">
-                                  {formatCurrency(cost * children)}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {adults > 0 && children === 0 && (
-                            <div className="flex justify-between">
-                              <div className="font-CerFont text-[16px] ">
-                                {formatCurrency(cost)} x {adults}{" "}
-                                {i18n.language === "en"
-                                  ? "(adults)"
-                                  : "(ผู้ใหญ่)"}
-                              </div>
-                              <div className="font-CerFont text-[16px] ">
-                                {formatCurrency(cost * adults)}
-                              </div>
-                            </div>
-                          )}
-
-                          {children > 0 && adults === 0 && (
-                            <div className="flex justify-between">
-                              <div className="font-CerFont text-[16px]">
-                                {formatCurrency(cost)} x {children} (เด็ก)
-                              </div>
-                              <div className="font-CerFont text-[16px]">
-                                {formatCurrency(cost * children)}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        {appliedCode && discount > 0 && (
-                          <div className="flex justify-between text-green-700 mt-2">
-                            <div className="font-CerFont text-[16px]">
-                              {i18n.language === "th"
-                                ? `ส่วนลด (${appliedCode})`
-                                : `Discount (${appliedCode})`}
-                            </div>
-                            <div className="font-CerFont text-[16px]">
-                              -{formatCurrency(discount)}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div
-                      className="py-6"
-                      style={{ borderBottom: "solid 1px #dddddd" }}
-                    >
-                      <div className="flex justify-between">
-                        <div className="font-CerFont  text-[18px]">
-                          <b>
-                            {i18n.language === "th" ? "รวม" : "total"}{" "}
-                            <span className="underline font-medium">(THB)</span>
-                          </b>
-                        </div>
-                        <div className="font-CerFont text-[24px]">
-                          <b>
-                            {formatCurrency(
-                              Math.max(
-                                cost * (adults + children) - discount,
-                                15
-                              )
-                            )}
-                          </b>{" "}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-6">
-                      <div className="font-CerFont font-bold text-[16px]">
-                        {i18n.language === "th"
-                          ? "นโยบายยกเลิกการจอง"
-                          : "Cancellation Policy"}
-                      </div>
-
-                      <div className="font-CerFont text-[14px] font-normal ">
-                        {i18n.language === "th"
-                          ? "ไม่มีนโยบายให้ยกการจอง โดยเงินที่ชำระมาจะนำไปบริจาคช่วยเหลือสถานที่ที่ไปร่วมกิจกรรมแทน"
-                          : "There is no cancellation policy. The paid amount will be donated to support the venue of the activity."}
-                      </div>
-                    </div>
-                  </div>
-                  <br />
-                  <hr></hr>
-                  <br />
+                <div className="rounded-xl p-6 mt-4 border-[1px] border-gray-300 border-solid  shadow-sm bg-white">
+                  {renderPriceDetails()}
                 </div>
               )}
 
-              <StripeContainer />
+              <StripeContainer clientSecret={clientSecret} />
             </div>
 
-            {/* 45% */}
+            {/* Desktop Price Box */}
             {!isMobile && (
               <div className="hidden md:block w-[45%] ml-16">
-                <div
-                  className="rounded-lg p-6"
-                  style={{
-                    border: "solid 1px #aaaaaa",
-                    top: "100px",
-                    position: "sticky",
-                  }}
-                >
-                  <div
-                    className={`flex pb-1`}
-                    // style={{ borderBottom: "solid 1px #dddddd" }}
-                  >
-                    <div className="max-w-[128px]">
-                      {/* <img
-                      src={activity?.image[0]?.fileName}
-                      alt="img1"
-                      className="w-full rounded-lg"
-                    /> */}
-                    </div>
-                    <div className="flex flex-col pl-4">
-                      <span className="font-CerFont">{activity?.name}</span>
-                    </div>
-                  </div>
-
-                  <div
-                    className="py-6"
-                    style={{ borderBottom: "solid 1px #dddddd" }}
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-CerFont font-medium text-[22px]">
-                        {i18n.language === "th"
-                          ? "รายละเอียดราคา"
-                          : "Price Details"}
-                      </span>
-                      <div className="pt-3 w-full">
-                        {adults > 0 && children > 0 && (
-                          <div className="flex justify-between">
-                            <div className="font-CerFont text-[16px] flex flex-col">
-                              <div className="font-CerFont text-[16px]">
-                                {formatCurrency(cost)} x {adults}{" "}
-                                {i18n.language === "en"
-                                  ? "(adults)"
-                                  : "(ผู้ใหญ่)"}
-                              </div>
-                              <div className="font-CerFont text-[16px]">
-                                {formatCurrency(cost)} x {children}{" "}
-                                {i18n.language === "en"
-                                  ? "(children)"
-                                  : "(เด็ก)"}
-                              </div>
-                            </div>
-                            <div className="font-CerFont text-[16px]"></div>
-                            <div className="font-CerFont text-[16px] flex flex-col">
-                              <div className="font-CerFont text-[16px]">
-                                {formatCurrency(cost * adults)}
-                              </div>
-                              <div className="font-CerFont text-[16px]">
-                                {formatCurrency(cost * children)}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {adults > 0 && children === 0 && (
-                          <div className="flex justify-between">
-                            <div className="font-CerFont text-[16px] ">
-                              {formatCurrency(cost)} x {adults} (ผู้ใหญ่)
-                            </div>
-                            <div className="font-CerFont text-[16px] ">
-                              {formatCurrency(cost * adults)}
-                            </div>
-                          </div>
-                        )}
-
-                        {children > 0 && adults === 0 && (
-                          <div className="flex justify-between">
-                            <div className="font-CerFont text-[16px]">
-                              {formatCurrency(cost)} x {children} (เด็ก)
-                            </div>
-                            <div className="font-CerFont text-[16px]">
-                              {formatCurrency(cost * children)}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className="py-6"
-                    style={{ borderBottom: "solid 1px #dddddd" }}
-                  >
-                    <div className="flex justify-between">
-                      <div className="font-CerFont  text-[18px]">
-                        <b>
-                          {i18n.language === "th" ? "รวม" : "total"}{" "}
-                          <span className="underline font-medium">(THB)</span>
-                        </b>
-                      </div>
-                      <div className="font-CerFont text-[24px]">
-                        <b>
-                          {formatCurrency(
-                            Math.max(cost * (adults + children) - discount, 15)
-                          )}
-                        </b>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-6">
-                    <div className="font-CerFont font-bold text-[16px]">
-                      {i18n.language === "th"
-                        ? "นโยบายยกเลิกการจอง"
-                        : "Cancellation Policy"}
-                    </div>
-
-                    <div className="font-CerFont text-[14px] font-normal ">
-                      {i18n.language === "th"
-                        ? "ไม่มีนโยบายให้ยกการจอง โดยเงินที่ชำระมาจะนำไปบริจาคช่วยเหลือสถานที่ที่ไปร่วมกิจกรรมแทน"
-                        : "There is no cancellation policy. The paid amount will be donated to support the venue of the activity."}
-                    </div>
-                  </div>
+                <div className="rounded-xl p-6 border-[1px] border-gray-300 border-solid  shadow-sm bg-white sticky top-[100px]">
+                  {renderPriceDetails()}
                 </div>
               </div>
             )}
