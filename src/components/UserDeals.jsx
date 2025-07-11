@@ -144,7 +144,7 @@ function UserDeals() {
   return (
     <div className="flex flex-col gap-4 justify-center items-center px-4 sm:px-8 md:px-16 lg:px-32">
       <div className="w-full p-4">
-        <div className="text-xl font-CerFont text-white text-center flex justify-center">
+        <div className="text-xl  text-white text-center flex justify-center">
           {t("profile.purchasedDeals")}
         </div>
 

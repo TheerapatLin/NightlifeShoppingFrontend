@@ -4,6 +4,7 @@ import ActivitiesForm from "../components/ActivitiesForm";
 import UserDeals from "../components/UserDeals";
 import UserEvents from "../components/UserEvents";
 import UserProfile from "../components/UserProfile";
+import AffiliateDashboard from "../components/AffiliateDashboard";
 import AffiliateLinks from "../components/AffiliateLinks";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -15,7 +16,9 @@ import dayjs from "dayjs";
 
 function Profile() {
   const { t, i18n } = useTranslation();
-  const [selectedTab, setSelectedTab] = useState("deals");
+  const [selectedTab, setSelectedTab] = useState(() => {
+    return localStorage.getItem("profileSelectedTab") || "deals";
+  });
   const [selectedDate, setSelectedDate] = useState(null);
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -126,7 +129,10 @@ function Profile() {
                   ? "bg-blue-500 text-white"
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
               }`}
-              onClick={() => setSelectedTab("profile")}
+              onClick={() => {
+                setSelectedTab("profile");
+                localStorage.setItem("profileSelectedTab", "profile");
+              }}
             >
               Profile
             </button>
@@ -136,7 +142,10 @@ function Profile() {
                   ? "bg-blue-500 text-white"
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
               }`}
-              onClick={() => setSelectedTab("deals")}
+              onClick={() => {
+                setSelectedTab("deals");
+                localStorage.setItem("profileSelectedTab", "deals");
+              }}
             >
               Deals
             </button>
@@ -146,7 +155,10 @@ function Profile() {
                   ? "bg-blue-500 text-white"
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
               }`}
-              onClick={() => setSelectedTab("events")}
+              onClick={() => {
+                setSelectedTab("events");
+                localStorage.setItem("profileSelectedTab", "events");
+              }}
             >
               Events
             </button>
@@ -160,7 +172,10 @@ function Profile() {
                     ? "bg-blue-500 text-white"
                     : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                 }`}
-                onClick={() => setSelectedTab("affiliate")}
+                onClick={() => {
+                  setSelectedTab("affiliate");
+                  localStorage.setItem("profileSelectedTab", "affiliate");
+                }}
               >
                 Affiliate
               </button>
@@ -172,7 +187,10 @@ function Profile() {
                     ? "bg-blue-500 text-white"
                     : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                 }`}
-                onClick={() => setSelectedTab("scheduler")}
+                onClick={() => {
+                  setSelectedTab("scheduler");
+                  localStorage.setItem("profileSelectedTab", "scheduler");
+                }}
               >
                 Scheduler
               </button>
@@ -187,7 +205,7 @@ function Profile() {
 
           {selectedTab === "profile" && <UserProfile />}
 
-          {selectedTab === "affiliate" && <AffiliateLinks />}
+          {selectedTab === "affiliate" && <AffiliateDashboard />}
 
           {selectedTab === "scheduler" &&
             (user?.role == "admin" || user?.role == "host") && (

@@ -450,16 +450,16 @@ const ActivityDetails = () => {
               style={{ borderBottom: "solid 1px #dddddd" }}
             >
               <div className="flex flex-col">
-                <div className="font-CerFont text-[12px] font-bold">
+                <div className="  text-[12px] font-bold">
                   {i18n.language === "en" ? "Session " : "รอบที่ "}
                   {index + 1}
                 </div>
-                <div className="font-CerFont text-[16px]">
+                <div className="  text-[16px]">
                   {formatTime(schedule.startTime)} -{" "}
                   {formatTime(schedule.endTime)}
                 </div>
 
-                <div className="font-CerFont text-[12px] text-gray-500 mt-1">
+                <div className="  text-[12px] text-gray-500 mt-1">
                   {isSoldOut
                     ? i18n.language === "en"
                       ? "Sold out"
@@ -471,7 +471,7 @@ const ActivityDetails = () => {
               </div>
 
               <div className="flex flex-col items-end mr-2">
-                <div className="font-CerFont text-[14px] font-bold">
+                <div className="  text-[14px] font-bold">
                   {schedule.cost === 0
                     ? i18n.language === "en"
                       ? "Free"
@@ -715,7 +715,7 @@ const ActivityDetails = () => {
           ref={containerRef}
         >
           <div className="flex flex-col w-full">
-            <label className="font-CerFont font-bold text-[12px]">
+            <label className="  font-bold text-[12px]">
               {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
             </label>
             <DatePicker
@@ -727,7 +727,7 @@ const ActivityDetails = () => {
               placeholderText={
                 i18n.language === "en" ? "Select Date" : "เลือกวันที่"
               }
-              className="cursor-pointer font-CerFont"
+              className="cursor-pointer "
               filterDate={filterDate}
               minDate={new Date()}
             />
@@ -815,7 +815,7 @@ const ActivityDetails = () => {
               {isMobile && (
                 <>
                   <span
-                    className="text-[26px] font-semibold font-CerFont mb-2  px-5"
+                    className="text-[26px] font-semibold   mb-2  px-5"
                     style={{ lineHeight: "30px" }}
                   >
                     {i18n.language === "en"
@@ -838,7 +838,7 @@ const ActivityDetails = () => {
                       rel="noopener noreferrer"
                       className="flex items-center text-blue-500"
                     >
-                      <div className="font-normal font-CerFont underline">
+                      <div className="font-normal   underline">
                         <FaMapMarkerAlt className="mr-2" />
                         {i18n.language === "en"
                           ? activity?.location?.nameEn
@@ -849,13 +849,13 @@ const ActivityDetails = () => {
                     {/* <div className="flex gap-2">
                     <div className="flex justify-between items-center gap-1">
                       <IoShareOutline />
-                      <div className="font-normal font-CerFont underline">
+                      <div className="font-normal   underline">
                         แชร์
                       </div>
                     </div>
                     <div className="flex justify-between items-center gap-1">
                       <MdFavoriteBorder />
-                      <div className="font-normal font-CerFont underline">
+                      <div className="font-normal   underline">
                         บันทึก
                       </div>
                     </div>
@@ -878,7 +878,7 @@ const ActivityDetails = () => {
               {/* Desktop Layout */}
               {!isMobile && (
                 <>
-                  <span className="text-[26px] font-semibold font-CerFont mb-2 ">
+                  <span className="text-[26px] font-semibold   mb-2 ">
                     {i18n.language === "en"
                       ? `${activity?.nameEn}${
                           activity?.minorNameEn?.trim()
@@ -891,7 +891,7 @@ const ActivityDetails = () => {
                             : ""
                         }`}{" "}
                   </span>
-                  <span className="text-[20px] font-semibold font-CerFont mb-2"></span>
+                  <span className="text-[20px] font-semibold   mb-2"></span>
 
                   <div className="flex justify-between">
                     <a
@@ -900,7 +900,7 @@ const ActivityDetails = () => {
                       rel="noopener noreferrer"
                       className="flex items-center text-blue-500"
                     >
-                      <div className="font-normal font-CerFont underline">
+                      <div className="font-normal   underline">
                         <FaMapMarkerAlt className="mr-2" />
                         {i18n.language === "en"
                           ? activity?.location?.nameEn
@@ -910,13 +910,13 @@ const ActivityDetails = () => {
                     {/* <div className="flex gap-2">
                     <div className="flex justify-between items-center gap-1">
                       <IoShareOutline />
-                      <div className="font-normal font-CerFont underline">
+                      <div className="font-normal   underline">
                         {i18n.language === "en" ? "Share" : "แชร์"}
                       </div>
                     </div>
                     <div className="flex justify-between items-center gap-1">
                       <MdFavoriteBorder />
-                      <div className="font-normal font-CerFont underline">
+                      <div className="font-normal   underline">
                         {i18n.language === "en" ? "Save" : "บันทึก"}
                       </div>
                     </div>
@@ -939,13 +939,13 @@ const ActivityDetails = () => {
                   >
                     <br />
                     <div
-                      className="font-CerFont text-[16px]"
+                      className="  text-[16px]"
                       style={{ color: "black" }}
                     >
                       {activity?.descriptionTH &&
                         (i18n.language === "en" ? (
                           <div
-                            className="font-CerFont text-[16px]"
+                            className="  text-[16px]"
                             style={{ color: "black" }}
                             dangerouslySetInnerHTML={{
                               __html: activity?.descriptionEN,
@@ -953,7 +953,7 @@ const ActivityDetails = () => {
                           />
                         ) : (
                           <div
-                            className="font-CerFont text-[16px]"
+                            className="  text-[16px]"
                             style={{ color: "black" }}
                             dangerouslySetInnerHTML={{
                               __html: activity?.descriptionTH,
@@ -967,7 +967,7 @@ const ActivityDetails = () => {
                     className="py-[48px]"
                     style={{ borderBottom: "solid 1px #dddddd" }}
                   >
-                    <div className="font-CerFont text-[22px] font-bold pb-[24px]">
+                    <div className="  text-[22px] font-bold pb-[24px]">
                       {i18n.language === "en"
                         ? "⭐️ What's Included ⭐️"
                         : "⭐️ สิ่งที่รวมอยู่ในกิจกรรม ⭐️"}
@@ -990,12 +990,12 @@ const ActivityDetails = () => {
                               alt={item.headerEN}
                               width="80"
                             />
-                            <div className="font-CerFont text-[18px] font-bold mb-2">
+                            <div className="  text-[18px] font-bold mb-2">
                               {i18n.language === "en"
                                 ? item.headerEN
                                 : item.headerTH}
                             </div>
-                            <div className="font-CerFont text-[14px] text-qblack mb-2 leading-5">
+                            <div className="  text-[14px] text-qblack mb-2 leading-5">
                               {i18n.language === "en"
                                 ? item.detailEN
                                 : item.detailTH}
@@ -1026,17 +1026,17 @@ const ActivityDetails = () => {
                         />
                       )}
                       <div className="flex flex-col">
-                        <div className="font-CerFont text-[24px] font-bold">
+                        <div className="  text-[24px] font-bold">
                           {i18n.language === "en" ? (
                             <div
-                              className="font-CerFont text-[22px]"
+                              className="  text-[22px]"
                               dangerouslySetInnerHTML={{
                                 __html: activity?.aboutHostHeaderEN,
                               }}
                             />
                           ) : (
                             <div
-                              className="font-CerFont text-[22px]"
+                              className="  text-[22px]"
                               dangerouslySetInnerHTML={{
                                 __html: activity?.aboutHostHeaderTH,
                               }}
@@ -1048,7 +1048,7 @@ const ActivityDetails = () => {
                     {/* 2 */}
                     {/* <div className="flex gap-2 mb-[24px]">
                     <IoShieldCheckmarkSharp size={20} />
-                    <div className="font-CerFont text-[14px] text-qblack">
+                    <div className="  text-[14px] text-qblack">
                       ยืนยันตัวตนแล้ว
                     </div>
                   </div> */}
@@ -1058,7 +1058,7 @@ const ActivityDetails = () => {
                         (i18n.language === "en" ? (
                           <>
                             <div
-                              className="font-CerFont text-[16px]"
+                              className="  text-[16px]"
                               dangerouslySetInnerHTML={{
                                 __html: activity?.aboutHostEN.join("<br/>"),
                               }}
@@ -1067,7 +1067,7 @@ const ActivityDetails = () => {
                         ) : (
                           <>
                             <div
-                              className="font-CerFont text-[16px]"
+                              className="  text-[16px]"
                               dangerouslySetInnerHTML={{
                                 __html: activity?.aboutHostTH.join("<br/>"),
                               }}
@@ -1077,7 +1077,7 @@ const ActivityDetails = () => {
                     </div>
                     {/* <div className="flex flex-col md:flex-row gap-10 items-center mt-[32px]">
                     <button
-                      className="w-full py-[13px] px-[23px] rounded-lg font-CerFont text-[16px] font-bold"
+                      className="w-full py-[13px] px-[23px] rounded-lg   text-[16px] font-bold"
                       style={{
                         border: "solid 2px black",
                         background: "transparent",
@@ -1088,7 +1088,7 @@ const ActivityDetails = () => {
 
                     <div className="flex gap-5 items-center">
                       <GiCheckedShield size={28} />
-                      <div className="font-CerFont text-[13px]">
+                      <div className="  text-[13px]">
                         เพื่อความปลอดภัย
                         อย่าโอนเงินหรือติดต่อสื่อสารผ่านช่องทางอื่นที่ไม่ใช่เว็บไซต์หรือแอพ
                         Airbnb{" "}
@@ -1113,7 +1113,7 @@ const ActivityDetails = () => {
                   >
                     {/* ราคา */}
                     <div className="flex flex-col">
-                      <div className="font-CerFont font-bold text-[22px]">
+                      <div className="  font-bold text-[22px]">
                         {i18n.language === "en"
                           ? `start at ฿${activity?.cost} / person`
                           : `เริ่มต้น ฿${activity?.cost} / คน`}
@@ -1145,7 +1145,7 @@ const ActivityDetails = () => {
                     {/* Show more button - always at bottom */}
                     <div className="">
                       <button
-                        className="py-[10px] px-[20px] rounded-lg font-CerFont 
+                        className="py-[10px] px-[20px] rounded-lg   
                       text-[16px] font-bold w-full bg-transparent hover:bg-slate-100"
                         style={{
                           border: "solid 1px gray",
@@ -1164,12 +1164,12 @@ const ActivityDetails = () => {
                 className="py-[48px] flex flex-col gap-6"
                 style={{ borderBottom: "solid 1px #dddddd" }}
               >
-                <div className="font-CerFont font-bold text-[22px]">
+                <div className="  font-bold text-[22px]">
                   {i18n.language === "en"
                     ? "Where you'll be"
                     : "สถานที่จัดกิจกรรม"}
                 </div>
-                <div className="font-CerFont text-[16px] text-qblack">
+                <div className="  text-[16px] text-qblack">
                   <b>
                     <big>
                       {i18n.language === "en"
@@ -1372,13 +1372,13 @@ const FloatingBar = ({
         </button>
 
         <div className="flex flex-col">
-          <h3 className="text-2xl text-black font-bold mb-6 font-CerFont">
+          <h3 className="text-2xl text-black font-bold mb-6 ">
             {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
           </h3>
 
           <div className="flex gap-3">
             <button
-              className="bg-transparent rounded-full px-4 text-sm font-CerFont"
+              className="bg-transparent rounded-full px-4 text-sm "
               style={{
                 border: "1px solid #dddddd",
               }}
@@ -1387,7 +1387,7 @@ const FloatingBar = ({
               {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
             </button>
             <button
-              className="bg-transparent rounded-full px-4 text-sm font-CerFont"
+              className="bg-transparent rounded-full px-4 text-sm "
               style={{
                 border: "1px solid #dddddd",
               }}
@@ -1404,7 +1404,7 @@ const FloatingBar = ({
           <div className="flex flex-col gap-3 py-10">
             {Object.keys(groupedDates).map((dateKey) => (
               <div key={dateKey}>
-                <div className="text-base font-bold font-CerFont p-2">
+                <div className="text-base font-bold   p-2">
                   {dateKey}
                 </div>
                 {sortByTime(groupedDates[dateKey]).map((date, index) => (
@@ -1415,11 +1415,11 @@ const FloatingBar = ({
                   >
                     <div className="flex flex-row justify-between">
                       <div>
-                        <div className="text-base font-medium font-CerFont">
+                        <div className="text-base font-medium ">
                           {formatTime(date.activityTime?.start)}-
                           {formatTime(date.activityTime?.end)}
                         </div>
-                        <div className="text-base font-CerFont">
+                        <div className="text-base ">
                           <span className="text-base font-medium">
                             ฿{date.cost}
                           </span>{" "}
@@ -1443,7 +1443,7 @@ const FloatingBar = ({
                         </button>
                       </div>
                     </div>
-                    <div className="flex flex-col pt-3 text-base font-CerFont">
+                    <div className="flex flex-col pt-3 text-base ">
                       <span>รอบนี้กำลังเป็นที่นิยม</span>
                       <span>ขอเงินคืนไม่ได้</span>
                     </div>
@@ -1463,7 +1463,7 @@ const FloatingBar = ({
                 className="cursor-pointer"
                 onClick={() => setModalCalendar(false)}
               />
-              <span className="text-base font-CerFont font-bold flex-grow text-center">
+              <span className="text-base   font-bold flex-grow text-center">
                 {i18n.language === "en" ? "Choose Date" : "เลือกช่วงวันที่"}
               </span>
               <div style={{ width: "30px" }}></div>
@@ -1515,7 +1515,7 @@ const FloatingBar = ({
                 className="cursor-pointer"
                 onClick={() => setModalParticipants(false)}
               />
-              <span className="text-base font-CerFont font-bold flex-grow text-center">
+              <span className="text-base   font-bold flex-grow text-center">
                 {i18n.language === "en" ? "Participants" : "ผู้เข้าร่วม"}
               </span>
               <div style={{ width: "30px" }}></div>
@@ -1527,10 +1527,10 @@ const FloatingBar = ({
               {/* ผู้ใหญ่ */}
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <div className="font-CerFont">
+                  <div className="">
                     {i18n.language === "en" ? "Adult" : "ผู้ใหญ่"}
                   </div>
-                  <div className="font-CerFont text-xs">
+                  <div className="  text-xs">
                     {i18n.language === "en"
                       ? "more than 13"
                       : "อายุ 13 ปีขึ้นไป"}
@@ -1538,7 +1538,7 @@ const FloatingBar = ({
                 </div>
                 <div>
                   <button
-                    className={`px-2 py-1 font-CerFont ${
+                    className={`px-2 py-1   ${
                       adultsCount === 0 ? "text-gray-300" : "text-black"
                     }`}
                     onClick={handleDecreaseAdults}
@@ -1548,7 +1548,7 @@ const FloatingBar = ({
                   </button>
                   <span className="mx-3">{adultsCount}</span>
                   <button
-                    className="px-2 py-1 font-CerFont text-black"
+                    className="px-2 py-1   text-black"
                     onClick={handleIncreaseAdults}
                   >
                     +
@@ -1558,16 +1558,16 @@ const FloatingBar = ({
               {/* เด็ก */}
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <div className="font-CerFont">
+                  <div className="">
                     {i18n.language === "en" ? "Child" : "เด็ก"}
                   </div>
-                  <div className="font-CerFont text-xs">
+                  <div className="  text-xs">
                     {i18n.language === "en" ? "4-12 years" : "อายุ 4-12 ปี"}
                   </div>
                 </div>
                 <div>
                   <button
-                    className={`px-2 py-1 font-CerFont ${
+                    className={`px-2 py-1   ${
                       childrenCount === 0 ? "text-gray-300" : "text-black"
                     }`}
                     onClick={handleDecreaseChildren}
@@ -1577,7 +1577,7 @@ const FloatingBar = ({
                   </button>
                   <span className="mx-3">{childrenCount}</span>
                   <button
-                    className="px-2 py-1 font-CerFont text-black"
+                    className="px-2 py-1   text-black"
                     onClick={handleIncreaseChildren}
                   >
                     +
@@ -1607,7 +1607,7 @@ const FloatingBar = ({
     >
       <div>
         <div
-          className="font-CerFont font-bold text-sm md:text-base"
+          className="  font-bold text-sm md:text-base"
           style={{ fontSize: "17px" }}
         >
           {i18n.language === "en"
@@ -1686,7 +1686,7 @@ const FloatingBar = ({
                 className="cursor-pointer"
                 onClick={() => setModalCalendar(false)}
               />
-              <span className="text-base font-CerFont font-bold flex-grow text-center">
+              <span className="text-base   font-bold flex-grow text-center">
                 {i18n.language === "en" ? "Choose Date" : "เลือกช่วงวันที่"}
               </span>
               <div style={{ width: "30px" }}></div>
@@ -1742,7 +1742,7 @@ const FloatingBar = ({
                 onClick={() => setModalParticipants(false)}
               />
               <span
-                className="text-base font-CerFont font-bold  text-center"
+                className="text-base   font-bold  text-center"
                 style={{ width: "100px" }}
               >
                 {i18n.language === "en" ? "Participants" : "ผู้เข้าร่วม"}
@@ -1756,10 +1756,10 @@ const FloatingBar = ({
               {/******************* ผู้ใหญ่ *******************/}
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <div className="font-CerFont">
+                  <div className="">
                     {i18n.language === "en" ? "Adult" : "ผู้ใหญ่"}
                   </div>
-                  <div className="font-CerFont text-xs">
+                  <div className="  text-xs">
                     {" "}
                     {i18n.language === "en"
                       ? "more than 20"
@@ -1768,7 +1768,7 @@ const FloatingBar = ({
                 </div>
                 <div>
                   <button
-                    className={`px-2 py-1 font-CerFont ${
+                    className={`px-2 py-1   ${
                       adultsCount === 0 ? "text-gray-300" : "text-black"
                     }`}
                     onClick={handleDecreaseAdults}
@@ -1778,7 +1778,7 @@ const FloatingBar = ({
                   </button>
                   <span className="mx-3">{adultsCount}</span>
                   <button
-                    className="px-2 py-1 font-CerFont text-black"
+                    className="px-2 py-1   text-black"
                     onClick={handleIncreaseAdults}
                   >
                     +
@@ -1789,16 +1789,16 @@ const FloatingBar = ({
               {/*******************  เด็ก ***********************/}
               {/* <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <div className="font-CerFont">
+                  <div className="">
                     {i18n.language === "en" ? "Child" : "เด็ก"}
                   </div>
-                  <div className="font-CerFont text-xs">
+                  <div className="  text-xs">
                     {i18n.language === "en" ? "4-12 years" : "อายุ 4-12 ปี"}
                   </div>
                 </div>
                 <div>
                   <button
-                    className={`px-2 py-1 font-CerFont ${
+                    className={`px-2 py-1   ${
                       childrenCount === 0 ? "text-gray-300" : "text-black"
                     }`}
                     onClick={handleDecreaseChildren}
@@ -1808,7 +1808,7 @@ const FloatingBar = ({
                   </button>
                   <span className="mx-3">{childrenCount}</span>
                   <button
-                    className="px-2 py-1 font-CerFont text-black"
+                    className="px-2 py-1   text-black"
                     onClick={handleIncreaseChildren}
                   >
                     +
@@ -1914,16 +1914,16 @@ const DateSelectorCarousel = ({
             className="flex-shrink-0 flex flex-col p-6 w-[210px] rounded-lg hover:border-gray-300 transition-colors"
             style={{ border: "solid 1px black" }}
           >
-            <div className="font-CerFont text-base font-semibold">
+            <div className="  text-base font-semibold">
               {formatThaiDate(date?.activityTime.start)}
             </div>
-            <div className="font-CerFont text-sm">
+            <div className="  text-sm">
               {formatTime(date.activityTime.start)}-
               {formatTime(date.activityTime.end)}
             </div>
-            <div className="font-CerFont text-base font-bold mt-8 mb-4">
+            <div className="  text-base font-bold mt-8 mb-4">
               ฿{date.cost}
-              <span className="font-CerFont text-sm font-normal"> / กลุ่ม</span>
+              <span className="  text-sm font-normal"> / กลุ่ม</span>
             </div>
             <button
               type="button"
@@ -2010,29 +2010,29 @@ const MobileActivityDetails = () => {
       <div className="p-4">
         <button onClick={onClose} className="flex items-center gap-2 mb-4">
           <IoChevronBackOutline size={24} />
-          <span className="font-CerFont">กลับ</span>
+          <span className="">กลับ</span>
         </button>
 
-        <h3 className="text-xl font-bold mb-6 font-CerFont">{section.title}</h3>
+        <h3 className="text-xl font-bold mb-6 ">{section.title}</h3>
 
         <div className="space-y-6">
           <div>
-            <h4 className="font-CerFont text-[14px] font-bold mb-2">
+            <h4 className="  text-[14px] font-bold mb-2">
               มีอะไรรวมอยู่บ้าง
             </h4>
             {section.included.map((item, index) => (
-              <div key={index} className="font-CerFont text-[14px] mb-1">
+              <div key={index} className="  text-[14px] mb-1">
                 · {item}
               </div>
             ))}
           </div>
 
           <div>
-            <h4 className="font-CerFont text-[14px] font-bold mb-2">
+            <h4 className="  text-[14px] font-bold mb-2">
               สิ่งที่ไม่รวมในบริการ
             </h4>
             {section.notIncluded.map((item, index) => (
-              <div key={index} className="font-CerFont text-[14px] mb-1">
+              <div key={index} className="  text-[14px] mb-1">
                 · {item}
               </div>
             ))}
@@ -2052,10 +2052,10 @@ const MobileActivityDetails = () => {
       }}
     >
       <div className="text-left">
-        <h3 className="text-black font-semibold mb-1 font-CerFont text-[19px]">
+        <h3 className="text-black font-semibold mb-1   text-[19px]">
           {section.title}
         </h3>
-        <p className="text-sm text-gray-600 font-CerFont">
+        <p className="text-sm text-gray-600 ">
           {section.shortDesc}
         </p>
       </div>

@@ -89,19 +89,6 @@ const Checkout = (props) => {
   ]);
 
   useEffect(() => {
-    // ✅ Clear discount code on entering the page
-    localStorage.removeItem("appliedDiscountCode");
-    setAppliedCode(""); // clear state
-    setDiscount(0); // clear state
-  }, []);
-  useEffect(() => {
-    return () => {
-      // ✅ Clear discount code on leaving the page
-      localStorage.removeItem("appliedDiscountCode");
-    };
-  }, []);
-
-  useEffect(() => {
     localStorage.removeItem("client_secret");
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -294,10 +281,11 @@ const Checkout = (props) => {
     setDiscount(0);
     localStorage.removeItem("appliedDiscountCode");
 
-    await refreshPaymentIntent();
+    // เรียก refreshPaymentIntent แบบบังคับ appliedDiscountCode = "" ทันที
+    await refreshPaymentIntent({ forceClearCode: true });
   };
 
-  const refreshPaymentIntent = async () => {
+  const refreshPaymentIntent = async ({ forceClearCode = false } = {}) => {
     const stored = localStorage.getItem("affiliateRef");
     const affiliateCode = stored ? JSON.parse(stored)?.ref : null;
     const previousPaymentIntentId =
@@ -322,7 +310,9 @@ const Checkout = (props) => {
               },
             ],
             affiliateCode,
-            appliedDiscountCode: appliedCode || enteredCode,
+            appliedDiscountCode: forceClearCode
+              ? ""
+              : appliedCode || enteredCode,
             previousPaymentIntentId, // ✅ ส่งไป backend
           }),
         }
@@ -361,15 +351,15 @@ const Checkout = (props) => {
   const renderPriceDetails = () => (
     <>
       <div className="flex flex-col">
-        <span className="font-CerFont font-medium text-[22px]">
+        <span className="  font-medium text-[22px]">
           {i18n.language === "th" ? "รายละเอียดราคา" : "Price Details"}
         </span>
         <div className="pt-3 w-full space-y-2">
           <div className="flex justify-between">
-            <div className="font-CerFont text-[16px]">
+            <div className="  text-[16px]">
               {i18n.language === "th" ? "ราคาก่อนส่วนลด" : "Original Price"}
             </div>
-            <div className="font-CerFont text-[16px]">
+            <div className="  text-[16px]">
               {priceDetails.originalPrice != null
                 ? formatCurrency(priceDetails.originalPrice)
                 : formatCurrency(0)}
@@ -378,25 +368,27 @@ const Checkout = (props) => {
 
           {priceDetails.discountAmount > 0 && (
             <div className="flex justify-between text-green-700">
-              <div className="font-CerFont text-[16px]">
+              <div className="  text-[16px]">
                 {i18n.language === "th" ? "ส่วนลดโค้ด" : "Discount Code"}
               </div>
-              <div className="font-CerFont text-[16px]">
+              <div className="  text-[16px]">
                 -{formatCurrency(priceDetails.discountAmount)}
               </div>
             </div>
           )}
 
           {priceDetails.affiliateDiscountAmount > 0 && (
-            <div className="flex justify-between text-green-700">
-              <div className="font-CerFont text-[16px]">
+            <div className="flex justify-between text-green-700 text-[16px]">
+              <div>
                 {i18n.language === "th"
-                  ? "ส่วนลด Affiliate"
-                  : "Affiliate Discount"}
+                  ? `ส่วนลด Affiliate${
+                      adults + children > 1 ? ` x ${adults + children}` : ""
+                    }`
+                  : `Affiliate Discount${
+                      adults + children > 1 ? ` x ${adults + children}` : ""
+                    }`}
               </div>
-              <div className="font-CerFont text-[16px]">
-                -{formatCurrency(priceDetails.affiliateDiscountAmount)}
-              </div>
+              <div>-{formatCurrency(priceDetails.affiliateDiscountAmount)}</div>
             </div>
           )}
         </div>
@@ -404,13 +396,13 @@ const Checkout = (props) => {
 
       <div className="py-6 mt-4 border-t border-gray-300">
         <div className="flex justify-between">
-          <div className="font-CerFont text-[18px]">
+          <div className="  text-[18px]">
             <b>
               {i18n.language === "th" ? "รวม" : "Total"}{" "}
               <span className="underline font-medium">(THB)</span>
             </b>
           </div>
-          <div className="font-CerFont text-[24px]">
+          <div className="  text-[24px]">
             <b>
               {priceDetails.paidAmount != null
                 ? formatCurrency(priceDetails.paidAmount)
@@ -421,12 +413,12 @@ const Checkout = (props) => {
       </div>
 
       <div className="pt-6">
-        <div className="font-CerFont font-bold text-[16px]">
+        <div className="  font-bold text-[16px]">
           {i18n.language === "th"
             ? "นโยบายยกเลิกการจอง"
             : "Cancellation Policy"}
         </div>
-        <div className="font-CerFont text-[14px] font-normal">
+        <div className="  text-[14px] font-normal">
           {i18n.language === "th"
             ? "ไม่มีนโยบายให้ยกการจอง โดยเงินที่ชำระมาจะนำไปบริจาคช่วยเหลือสถานที่ที่ไปร่วมกิจกรรมแทน"
             : "There is no cancellation policy. The paid amount will be donated to support the venue of the activity."}
@@ -459,17 +451,17 @@ const Checkout = (props) => {
                 {/* <img src={activity?.image[0]?.fileName} alt="img1" className="w-full rounded-lg" /> */}
               </div>
               <div className="flex flex-col gap-2">
-                <div className="font-CerFont text-lg">{activity?.name}</div>
+                <div className="  text-lg">{activity?.name}</div>
               </div>
             </div>
 
             {/* Left Section */}
             <div className="w-full md:w-[55%]">
               <div style={{ borderBottom: "solid 1px #dddddd" }}>
-                <span className="flex text-[16px] font-CerFont">
+                <span className="flex text-[16px]  ">
                   {i18n.language === "en" ? "Your Activity" : "กิจกรรมของคุณ"}
                 </span>
-                <span className="text-[20px] font-bold font-CerFont mb-2">
+                <span className="text-[20px] font-bold   mb-2">
                   {i18n.language === "en"
                     ? activity?.nameEn ?? ""
                     : activity?.nameTh ?? ""}
@@ -477,10 +469,10 @@ const Checkout = (props) => {
                 <br />
                 <br />
                 <div className="flex flex-col pb-3">
-                  <span className="text-[16px] font-CerFont">
+                  <span className="text-[16px]  ">
                     {i18n.language === "en" ? "Date & Time" : "วันและเวลา"}
                   </span>
-                  <span className="text-[20px] font-bold font-CerFont">
+                  <span className="text-[20px] font-bold  ">
                     {schedule ? (
                       <>
                         {i18n.language === "en"
@@ -497,10 +489,10 @@ const Checkout = (props) => {
                   </span>
                 </div>
                 <div className="pb-1">
-                  <span className="text-[16px] font-semibold font-CerFont">
+                  <span className="text-[16px] font-semibold  ">
                     {i18n.language === "en" ? "Participants" : "ผู้เข้าร่วม"}
                   </span>
-                  <div className="text-[20px] font-bold font-CerFont">
+                  <div className="text-[20px] font-bold  ">
                     {i18n.language === "en"
                       ? `${adults} ${
                           adults > 1 ? "adults" : "adult"
@@ -539,7 +531,7 @@ const Checkout = (props) => {
                 )}
 
                 {affiliate && (
-                  <div className="text-[14px] font-normal text-gray-600 font-CerFont">
+                  <div className="text-[14px] font-normal text-gray-600  ">
                     {i18n.language === "en"
                       ? `Referral Code: ${affiliate}`
                       : `รหัสผู้แนะนำ: ${affiliate}`}
@@ -552,12 +544,12 @@ const Checkout = (props) => {
                 style={{ borderBottom: "solid 1px #dddddd" }}
               >
                 <div className="flex flex-col">
-                  <span className="text-[16px] font-normal font-CerFont">
+                  <span className="text-[16px] font-normal  ">
                     {i18n.language === "en"
                       ? "Important Notice :"
                       : "ข้อควรทราบ :"}
                   </span>
-                  <span className="text-[20px] font-normal font-CerFont">
+                  <span className="text-[20px] font-normal  ">
                     {i18n.language === "en"
                       ? "All participants must be at least 20 years old."
                       : "ผู้เข้าร่วมทุกคนต้องมีอายุอย่างน้อย 20 ปี "}
