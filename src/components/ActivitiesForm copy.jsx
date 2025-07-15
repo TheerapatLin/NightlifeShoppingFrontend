@@ -1,4 +1,3 @@
-// components/AcitivityForm.jsx
 import React, { useState, useEffect, useRef } from "react";
 import {
   TextField,
@@ -24,8 +23,7 @@ import utc from "dayjs/plugin/utc"; // นำเข้า utc plugin เพื�
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-function ActivitiesForm({ selectedDate, selectedEvent, onClose, refreshSlots }) {
-
+function ActivitiesForm({ selectedDate, selectedEvent, onClose }) {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   //ข้อมูล user ที่ล็อคอิน
   const { user } = useAuth();
@@ -58,7 +56,7 @@ function ActivitiesForm({ selectedDate, selectedEvent, onClose, refreshSlots }) 
         const res = await axios.get(`${BASE_URL}/activity`, {
           withCredentials: true,
         });
-        //alert(JSON.stringify(res.data, null, 2));
+        alert(JSON.stringify(res.data, null, 2));
         setAllActivities(res.data); // หรือ res.data ตาม structure API ของคุณ
       } catch (error) {
         console.error("Error fetching activities:", error);
@@ -119,9 +117,61 @@ function ActivitiesForm({ selectedDate, selectedEvent, onClose, refreshSlots }) 
     console.log(name, ":", newValue);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  //เหมือนกับ handleChange แค่เป็น เวลา
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const remainingSlots =
+      4 - selectedImages.filter((img) => img.status !== "delete").length;
 
+    if (files.length > remainingSlots) {
+      Swal.fire({
+        icon: "warning",
+        title: `คุณสามารถเพิ่มได้อีกเพียง ${remainingSlots} รูปเท่านั้น`,
+        showConfirmButton: true,
+      });
+      return;
+    }
+
+    const newImages = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+      status: "add",
+    }));
+
+    setSelectedImages((prevImages) => [...prevImages, ...newImages]);
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveImage = (index) => {
+    setSelectedImages((prevImages) => {
+      return prevImages
+        .map((image, i) => {
+          if (i === index) {
+            if (image.status === "none") {
+              return { ...image, status: "delete" };
+            } else if (image.status === "delete") {
+              return { ...image, status: "none" };
+            } else if (image.status === "add") {
+              return null;
+            }
+          }
+          return image;
+        })
+        .filter((image) => image !== null);
+    });
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (!dataForm.date) {
       Swal.fire({
         icon: "warning",
@@ -137,76 +187,277 @@ function ActivitiesForm({ selectedDate, selectedEvent, onClose, refreshSlots }) 
       return;
     }
 
-    try {
-      const selectedActivity = allActivities.find(
-        (act) =>
-          act.nameTh === dataForm.activityName ||
-          act.nameEn === dataForm.activityName
-      );
+    //แก้ไข
+    if (selectedEvent) {
+      const imageStatus = [];
+      const files = [];
+      const startTimeUTC = dayjs(dataForm.startTime).utc().format();
+      const endTimeUTC = dayjs(dataForm.endTime).utc().format();
 
-      if (!selectedActivity) {
-        Swal.fire({
-          icon: "warning",
-          title: "กรุณาเลือกกิจกรรม",
-          showConfirmButton: true,
+      const formData = new FormData();
+      formData.append("name", dataForm.activityName);
+      formData.append("startTime", startTimeUTC);
+      formData.append("endTime", endTimeUTC);
+      formData.append("description", dataForm.description);
+      formData.append("cost", dataForm.expenses);
+      formData.append("participantLimit", dataForm.participantLimit);
+      // console.log("Images to be updated:");
+      // selectedImages.forEach((image, index) => {
+      //   console.log(`Image ${index}:`, {
+      //     file: image.file,
+      //     fileName: image.fileName,
+      //     status: image.status,
+      //   });
+      // });
+      // console.log("---------------------------------")
+      selectedImages.forEach((image, index) => {
+        imageStatus.push(image.status); // เก็บ status
+        if (image.status === "add") {
+          files.push(image.file);
+          console.log(index, ":", files);
+        }
+      });
+      console.log(files);
+      formData.append(`images[]`, files); // ถ้า status เป็น "add" ส่งไฟล์ภาพ
+
+      // เพิ่ม status ลงใน formData
+      formData.append(`imageStatus[]`, imageStatus); // ส่งสถานะเป็น array
+
+      axios
+        .patch(`${BASE_URL}/activity/${dataForm.id}`, formData, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          // เมื่ออัปเดตกิจกรรมสำเร็จ
+          Swal.fire({
+            icon: "success",
+            title: "อัปเดตข้อมูลสำเร็จ",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+          // .then(() => {
+          //   window.location.reload();
+          // });
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด",
+            text: "ไม่สามารถอัปเดตข้อมูลได้",
+          });
         });
-        return;
-      }
 
-      const selectedDateTime = dayjs(selectedDate);
-      const startDateTime = selectedDateTime
-        .hour(dataForm.startTime.hour())
-        .minute(dataForm.startTime.minute())
-        .second(0);
-
-      const endDateTime = selectedDateTime
-        .hour(dataForm.endTime.hour())
-        .minute(dataForm.endTime.minute())
-        .second(0);
-
-      const slotPayload = {
-        businessId: "1",
-        activityId: selectedActivity._id,
-        creator: {
-          id: user.id,
-          name: user.name || "",
-          profileImage: user.profileImage || "",
-        },
-        date: selectedDateTime.toISOString(),
-        startTime: startDateTime.toISOString(),
-        endTime: endDateTime.toISOString(),
-        location: selectedActivity.location, // หรือ location จากฟอร์มเพิ่มเติมได้
-        cost: parseInt(dataForm.expenses) || 0,
-        participantLimit: parseInt(dataForm.participantLimit) || 10,
-        requireRequestToJoin: true,
-        notes: dataForm.description,
-      };
-
-      await axios.post(`${BASE_URL}/activity-slot`, slotPayload, {
-        headers: {
-          "device-fingerprint": "12345678",
-        },
-        withCredentials: true,
-      });
-
-      if (refreshSlots) {
-        refreshSlots(); // ✅ เรียกเพื่ออัปเดตปฏิทินทันที
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "สร้างรอบกิจกรรมสำเร็จ",
-        showConfirmButton: false,
-        timer: 1500,
-      });
+      // เรียกใช้ฟังก์ชัน handleClose() เพื่อปิดฟอร์ม
       handleClose();
-    } catch (error) {
-      console.error("Error:", error);
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text: "ไม่สามารถสร้างรอบกิจกรรมได้",
-      });
+    } else {
+      if (dataForm.repeat === "daily") {
+        const parentId = uuidv4(); // สร้าง ID หลักสำหรับชุดกิจกรรมที่ซ้ำกัน
+        let currentDate = dayjs(selectedDate);
+
+        const createActivity = async () => {
+          try {
+            // วนลูปสร้างกิจกรรมตามจำนวน repeatCount
+            for (let i = 0; i < dataForm.repeatCount; i++) {
+              const startDateTime = currentDate
+                .hour(dataForm.startTime.hour())
+                .minute(dataForm.startTime.minute());
+              const endDateTime = currentDate
+                .hour(dataForm.endTime.hour())
+                .minute(dataForm.endTime.minute());
+              const startTimeUTC = startDateTime.utc().format();
+              const endTimeUTC = endDateTime.utc().format();
+
+              // สร้าง FormData สำหรับแต่ละวัน
+              const formData = new FormData();
+              formData.append("creatorId", user.id);
+              formData.append("parentId", parentId); // เพิ่ม parentId เพื่อเชื่อมโยงกิจกรรมที่ซ้ำกัน
+              formData.append("name", dataForm.activityName);
+              formData.append("startTime", startTimeUTC);
+              formData.append("endTime", endTimeUTC);
+              formData.append("description", dataForm.description);
+              formData.append("cost", dataForm.expenses);
+              formData.append("participantLimit", dataForm.participantLimit);
+              selectedImages.forEach((image, index) => {
+                formData.append(`images`, image.file);
+              });
+
+              // ส่ง request ไปยัง API เพื่อสร้างกิจกรรม
+              const response = await axios.post(
+                `${BASE_URL}/activity/create-web/`,
+                formData,
+                {
+                  headers: {
+                    businessId: "1",
+                  },
+                  withCredentials: true,
+                }
+              );
+              // console.log(`กิจกรรมวันที่ ${i + 1} สร้างสำเร็จ:`, response.data);
+
+              // เลื่อนไปวันถัดไป
+              currentDate = currentDate.add(1, "day");
+            }
+
+            // แสดง Swal เมื่อสร้างกิจกรรมทั้งหมดเสร็จสิ้น
+            Swal.fire({
+              icon: "success",
+              title: `สร้างกิจกรรมสำเร็จ ${dataForm.repeatCount} วัน`,
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              window.location.reload();
+            });
+          } catch (error) {
+            // console.error("เกิดข้อผิดพลาด:", error);
+            // แสดง Swal ถ้ามีข้อผิดพลาด
+            Swal.fire({
+              icon: "error",
+              title: "เกิดข้อผิดพลาดในการสร้างกิจกรรม",
+              text: error.message,
+              showConfirmButton: true,
+            });
+          }
+        };
+
+        // เรียกฟังก์ชัน async
+        createActivity();
+      } else if (dataForm.repeat === "weekly") {
+        const parentId = uuidv4(); // สร้าง ID หลักสำหรับชุดกิจกรรมที่ซ้ำกัน
+        let currentDate = dayjs(selectedDate);
+
+        const createActivity = async () => {
+          try {
+            // วนลูปสร้างกิจกรรมตามจำนวน repeatCount
+            for (let i = 0; i < dataForm.repeatCount; i++) {
+              const startDateTime = currentDate
+                .hour(dataForm.startTime.hour())
+                .minute(dataForm.startTime.minute());
+              const endDateTime = currentDate
+                .hour(dataForm.endTime.hour())
+                .minute(dataForm.endTime.minute());
+              const startTimeUTC = startDateTime.utc().format();
+              const endTimeUTC = endDateTime.utc().format();
+
+              // สร้าง FormData สำหรับแต่ละวัน
+              const formData = new FormData();
+              formData.append("creatorId", user.id);
+              formData.append("parentId", parentId); // เพิ่ม parentId เพื่อเชื่อมโยงกิจกรรมที่ซ้ำกัน
+              formData.append("name", dataForm.activityName);
+              formData.append("startTime", startTimeUTC);
+              formData.append("endTime", endTimeUTC);
+              formData.append("description", dataForm.description);
+              formData.append("cost", dataForm.expenses);
+              formData.append("participantLimit", dataForm.participantLimit);
+              selectedImages.forEach((image, index) => {
+                formData.append(`images`, image.file);
+              });
+
+              // ส่ง request ไปยัง API เพื่อสร้างกิจกรรม
+              const response = await axios.post(
+                `${BASE_URL}/activity/create-web/`,
+                formData,
+                {
+                  headers: {
+                    businessId: "1",
+                  },
+                  withCredentials: true,
+                }
+              );
+              // console.log(`กิจกรรมสัปดาห์ที่ ${i + 1} สร้างสำเร็จ:`, response.data);
+
+              // เลื่อนไปวันถัดไป
+              currentDate = currentDate.add(7, "day");
+            }
+
+            // แสดง Swal เมื่อสร้างกิจกรรมทั้งหมดเสร็จสิ้น
+            Swal.fire({
+              icon: "success",
+              title: `สร้างกิจกรรมสำเร็จ ${dataForm.repeatCount} สัปดาห์`,
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              window.location.reload();
+            });
+          } catch (error) {
+            // console.error("เกิดข้อผิดพลาด:", error);
+            // แสดง Swal ถ้ามีข้อผิดพลาด
+            Swal.fire({
+              icon: "error",
+              title: "เกิดข้อผิดพลาดในการสร้างกิจกรรม",
+              text: error.message,
+              showConfirmButton: true,
+            });
+          }
+        };
+
+        // เรียกฟังก์ชัน async
+        createActivity();
+      } else {
+        //สร้าง activities สำหรับวันเดียว
+        const selectedDateTime = dayjs(selectedDate); // วันที่เลือกจากปฏิทิน
+
+        // สร้างวันที่และเวลาเริ่มต้น
+        const startDateTime = selectedDateTime
+          .hour(dataForm.startTime.hour())
+          .minute(dataForm.startTime.minute())
+          .second(0);
+
+        // สร้างวันที่และเวลาสิ้นสุด
+        const endDateTime = selectedDateTime
+          .hour(dataForm.endTime.hour())
+          .minute(dataForm.endTime.minute())
+          .second(0);
+
+        // แปลงเป็น UTC
+        const startTimeUTC = startDateTime.utc().format();
+        const endTimeUTC = endDateTime.utc().format();
+        // console.log("after:",startTimeUTC,"\n",endTimeUTC)
+
+        // สร้าง FormData สำหรับส่งข้อมูล
+        const formData = new FormData();
+        formData.append("parentId", uuidv4());
+        formData.append("name", dataForm.activityName);
+        formData.append("startTime", startTimeUTC);
+        formData.append("endTime", endTimeUTC);
+        formData.append("description", dataForm.description);
+        formData.append("cost", dataForm.expenses);
+        formData.append("participantLimit", dataForm.participantLimit);
+        selectedImages.forEach((image, index) => {
+          formData.append(`images`, image.file);
+        });
+
+        axios
+          .post(`${BASE_URL}/activity/create-web/`, formData, {
+            //.post(`https://localhost-shopfront.ngrok.app/activity/`, formData, {
+            headers: {
+              businessId: "1",
+            },
+            withCredentials: true,
+          })
+          .then((response) => {
+            // เมื่อสร้างกิจกรรมสำเร็จ
+            Swal.fire({
+              icon: "success",
+              title: "สร้างกิจกรรมสำเร็จ",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              window.location.reload();
+            });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            Swal.fire({
+              icon: "error",
+              title: "เกิดข้อผิดพลาด",
+              text: "ไม่สามารถสร้างกิจกรรมได้",
+            });
+          });
+      }
+
+      //เรียกใช้ func เพื่อsetค่าform กลับเป็นเหมือนเดิม
+      handleClose();
     }
   };
 
@@ -589,7 +840,7 @@ function ActivitiesForm({ selectedDate, selectedEvent, onClose, refreshSlots }) 
           </div>
 
           <TextField
-            label="รายละเอียดรอบกิจกรรม"
+            label="รายละเอียดกิจกรรม"
             variant="outlined"
             fullWidth
             multiline
@@ -673,6 +924,69 @@ function ActivitiesForm({ selectedDate, selectedEvent, onClose, refreshSlots }) 
                 }}
               />
               <span className="font-sans font-normal">สัปดาห์</span>
+            </div>
+          )}
+
+          <div className="flex items-center">
+            <input
+              type="file"
+              id="file-upload"
+              multiple
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+              disabled={
+                selectedImages.filter((img) => img.status !== "delete")
+                  .length >= 4
+              }
+              ref={fileInputRef}
+            />
+            <label
+              htmlFor="file-upload"
+              className={`cursor-pointer ${
+                selectedImages.length >= 4 ? "opacity-50" : ""
+              }`}
+            >
+              <img
+                src="/img/upload.png"
+                alt="Image Icon"
+                className="w-[100px]"
+              />
+            </label>
+            <span className="ml-2">{selectedImages.length}/4 รูปภาพ</span>
+          </div>
+
+          {selectedImages.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedImages.map((image, index) => (
+                <div key={index} className="relative">
+                  <div
+                    className={`w-[100px] h-[100px] relative ${
+                      image.status === "delete" ? "opacity-50" : ""
+                    }`}
+                  >
+                    <img
+                      src={image.preview || image.fileName}
+                      alt={`Selected ${index}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {image.status === "delete" && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <IoIosCloseCircle className="text-red-500 text-4xl" />
+                      </div>
+                    )}
+                  </div>
+                  <IconButton
+                    onClick={() => handleRemoveImage(index)}
+                    className={`absolute top-0 right-0 ${
+                      image.status === "delete" ? "bg-green-500" : "bg-red-500"
+                    } text-white`}
+                    size="small"
+                  >
+                    {image.status === "delete" ? "↻" : <IoIosCloseCircle />}
+                  </IconButton>
+                </div>
+              ))}
             </div>
           )}
 

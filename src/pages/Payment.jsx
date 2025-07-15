@@ -1,14 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import axios from "axios";
-import { ChevronLeft } from "lucide-react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import TextField from "@mui/material/TextField";
-import { useGlobalEvent } from "../context/GlobalEventContext";
-import "../public/css/SmallCalendar.css";
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
-
+import { Routes, Route } from "react-router-dom";
 import Checkout from "./Checkout";
 import CompletePage from "./CompletePayment";
 import { Elements } from "@stripe/react-stripe-js";
@@ -17,11 +9,16 @@ import { loadStripe } from "@stripe/stripe-js";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const Payment = () => {
-  var isIntentLoading = false;
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   const location = useLocation();
   const [clientSecret, setClientSecret] = useState("");
-  const [paymentState, setPaymentState] = useState(location.state);
+  const [elementsKey, setElementsKey] = useState(0); // ✅ for forcing Elements to remount
+
+  const [appliedDiscountCode, setAppliedDiscountCode] = useState(
+    location.state?.appliedDiscountCode ||
+      localStorage.getItem("appliedDiscountCode") ||
+      ""
+  );
   const [activityId, setActivityId] = useState(
     location.state?.activityId || localStorage.getItem("activityId") || ""
   );
@@ -29,7 +26,7 @@ const Payment = () => {
     location.state?.scheduleId || localStorage.getItem("scheduleId") || ""
   );
   const [adults, setAdults] = useState(
-    location.state?.adults || parseInt(localStorage.getItem("adults")) || 0
+    location.state?.adults || parseInt(localStorage.getItem("adults")) || 1
   );
   const [children, setChildren] = useState(
     location.state?.children || parseInt(localStorage.getItem("children")) || 0
@@ -40,11 +37,20 @@ const Payment = () => {
   const [startDate, setStartDate] = useState(
     location.state?.startDate || localStorage.getItem("startDate") || ""
   );
+  const [priceDetails, setPriceDetails] = useState({
+    originalPrice: null,
+    discountAmount: null,
+    affiliateDiscountAmount: null,
+    paidAmount: null,
+  });
+
+  const isIntentLoading = useRef(false);
 
   const appearance = {
     theme: "stripe",
   };
   const loader = "auto";
+
   useEffect(() => {
     if (location.state?.mode === "reloadFromLocal") {
       setActivityId(localStorage.getItem("activityId"));
@@ -72,15 +78,13 @@ const Payment = () => {
   ]);
 
   useEffect(() => {
-    event.preventDefault();
-    //alert('payment_page');
-
     const createPaymentIntent = async () => {
-      // alert(`activityId : ${activityId}`);
-      // alert(`scheduleId : ${scheduleId}`);
-      // alert(`startDate : ${startDate}`);
       const stored = localStorage.getItem("affiliateRef");
       const affiliateCode = stored ? JSON.parse(stored)?.ref : null;
+
+      const previousPaymentIntentId =
+        localStorage.getItem("paymentIntentId") || null;
+
       try {
         const response = await fetch(
           `${BASE_URL}/activity-order/create-payment-intent`,
@@ -100,32 +104,59 @@ const Payment = () => {
                 },
               ],
               affiliateCode,
+              appliedDiscountCode,
+              previousPaymentIntentId,
             }),
           }
         );
+
         if (!response.ok) {
           throw new Error("Failed to create payment intent");
         }
+
         const data = await response.json();
-        //localStorage.setItem("client_secret", data.clientSecret);
         setClientSecret(data.clientSecret);
-        isIntentLoading = false;
+
+        setPriceDetails({
+          originalPrice: data.originalPrice,
+          discountAmount: data.discountAmount,
+          affiliateDiscountAmount: data.affiliateDiscountAmount,
+          paidAmount: data.paidAmount,
+        });
+
+        if (data.paymentIntentId) {
+          localStorage.setItem("paymentIntentId", data.paymentIntentId);
+        }
+
+        setElementsKey((prev) => prev + 1); // ✅ force Elements reload with new clientSecret
+        isIntentLoading.current = false;
       } catch (error) {
         console.error("Error creating payment intent:", error);
+        isIntentLoading.current = false;
       }
     };
 
-    if (BASE_URL && !isIntentLoading) {
-      isIntentLoading = true;
+    if (BASE_URL && !isIntentLoading.current) {
+      isIntentLoading.current = true;
       createPaymentIntent();
     }
-  }, [BASE_URL]); // คุณอาจเพิ่ม BASE_URL ใน dependency ถ้ามีความเสี่ยงที่ค่าอาจเปลี่ยน
+  }, [
+    BASE_URL,
+    activityId,
+    scheduleId,
+    adults,
+    children,
+    cost,
+    startDate,
+    appliedDiscountCode,
+  ]);
 
   return (
     <>
       {clientSecret && (
         <div style={{ paddingTop: "60px" }}>
           <Elements
+            key={elementsKey} // ✅ force re-render when clientSecret updates
             options={{ clientSecret, appearance, loader }}
             stripe={stripePromise}
           >
@@ -141,6 +172,8 @@ const Payment = () => {
                       children,
                       cost,
                       startDate,
+                      priceDetails,
+                      setPriceDetails,
                     }}
                   />
                 }

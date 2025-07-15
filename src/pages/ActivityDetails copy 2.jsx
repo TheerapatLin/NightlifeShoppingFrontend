@@ -1,18 +1,10 @@
-//ActivityDetails.jsx
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import utc from "dayjs/plugin/utc";
 import "dayjs/locale/th";
 import {
@@ -40,8 +32,6 @@ import "./sandbox.css";
 import "./embla.css";
 
 dayjs.locale("th");
-dayjs.extend(isSameOrAfter);
-dayjs.extend(utc);
 
 const OPTIONS = {};
 const SLIDE_COUNT = 5;
@@ -69,7 +59,7 @@ const ActivityDetails = () => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [startDate, setStartDate] = useState(null);
+  const [startDate, setStartDate] = useState(today);
   const datePickerRef = useRef(null);
   const containerRef = useRef(null);
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
@@ -86,7 +76,6 @@ const ActivityDetails = () => {
   const [searchParams] = useSearchParams();
   const { setAffiliate, user } = useAuth();
   const [filteredSchedules, setFilteredSchedules] = useState([]);
-  const [slots, setSlots] = useState([]);
 
   useSyncDayjsLocale();
 
@@ -117,60 +106,6 @@ const ActivityDetails = () => {
       navigate(window.location.pathname, { replace: true });
     }
   }, [searchParams]);
-
-  // หาวันที่มีรอบ >= วันนี้
-  useEffect(() => {
-    if (!activity?.schedule) return;
-
-    const today = dayjs().startOf("day");
-    // หา slot ที่มากกว่า "วันนี้" จริง ๆ
-    const futureSlots = activity.schedule
-      .filter((slot) => dayjs(slot.startTime).isAfter(today))
-      .sort(
-        (a, b) => dayjs(a.startTime).valueOf() - dayjs(b.startTime).valueOf()
-      );
-
-    if (futureSlots.length > 0) {
-      setStartDate(dayjs(futureSlots[0].startTime).toDate());
-    } else {
-      setStartDate(null);
-    }
-  }, [activity]);
-
-  // ✅ ใส่ตรงนี้
-  const availableDates = React.useMemo(() => {
-    if (!activity?.schedule) return new Set();
-
-    return new Set(
-      activity.schedule.map((slot) =>
-        dayjs(slot.startTime).format("YYYY-MM-DD")
-      )
-    );
-  }, [activity]);
-
-  const [activitySlots, setActivitySlots] = useState([]);
-
-  useEffect(() => {
-    const fetchActivitySlots = async () => {
-      try {
-        const res = await axios.get(
-          `${
-            import.meta.env.VITE_BASE_API_URL_LOCAL
-          }/activity-slot?activityId=${activity._id}`,
-          {
-            withCredentials: true,
-          }
-        );
-        setActivitySlots(res.data);
-      } catch (error) {
-        console.error("Error fetching activity slots:", error);
-      }
-    };
-
-    if (activity?._id) {
-      fetchActivitySlots();
-    }
-  }, [activity]);
 
   const handlePaymentNavigation = (
     activityId,
@@ -282,7 +217,7 @@ const ActivityDetails = () => {
       //alert("activitylastStartDate = " + activity.lastStartDate);
       //setStartDate(activity.lastStartDate);
       //const initialDate = new Date(activity.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
-      //handleDateChange(today);
+      handleDateChange(today);
     }
   }, [activity]);
 
@@ -387,131 +322,59 @@ const ActivityDetails = () => {
     return `${thaiDay}. ${day} ${thaiMonths[month]}`;
   };
 
-  const ActivityList = ({
-    activity,
-    startDate,
-    schedules,
-    handlePaymentNavigation,
-    formatTime,
-    adults,
-    children,
-  }) => {
-    const { i18n } = useTranslation();
-
-    const filteredSchedules = useMemo(() => {
-      if (!schedules || !startDate || !activity?._id) return [];
-
-      return schedules.filter((schedule) => {
-        const scheduleDate = dayjs.utc(schedule.startTime).format("YYYY-MM-DD");
-        const selectedDate = dayjs.utc(startDate).format("YYYY-MM-DD"); // ✅ แก้ตรงนี้
-
-        const isSameDate = scheduleDate === selectedDate;
-
-        const isSameActivity =
-          schedule.activityId?._id === activity._id ||
-          schedule.activityId === activity._id;
-
-        return isSameDate && isSameActivity;
-      });
-    }, [schedules, startDate, activity]);
-
+  const ActivityList = () => {
     if (!filteredSchedules.length) {
       return (
         <div className="flex flex-col h-[300px] items-center justify-center text-gray-500">
-          {i18n.language === "en"
-            ? "No activity schedules for the selected date"
-            : "ไม่มีตารางกิจกรรมในวันที่เลือก"}
+          ไม่มีตารางกิจกรรมในวันที่เลือก
         </div>
       );
     }
 
     return (
       <div className="flex flex-col h-[300px] overflow-y-auto">
-        {filteredSchedules.map((schedule, index) => {
-          const participantLimit = schedule.participantLimit || 0;
-
-          // ✅ นับจำนวนคนจริงจากผู้เข้าร่วมทั้งหมด
-          const participantsCount =
-            schedule.participants?.reduce((total, p) => {
-              const adults = p.adults || 0;
-              const children = p.children || 0;
-              return total + adults + children;
-            }, 0) || 0;
-
-          const spotsLeft = participantLimit - participantsCount;
-
-          // ✅ Determine availability status
-          const isSoldOut = spotsLeft <= 0;
-
-          return (
-            <div
-              key={schedule._id}
-              className="flex justify-between py-[15px]"
-              style={{ borderBottom: "solid 1px #dddddd" }}
-            >
-              <div className="flex flex-col">
-                <div className="  text-[12px] font-bold">
-                  {i18n.language === "en" ? "Session " : "รอบที่ "}
-                  {index + 1}
-                </div>
-                <div className="  text-[16px]">
-                  {formatTime(schedule.startTime)} -{" "}
-                  {formatTime(schedule.endTime)}
-                </div>
-
-                <div className="  text-[12px] text-gray-500 mt-1">
-                  {isSoldOut
-                    ? i18n.language === "en"
-                      ? "Sold out"
-                      : "เต็มแล้ว"
-                    : i18n.language === "en"
-                    ? `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`
-                    : `เหลืออีก ${spotsLeft} ที่`}
-                </div>
+        {filteredSchedules.map((schedule, index) => (
+          <div
+            key={schedule._id}
+            className="flex justify-between py-[15px]"
+            style={{ borderBottom: "solid 1px #dddddd" }}
+          >
+            <div className="flex flex-col">
+              <div className="font-CerFont text-[12px] font-bold">
+                {i18n.language === "en" ? "Session" : "รอบที่"} {index + 1}
               </div>
-
-              <div className="flex flex-col items-end mr-2">
-                <div className="  text-[14px] font-bold">
-                  {schedule.cost === 0
-                    ? i18n.language === "en"
-                      ? "Free"
-                      : "ฟรี"
-                    : `฿ ${schedule.cost}`}{" "}
-                  / {i18n.language === "en" ? "person" : "คน"}
-                </div>
-
-                <button
-                  className={`buttonSelectDate ${
-                    isSoldOut ? "opacity-30 cursor-not-allowed" : ""
-                  }`}
-                  onClick={() => {
-                    if (!isSoldOut) {
-                      handlePaymentNavigation(
-                        activity._id,
-                        schedule._id,
-                        adults,
-                        children,
-                        schedule.cost,
-                        startDate
-                      );
-                    }
-                  }}
-                  disabled={isSoldOut}
-                >
-                  <center>
-                    {isSoldOut
-                      ? i18n.language === "en"
-                        ? "Sold out"
-                        : "เต็มแล้ว"
-                      : i18n.language === "en"
-                      ? "Choose"
-                      : "เลือก"}
-                  </center>
-                </button>
+              <div className="font-CerFont text-[16px]">
+                {formatTime(schedule.startTime)}-{formatTime(schedule.endTime)}
               </div>
             </div>
-          );
-        })}
+            <div className="flex flex-col items-end mr-2">
+              <div className="font-CerFont text-[14px] font-bold">
+                {schedule.cost === 0
+                  ? i18n.language === "en"
+                    ? "Free"
+                    : "ฟรี"
+                  : `฿ ${schedule.cost}`}{" "}
+                / {i18n.language === "en" ? "person" : "คน"}
+              </div>
+
+              <button
+                className="buttonSelectDate"
+                onClick={() =>
+                  handlePaymentNavigation(
+                    activity._id,
+                    schedule._id,
+                    adults,
+                    children,
+                    schedule.cost,
+                    startDate
+                  )
+                }
+              >
+                <center>{i18n.language === "en" ? "Choose" : "เลือก"}</center>
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     );
   };
@@ -648,63 +511,47 @@ const ActivityDetails = () => {
     return date >= today.setHours(0, 0, 0, 0); // ป้องกันเลือกวันในอดีต
   };
 
-  const CalendarComponent = ({ schedules, startDate, setStartDate }) => {
-    const { i18n } = useTranslation();
-    const containerRef = useRef(null);
-    const datePickerRef = useRef(null);
-
-    // เช็คว่ามีรอบในอนาคตหรือไม่
-    const futureSchedules = useMemo(() => {
-      const today = dayjs().startOf("day");
-      return (
-        schedules?.filter((slot) =>
-          dayjs(slot.startTime).isSameOrAfter(today)
-        ) || []
-      );
-    }, [schedules]);
-
-    useEffect(() => {
-      if (futureSchedules.length > 0 && !startDate) {
-        const firstFutureSlot = futureSchedules.sort(
-          (a, b) => dayjs(a.startTime) - dayjs(b.startTime)
-        )[0];
-        setStartDate(dayjs(firstFutureSlot.startTime).toDate());
-      }
-    }, [futureSchedules, startDate, setStartDate]);
-
+  const CalendarComponent = ({ schedules }) => {
+    // ฟังก์ชันสำหรับกรองวันที่
     const filterDate = (date) => {
-      const formattedDate = dayjs(date).format("YYYY-MM-DD");
-      return futureSchedules.some((slot) => {
-        const slotDate = dayjs(slot.startTime).format("YYYY-MM-DD");
-        return slotDate === formattedDate;
-      });
-    };
+      if (!schedules || schedules.length === 0) return false;
 
-    const handleDateChange = (date) => {
-      setStartDate(date);
-    };
+      const dayOfWeek = date.getDay();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const openDatePicker = () => {
-      if (containerRef.current) {
-        containerRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }
-      if (datePickerRef.current) {
-        datePickerRef.current.setFocus();
-      }
-    };
+      // ตรวจสอบวันหยุด
+      const holidays = schedules
+        .flatMap((schedule) => schedule.holidays || [])
+        .map((holiday) => new Date(holiday));
 
-    if (!futureSchedules.length) {
       return (
-        <div className="text-center text-gray-500 font-semibold mt-4">
-          {i18n.language === "en"
-            ? `⚠️ No activity slots are available.`
-            : `⚠️ ไม่มีรอบกิจกรรมเปิดอยู่ในขณะนี้`}
-        </div>
+        date >= today &&
+        !isHoliday(date, holidays) && // ไม่แสดงวันที่ที่เป็นวันหยุด
+        schedules.some((schedule) => {
+          const dayString = schedule.dayString.toLowerCase();
+          const days = dayString.split(",").map((day) => day.trim());
+
+          if (days.includes("everyday")) {
+            return true;
+          } else if (days.includes("weekend")) {
+            return dayOfWeek === 0 || dayOfWeek === 6;
+          } else {
+            return days.includes(
+              [
+                "sunday",
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday",
+              ][dayOfWeek]
+            );
+          }
+        })
       );
-    }
+    };
 
     return (
       <div className="flex">
@@ -715,25 +562,30 @@ const ActivityDetails = () => {
           ref={containerRef}
         >
           <div className="flex flex-col w-full">
-            <label className="  font-bold text-[12px]">
+            <label className="font-CerFont font-bold text-[12px]">
               {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
             </label>
+            {/* <b>{dayjs(startDate).format("DD/MM/YYYY")}</b> */}
             <DatePicker
               ref={datePickerRef}
               selected={startDate}
+              //selected={today}
               onChange={handleDateChange}
               dateFormat="dd/MM/yyyy"
               locale="th"
               placeholderText={
                 i18n.language === "en" ? "Select Date" : "เลือกวันที่"
               }
-              className="cursor-pointer "
-              filterDate={filterDate}
-              minDate={new Date()}
+              className="cursor-pointer font-CerFont"
+              //filterDate={filterDate}
+              filterDate={everydayFromToday}
+              minDate={today}
+              style={{ display: "none" }}
             />
           </div>
           <FaChevronDown size={16} />
         </div>
+
         <div
           className="flex items-center rounded-r-lg p-3 w-[150px]"
           style={{ border: "1px solid black" }}
@@ -815,7 +667,7 @@ const ActivityDetails = () => {
               {isMobile && (
                 <>
                   <span
-                    className="text-[26px] font-semibold   mb-2  px-5"
+                    className="text-[26px] font-semibold font-CerFont mb-2  px-5"
                     style={{ lineHeight: "30px" }}
                   >
                     {i18n.language === "en"
@@ -838,7 +690,7 @@ const ActivityDetails = () => {
                       rel="noopener noreferrer"
                       className="flex items-center text-blue-500"
                     >
-                      <div className="font-normal   underline">
+                      <div className="font-normal font-CerFont underline">
                         <FaMapMarkerAlt className="mr-2" />
                         {i18n.language === "en"
                           ? activity?.location?.nameEn
@@ -849,13 +701,13 @@ const ActivityDetails = () => {
                     {/* <div className="flex gap-2">
                     <div className="flex justify-between items-center gap-1">
                       <IoShareOutline />
-                      <div className="font-normal   underline">
+                      <div className="font-normal font-CerFont underline">
                         แชร์
                       </div>
                     </div>
                     <div className="flex justify-between items-center gap-1">
                       <MdFavoriteBorder />
-                      <div className="font-normal   underline">
+                      <div className="font-normal font-CerFont underline">
                         บันทึก
                       </div>
                     </div>
@@ -878,7 +730,7 @@ const ActivityDetails = () => {
               {/* Desktop Layout */}
               {!isMobile && (
                 <>
-                  <span className="text-[26px] font-semibold   mb-2 ">
+                  <span className="text-[26px] font-semibold font-CerFont mb-2 ">
                     {i18n.language === "en"
                       ? `${activity?.nameEn}${
                           activity?.minorNameEn?.trim()
@@ -891,7 +743,7 @@ const ActivityDetails = () => {
                             : ""
                         }`}{" "}
                   </span>
-                  <span className="text-[20px] font-semibold   mb-2"></span>
+                  <span className="text-[20px] font-semibold font-CerFont mb-2"></span>
 
                   <div className="flex justify-between">
                     <a
@@ -900,7 +752,7 @@ const ActivityDetails = () => {
                       rel="noopener noreferrer"
                       className="flex items-center text-blue-500"
                     >
-                      <div className="font-normal   underline">
+                      <div className="font-normal font-CerFont underline">
                         <FaMapMarkerAlt className="mr-2" />
                         {i18n.language === "en"
                           ? activity?.location?.nameEn
@@ -910,13 +762,13 @@ const ActivityDetails = () => {
                     {/* <div className="flex gap-2">
                     <div className="flex justify-between items-center gap-1">
                       <IoShareOutline />
-                      <div className="font-normal   underline">
+                      <div className="font-normal font-CerFont underline">
                         {i18n.language === "en" ? "Share" : "แชร์"}
                       </div>
                     </div>
                     <div className="flex justify-between items-center gap-1">
                       <MdFavoriteBorder />
-                      <div className="font-normal   underline">
+                      <div className="font-normal font-CerFont underline">
                         {i18n.language === "en" ? "Save" : "บันทึก"}
                       </div>
                     </div>
@@ -939,13 +791,13 @@ const ActivityDetails = () => {
                   >
                     <br />
                     <div
-                      className="  text-[16px]"
+                      className="font-CerFont text-[16px]"
                       style={{ color: "black" }}
                     >
                       {activity?.descriptionTH &&
                         (i18n.language === "en" ? (
                           <div
-                            className="  text-[16px]"
+                            className="font-CerFont text-[16px]"
                             style={{ color: "black" }}
                             dangerouslySetInnerHTML={{
                               __html: activity?.descriptionEN,
@@ -953,7 +805,7 @@ const ActivityDetails = () => {
                           />
                         ) : (
                           <div
-                            className="  text-[16px]"
+                            className="font-CerFont text-[16px]"
                             style={{ color: "black" }}
                             dangerouslySetInnerHTML={{
                               __html: activity?.descriptionTH,
@@ -967,7 +819,7 @@ const ActivityDetails = () => {
                     className="py-[48px]"
                     style={{ borderBottom: "solid 1px #dddddd" }}
                   >
-                    <div className="  text-[22px] font-bold pb-[24px]">
+                    <div className="font-CerFont text-[22px] font-bold pb-[24px]">
                       {i18n.language === "en"
                         ? "⭐️ What's Included ⭐️"
                         : "⭐️ สิ่งที่รวมอยู่ในกิจกรรม ⭐️"}
@@ -990,12 +842,12 @@ const ActivityDetails = () => {
                               alt={item.headerEN}
                               width="80"
                             />
-                            <div className="  text-[18px] font-bold mb-2">
+                            <div className="font-CerFont text-[18px] font-bold mb-2">
                               {i18n.language === "en"
                                 ? item.headerEN
                                 : item.headerTH}
                             </div>
-                            <div className="  text-[14px] text-qblack mb-2 leading-5">
+                            <div className="font-CerFont text-[14px] text-qblack mb-2 leading-5">
                               {i18n.language === "en"
                                 ? item.detailEN
                                 : item.detailTH}
@@ -1026,17 +878,17 @@ const ActivityDetails = () => {
                         />
                       )}
                       <div className="flex flex-col">
-                        <div className="  text-[24px] font-bold">
+                        <div className="font-CerFont text-[24px] font-bold">
                           {i18n.language === "en" ? (
                             <div
-                              className="  text-[22px]"
+                              className="font-CerFont text-[22px]"
                               dangerouslySetInnerHTML={{
                                 __html: activity?.aboutHostHeaderEN,
                               }}
                             />
                           ) : (
                             <div
-                              className="  text-[22px]"
+                              className="font-CerFont text-[22px]"
                               dangerouslySetInnerHTML={{
                                 __html: activity?.aboutHostHeaderTH,
                               }}
@@ -1048,7 +900,7 @@ const ActivityDetails = () => {
                     {/* 2 */}
                     {/* <div className="flex gap-2 mb-[24px]">
                     <IoShieldCheckmarkSharp size={20} />
-                    <div className="  text-[14px] text-qblack">
+                    <div className="font-CerFont text-[14px] text-qblack">
                       ยืนยันตัวตนแล้ว
                     </div>
                   </div> */}
@@ -1058,7 +910,7 @@ const ActivityDetails = () => {
                         (i18n.language === "en" ? (
                           <>
                             <div
-                              className="  text-[16px]"
+                              className="font-CerFont text-[16px]"
                               dangerouslySetInnerHTML={{
                                 __html: activity?.aboutHostEN.join("<br/>"),
                               }}
@@ -1067,7 +919,7 @@ const ActivityDetails = () => {
                         ) : (
                           <>
                             <div
-                              className="  text-[16px]"
+                              className="font-CerFont text-[16px]"
                               dangerouslySetInnerHTML={{
                                 __html: activity?.aboutHostTH.join("<br/>"),
                               }}
@@ -1077,7 +929,7 @@ const ActivityDetails = () => {
                     </div>
                     {/* <div className="flex flex-col md:flex-row gap-10 items-center mt-[32px]">
                     <button
-                      className="w-full py-[13px] px-[23px] rounded-lg   text-[16px] font-bold"
+                      className="w-full py-[13px] px-[23px] rounded-lg font-CerFont text-[16px] font-bold"
                       style={{
                         border: "solid 2px black",
                         background: "transparent",
@@ -1088,7 +940,7 @@ const ActivityDetails = () => {
 
                     <div className="flex gap-5 items-center">
                       <GiCheckedShield size={28} />
-                      <div className="  text-[13px]">
+                      <div className="font-CerFont text-[13px]">
                         เพื่อความปลอดภัย
                         อย่าโอนเงินหรือติดต่อสื่อสารผ่านช่องทางอื่นที่ไม่ใช่เว็บไซต์หรือแอพ
                         Airbnb{" "}
@@ -1113,7 +965,7 @@ const ActivityDetails = () => {
                   >
                     {/* ราคา */}
                     <div className="flex flex-col">
-                      <div className="  font-bold text-[22px]">
+                      <div className="font-CerFont font-bold text-[22px]">
                         {i18n.language === "en"
                           ? `start at ฿${activity?.cost} / person`
                           : `เริ่มต้น ฿${activity?.cost} / คน`}
@@ -1122,30 +974,18 @@ const ActivityDetails = () => {
 
                     {/* วันที่ */}
                     <div className="flex justify-center mt-[24px] mb-[0px] lg:mb-[10px]">
-                      <CalendarComponent
-                        schedules={activitySlots}
-                        startDate={startDate}
-                        setStartDate={setStartDate}
-                      />
+                      <CalendarComponent schedules={activity?.schedule} />
                     </div>
 
                     {/* Activities container with fixed height and scrollable */}
                     <div className="flex flex-col h-[350px]">
-                      <ActivityList
-                        activity={activity}
-                        startDate={startDate}
-                        schedules={activitySlots} // ✅ ใช้ slot ที่ดึงจาก backend
-                        handlePaymentNavigation={handlePaymentNavigation}
-                        formatTime={formatTime}
-                        adults={adults}
-                        children={children}
-                      />
+                      <ActivityList />
                     </div>
 
                     {/* Show more button - always at bottom */}
                     <div className="">
                       <button
-                        className="py-[10px] px-[20px] rounded-lg   
+                        className="py-[10px] px-[20px] rounded-lg font-CerFont 
                       text-[16px] font-bold w-full bg-transparent hover:bg-slate-100"
                         style={{
                           border: "solid 1px gray",
@@ -1164,12 +1004,12 @@ const ActivityDetails = () => {
                 className="py-[48px] flex flex-col gap-6"
                 style={{ borderBottom: "solid 1px #dddddd" }}
               >
-                <div className="  font-bold text-[22px]">
+                <div className="font-CerFont font-bold text-[22px]">
                   {i18n.language === "en"
                     ? "Where you'll be"
                     : "สถานที่จัดกิจกรรม"}
                 </div>
-                <div className="  text-[16px] text-qblack">
+                <div className="font-CerFont text-[16px] text-qblack">
                   <b>
                     <big>
                       {i18n.language === "en"
@@ -1372,13 +1212,13 @@ const FloatingBar = ({
         </button>
 
         <div className="flex flex-col">
-          <h3 className="text-2xl text-black font-bold mb-6 ">
+          <h3 className="text-2xl text-black font-bold mb-6 font-CerFont">
             {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
           </h3>
 
           <div className="flex gap-3">
             <button
-              className="bg-transparent rounded-full px-4 text-sm "
+              className="bg-transparent rounded-full px-4 text-sm font-CerFont"
               style={{
                 border: "1px solid #dddddd",
               }}
@@ -1387,7 +1227,7 @@ const FloatingBar = ({
               {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
             </button>
             <button
-              className="bg-transparent rounded-full px-4 text-sm "
+              className="bg-transparent rounded-full px-4 text-sm font-CerFont"
               style={{
                 border: "1px solid #dddddd",
               }}
@@ -1404,7 +1244,7 @@ const FloatingBar = ({
           <div className="flex flex-col gap-3 py-10">
             {Object.keys(groupedDates).map((dateKey) => (
               <div key={dateKey}>
-                <div className="text-base font-bold   p-2">
+                <div className="text-base font-bold font-CerFont p-2">
                   {dateKey}
                 </div>
                 {sortByTime(groupedDates[dateKey]).map((date, index) => (
@@ -1415,11 +1255,11 @@ const FloatingBar = ({
                   >
                     <div className="flex flex-row justify-between">
                       <div>
-                        <div className="text-base font-medium ">
+                        <div className="text-base font-medium font-CerFont">
                           {formatTime(date.activityTime?.start)}-
                           {formatTime(date.activityTime?.end)}
                         </div>
-                        <div className="text-base ">
+                        <div className="text-base font-CerFont">
                           <span className="text-base font-medium">
                             ฿{date.cost}
                           </span>{" "}
@@ -1443,7 +1283,7 @@ const FloatingBar = ({
                         </button>
                       </div>
                     </div>
-                    <div className="flex flex-col pt-3 text-base ">
+                    <div className="flex flex-col pt-3 text-base font-CerFont">
                       <span>รอบนี้กำลังเป็นที่นิยม</span>
                       <span>ขอเงินคืนไม่ได้</span>
                     </div>
@@ -1463,7 +1303,7 @@ const FloatingBar = ({
                 className="cursor-pointer"
                 onClick={() => setModalCalendar(false)}
               />
-              <span className="text-base   font-bold flex-grow text-center">
+              <span className="text-base font-CerFont font-bold flex-grow text-center">
                 {i18n.language === "en" ? "Choose Date" : "เลือกช่วงวันที่"}
               </span>
               <div style={{ width: "30px" }}></div>
@@ -1486,6 +1326,20 @@ const FloatingBar = ({
                   const today = new Date().setHours(0, 0, 0, 0);
                   return currentDate < today; // 🔥 ปิดวันก่อนวันนี้
                 }}
+                // shouldDisableDate={(date) => {
+                //   if (!dates) {
+                //     return true; // ปิดการใช้งานวันที่ทั้งหมดถ้า dates เป็น undefined หรือ null
+                //   }
+                //   const activityDates = dates.map((d) =>
+                //     new Date(d.activityTime.start).setHours(0, 0, 0, 0)
+                //   );
+                //   const currentDate = new Date(date).setHours(0, 0, 0, 0);
+                //   const today = new Date().setHours(0, 0, 0, 0);
+                //   // ปิดการใช้งานวันที่ที่ไม่มีใน activity และวันที่ในอดีต
+                //   return (
+                //     currentDate < today || !activityDates.includes(currentDate)
+                //   );
+                // }}
               />
             </LocalizationProvider>
 
@@ -1515,7 +1369,7 @@ const FloatingBar = ({
                 className="cursor-pointer"
                 onClick={() => setModalParticipants(false)}
               />
-              <span className="text-base   font-bold flex-grow text-center">
+              <span className="text-base font-CerFont font-bold flex-grow text-center">
                 {i18n.language === "en" ? "Participants" : "ผู้เข้าร่วม"}
               </span>
               <div style={{ width: "30px" }}></div>
@@ -1527,10 +1381,10 @@ const FloatingBar = ({
               {/* ผู้ใหญ่ */}
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <div className="">
+                  <div className="font-CerFont">
                     {i18n.language === "en" ? "Adult" : "ผู้ใหญ่"}
                   </div>
-                  <div className="  text-xs">
+                  <div className="font-CerFont text-xs">
                     {i18n.language === "en"
                       ? "more than 13"
                       : "อายุ 13 ปีขึ้นไป"}
@@ -1538,7 +1392,7 @@ const FloatingBar = ({
                 </div>
                 <div>
                   <button
-                    className={`px-2 py-1   ${
+                    className={`px-2 py-1 font-CerFont ${
                       adultsCount === 0 ? "text-gray-300" : "text-black"
                     }`}
                     onClick={handleDecreaseAdults}
@@ -1548,7 +1402,7 @@ const FloatingBar = ({
                   </button>
                   <span className="mx-3">{adultsCount}</span>
                   <button
-                    className="px-2 py-1   text-black"
+                    className="px-2 py-1 font-CerFont text-black"
                     onClick={handleIncreaseAdults}
                   >
                     +
@@ -1558,16 +1412,16 @@ const FloatingBar = ({
               {/* เด็ก */}
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <div className="">
+                  <div className="font-CerFont">
                     {i18n.language === "en" ? "Child" : "เด็ก"}
                   </div>
-                  <div className="  text-xs">
+                  <div className="font-CerFont text-xs">
                     {i18n.language === "en" ? "4-12 years" : "อายุ 4-12 ปี"}
                   </div>
                 </div>
                 <div>
                   <button
-                    className={`px-2 py-1   ${
+                    className={`px-2 py-1 font-CerFont ${
                       childrenCount === 0 ? "text-gray-300" : "text-black"
                     }`}
                     onClick={handleDecreaseChildren}
@@ -1577,7 +1431,7 @@ const FloatingBar = ({
                   </button>
                   <span className="mx-3">{childrenCount}</span>
                   <button
-                    className="px-2 py-1   text-black"
+                    className="px-2 py-1 font-CerFont text-black"
                     onClick={handleIncreaseChildren}
                   >
                     +
@@ -1607,7 +1461,7 @@ const FloatingBar = ({
     >
       <div>
         <div
-          className="  font-bold text-sm md:text-base"
+          className="font-CerFont font-bold text-sm md:text-base"
           style={{ fontSize: "17px" }}
         >
           {i18n.language === "en"
@@ -1621,8 +1475,18 @@ const FloatingBar = ({
             : "(กรุณาเลือกวันที่ก่อน)"}
         </div>
       </div>
+      {/* <button
+        className="buttonShowDate-Mobile"
+        onClick={() => setIsDetailsOpen(true)}
+      >
+        แสดงวันที่
+      </button> */}
       <div>
         <button
+          // className="bg-transparent rounded-full px-3 text-sm font-CerFont"
+          // style={{
+          //   border: "1px solid #dddddd",
+          // }}
           className="buttonSelectDate"
           style={{ width: "120px", padding: "8px", margin: "5px" }}
           onClick={() => setModalParticipants(true)}
@@ -1686,7 +1550,7 @@ const FloatingBar = ({
                 className="cursor-pointer"
                 onClick={() => setModalCalendar(false)}
               />
-              <span className="text-base   font-bold flex-grow text-center">
+              <span className="text-base font-CerFont font-bold flex-grow text-center">
                 {i18n.language === "en" ? "Choose Date" : "เลือกช่วงวันที่"}
               </span>
               <div style={{ width: "30px" }}></div>
@@ -1709,6 +1573,20 @@ const FloatingBar = ({
                   const today = new Date().setHours(0, 0, 0, 0);
                   return currentDate < today; // 🔥 ปิดวันก่อนวันนี้
                 }}
+                // shouldDisableDate={(date) => {
+                //   if (!dates) {
+                //     return true; // ปิดการใช้งานวันที่ทั้งหมดถ้า dates เป็น undefined หรือ null
+                //   }
+                //   const activityDates = dates.map((d) =>
+                //     new Date(d.activityTime.start).setHours(0, 0, 0, 0)
+                //   );
+                //   const currentDate = new Date(date).setHours(0, 0, 0, 0);
+                //   const today = new Date().setHours(0, 0, 0, 0);
+                //   // ปิดการใช้งานวันที่ที่ไม่มีใน activity และวันที่ในอดีต
+                //   return (
+                //     currentDate < today || !activityDates.includes(currentDate)
+                //   );
+                // }}
               />
             </LocalizationProvider>
 
@@ -1742,7 +1620,7 @@ const FloatingBar = ({
                 onClick={() => setModalParticipants(false)}
               />
               <span
-                className="text-base   font-bold  text-center"
+                className="text-base font-CerFont font-bold  text-center"
                 style={{ width: "100px" }}
               >
                 {i18n.language === "en" ? "Participants" : "ผู้เข้าร่วม"}
@@ -1756,10 +1634,10 @@ const FloatingBar = ({
               {/******************* ผู้ใหญ่ *******************/}
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <div className="">
+                  <div className="font-CerFont">
                     {i18n.language === "en" ? "Adult" : "ผู้ใหญ่"}
                   </div>
-                  <div className="  text-xs">
+                  <div className="font-CerFont text-xs">
                     {" "}
                     {i18n.language === "en"
                       ? "more than 20"
@@ -1768,7 +1646,7 @@ const FloatingBar = ({
                 </div>
                 <div>
                   <button
-                    className={`px-2 py-1   ${
+                    className={`px-2 py-1 font-CerFont ${
                       adultsCount === 0 ? "text-gray-300" : "text-black"
                     }`}
                     onClick={handleDecreaseAdults}
@@ -1778,7 +1656,7 @@ const FloatingBar = ({
                   </button>
                   <span className="mx-3">{adultsCount}</span>
                   <button
-                    className="px-2 py-1   text-black"
+                    className="px-2 py-1 font-CerFont text-black"
                     onClick={handleIncreaseAdults}
                   >
                     +
@@ -1789,16 +1667,16 @@ const FloatingBar = ({
               {/*******************  เด็ก ***********************/}
               {/* <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <div className="">
+                  <div className="font-CerFont">
                     {i18n.language === "en" ? "Child" : "เด็ก"}
                   </div>
-                  <div className="  text-xs">
+                  <div className="font-CerFont text-xs">
                     {i18n.language === "en" ? "4-12 years" : "อายุ 4-12 ปี"}
                   </div>
                 </div>
                 <div>
                   <button
-                    className={`px-2 py-1   ${
+                    className={`px-2 py-1 font-CerFont ${
                       childrenCount === 0 ? "text-gray-300" : "text-black"
                     }`}
                     onClick={handleDecreaseChildren}
@@ -1808,7 +1686,7 @@ const FloatingBar = ({
                   </button>
                   <span className="mx-3">{childrenCount}</span>
                   <button
-                    className="px-2 py-1   text-black"
+                    className="px-2 py-1 font-CerFont text-black"
                     onClick={handleIncreaseChildren}
                   >
                     +
@@ -1914,16 +1792,16 @@ const DateSelectorCarousel = ({
             className="flex-shrink-0 flex flex-col p-6 w-[210px] rounded-lg hover:border-gray-300 transition-colors"
             style={{ border: "solid 1px black" }}
           >
-            <div className="  text-base font-semibold">
+            <div className="font-CerFont text-base font-semibold">
               {formatThaiDate(date?.activityTime.start)}
             </div>
-            <div className="  text-sm">
+            <div className="font-CerFont text-sm">
               {formatTime(date.activityTime.start)}-
               {formatTime(date.activityTime.end)}
             </div>
-            <div className="  text-base font-bold mt-8 mb-4">
+            <div className="font-CerFont text-base font-bold mt-8 mb-4">
               ฿{date.cost}
-              <span className="  text-sm font-normal"> / กลุ่ม</span>
+              <span className="font-CerFont text-sm font-normal"> / กลุ่ม</span>
             </div>
             <button
               type="button"
@@ -2010,29 +1888,29 @@ const MobileActivityDetails = () => {
       <div className="p-4">
         <button onClick={onClose} className="flex items-center gap-2 mb-4">
           <IoChevronBackOutline size={24} />
-          <span className="">กลับ</span>
+          <span className="font-CerFont">กลับ</span>
         </button>
 
-        <h3 className="text-xl font-bold mb-6 ">{section.title}</h3>
+        <h3 className="text-xl font-bold mb-6 font-CerFont">{section.title}</h3>
 
         <div className="space-y-6">
           <div>
-            <h4 className="  text-[14px] font-bold mb-2">
+            <h4 className="font-CerFont text-[14px] font-bold mb-2">
               มีอะไรรวมอยู่บ้าง
             </h4>
             {section.included.map((item, index) => (
-              <div key={index} className="  text-[14px] mb-1">
+              <div key={index} className="font-CerFont text-[14px] mb-1">
                 · {item}
               </div>
             ))}
           </div>
 
           <div>
-            <h4 className="  text-[14px] font-bold mb-2">
+            <h4 className="font-CerFont text-[14px] font-bold mb-2">
               สิ่งที่ไม่รวมในบริการ
             </h4>
             {section.notIncluded.map((item, index) => (
-              <div key={index} className="  text-[14px] mb-1">
+              <div key={index} className="font-CerFont text-[14px] mb-1">
                 · {item}
               </div>
             ))}
@@ -2052,10 +1930,10 @@ const MobileActivityDetails = () => {
       }}
     >
       <div className="text-left">
-        <h3 className="text-black font-semibold mb-1   text-[19px]">
+        <h3 className="text-black font-semibold mb-1 font-CerFont text-[19px]">
           {section.title}
         </h3>
-        <p className="text-sm text-gray-600 ">
+        <p className="text-sm text-gray-600 font-CerFont">
           {section.shortDesc}
         </p>
       </div>

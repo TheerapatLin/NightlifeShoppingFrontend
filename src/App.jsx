@@ -43,6 +43,7 @@ const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 import { loadStripe } from "@stripe/stripe-js";
 import { AuthProvider } from "./context/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import RedirectAffiliate from "./pages/RedirectAffiliate";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -152,13 +153,23 @@ function RouteContainer() {
               textAlign: "center",
             }}
           >
-            🔄 Website updated!<br/>Reloading...
+            🔄 Website updated!
+            <br />
+            Reloading...
           </div>
         </>
       )}
       <TopNavigation duration=".6s" />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
+          <Route
+            path="/a/:shortcode"
+            element={
+              <MotionPage>
+                <RedirectAffiliate />
+              </MotionPage>
+            }
+          />
           <Route
             path="/"
             element={

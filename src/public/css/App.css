@@ -1,25 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Heebo&family=Ubuntu:wght@300;400&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@100;200;300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Noto+Sans+Thai:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
-@font-face {
+/* @font-face {
   font-family: 'CerFont';
   src: url('/fonts/TTF_Files/FCSound-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-}
+} */
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-family: 'Nunito', 'Noto Sans Thai', sans-serif;
 }
 
-a { 
+a {
 
-  text-decoration:none; 
+  text-decoration: none;
 
- } 
+}
+
 .App {
   overflow: hidden;
 }

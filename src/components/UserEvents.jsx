@@ -59,7 +59,7 @@ function UserEvents() {
 
   return (
     <div className="w-full p-4">
-      <div className="text-xl font-CerFont text-white text-center flex justify-center">
+      <div className="text-xl  text-white text-center flex justify-center">
         {t("profile.bookedActivities")}
       </div>
 
