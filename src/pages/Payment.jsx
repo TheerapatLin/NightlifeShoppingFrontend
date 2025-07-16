@@ -136,7 +136,7 @@ const Payment = () => {
       }
     };
 
-    if (BASE_URL && !isIntentLoading.current) {
+    if (BASE_URL && !isIntentLoading.current && !clientSecret) {
       isIntentLoading.current = true;
       createPaymentIntent();
     }

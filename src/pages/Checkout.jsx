@@ -285,11 +285,74 @@ const Checkout = (props) => {
     await refreshPaymentIntent({ forceClearCode: true });
   };
 
+  // const refreshPaymentIntent = async ({ forceClearCode = false } = {}) => {
+  //   const stored = localStorage.getItem("affiliateRef");
+  //   const affiliateCode = stored ? JSON.parse(stored)?.ref : null;
+  //   const previousPaymentIntentId =
+  //     localStorage.getItem("paymentIntentId") || null;
+
+  //   try {
+  //     const response = await fetch(
+  //       `${BASE_URL}/activity-order/create-payment-intent`,
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           items: [
+  //             {
+  //               id: "activity",
+  //               costPerPerson: cost,
+  //               amountAdults: adults,
+  //               amountChildren: children,
+  //               activityId,
+  //               scheduleId,
+  //               startDate,
+  //             },
+  //           ],
+  //           affiliateCode,
+  //           appliedDiscountCode: forceClearCode
+  //             ? ""
+  //             : appliedCode || enteredCode,
+  //           previousPaymentIntentId, // ✅ ส่งไป backend
+  //         }),
+  //       }
+  //     );
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to refresh payment intent");
+  //     }
+
+  //     const data = await response.json();
+
+  //     priceDetails.originalPrice = data.originalPrice;
+  //     priceDetails.discountAmount = data.discountAmount;
+  //     priceDetails.affiliateDiscountAmount = data.affiliateDiscountAmount;
+  //     priceDetails.paidAmount = data.paidAmount;
+
+  //     setPriceDetails({
+  //       originalPrice: data.originalPrice,
+  //       discountAmount: data.discountAmount,
+  //       affiliateDiscountAmount: data.affiliateDiscountAmount,
+  //       paidAmount: data.paidAmount,
+  //     });
+
+  //     props.state.setClientSecret(data.clientSecret);
+
+  //     if (data.paymentIntentId) {
+  //       localStorage.setItem("paymentIntentId", data.paymentIntentId);
+  //     }
+
+  //     return data.clientSecret;
+  //   } catch (error) {
+  //     console.error("Error refreshing payment intent:", error);
+  //   }
+  // };
+
   const refreshPaymentIntent = async ({ forceClearCode = false } = {}) => {
-    const stored = localStorage.getItem("affiliateRef");
-    const affiliateCode = stored ? JSON.parse(stored)?.ref : null;
-    const previousPaymentIntentId =
-      localStorage.getItem("paymentIntentId") || null;
+    const affiliateCode = affiliate;
+    const previousPaymentIntentId = forceClearCode
+      ? null
+      : localStorage.getItem("paymentIntentId");
 
     try {
       const response = await fetch(
@@ -313,22 +376,16 @@ const Checkout = (props) => {
             appliedDiscountCode: forceClearCode
               ? ""
               : appliedCode || enteredCode,
-            previousPaymentIntentId, // ✅ ส่งไป backend
+            previousPaymentIntentId, // pass only if available
           }),
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to refresh payment intent");
-      }
+      if (!response.ok) throw new Error("Failed to refresh payment intent");
 
       const data = await response.json();
 
-      priceDetails.originalPrice = data.originalPrice;
-      priceDetails.discountAmount = data.discountAmount;
-      priceDetails.affiliateDiscountAmount = data.affiliateDiscountAmount;
-      priceDetails.paidAmount = data.paidAmount;
-
+      // Update price details safely
       setPriceDetails({
         originalPrice: data.originalPrice,
         discountAmount: data.discountAmount,
@@ -345,6 +402,8 @@ const Checkout = (props) => {
       return data.clientSecret;
     } catch (error) {
       console.error("Error refreshing payment intent:", error);
+      // Reset paymentIntentId to avoid reuse issues
+      localStorage.removeItem("paymentIntentId");
     }
   };
 

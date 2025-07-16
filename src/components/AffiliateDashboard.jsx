@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import AffiliateEarningsDashboard from "./AffiliateEarningsDashboard";
 import AffiliateLinksManager from "./AffiliateLinksManager";
+import AffiliateBankInfo from "./AffiliateBankInfo";
 
 export default function AffiliateDashboard() {
   const [activeTab, setActiveTab] = useState("earnings");
@@ -18,7 +19,7 @@ export default function AffiliateDashboard() {
               : "bg-gray-200 text-gray-800 hover:bg-gray-300"
           }`}
         >
-          Earnings Dashboard
+          Earnings
         </button>
         <button
           onClick={() => setActiveTab("links")}
@@ -28,14 +29,26 @@ export default function AffiliateDashboard() {
               : "bg-gray-200 text-gray-800 hover:bg-gray-300"
           }`}
         >
-          Manage Links
+          Links
+        </button>
+        <button
+          onClick={() => setActiveTab("bank")}
+          className={`px-4 py-2 rounded-full text-sm font-medium shadow transition ${
+            activeTab === "bank"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+          }`}
+        >
+          Bank Info
         </button>
       </div>
 
       {activeTab === "earnings" ? (
         <AffiliateEarningsDashboard />
-      ) : (
+      ) : activeTab === "links" ? (
         <AffiliateLinksManager />
+      ) : (
+        <AffiliateBankInfo />
       )}
     </div>
   );

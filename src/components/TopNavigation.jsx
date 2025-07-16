@@ -35,6 +35,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   const isAtThePageThatShowsDeal =
     location.pathname === "/profile" ||
     location.pathname.startsWith("/activityDetails");
+  const [isProfileHover, setIsProfileHover] = useState(false);
 
   const styles = {
     menuItem: {
@@ -251,16 +252,35 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                         <>
                           <Link
                             to={"/profile"}
+                            onMouseEnter={() => setIsProfileHover(true)}
+                            onMouseLeave={() => setIsProfileHover(false)}
                             style={{
                               ...styles.menuItem,
+                              color: isProfileHover ? "#00FF66" : "white",
+                              textDecoration: isProfileHover
+                                ? "underline"
+                                : "none",
+                              transition:
+                                "color 0.2s ease, text-decoration 0.2s ease",
                             }}
                             className={`item02 ${
                               currentPage.name === "profile" ? "active" : ""
                             }`}
                           >
-                            <FaUser className="text-lg text-black " />
-
-                            <span className=" text-black">
+                            <FaUser
+                              className="text-lg"
+                              style={{
+                                color: isProfileHover ? "#00FF66" : "white",
+                              }}
+                            />
+                            <span
+                              style={{
+                                color: isProfileHover ? "#00FF66" : "white",
+                                textDecoration: isProfileHover
+                                  ? "underline"
+                                  : "none",
+                              }}
+                            >
                               {user?.name || "ผู้ใช้"}
                             </span>
                           </Link>
