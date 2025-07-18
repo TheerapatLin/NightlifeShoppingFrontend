@@ -576,7 +576,7 @@ const ActivityDetails = () => {
         {isDropdownOpen && (
           <div
             className="absolute -left-10 bg-white border rounded-lg p-4 mt-2 shadow-lg"
-            style={{ width: "200px", border: "solid 1px black" }}
+            style={{ width: "200px", border: "solid 1px black",zIndex:"999999999" }}
           >
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm">
