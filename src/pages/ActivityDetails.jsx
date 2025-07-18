@@ -815,7 +815,7 @@ const ActivityDetails = () => {
               {isMobile && (
                 <>
                   <span
-                    className="text-[26px] font-semibold   mb-2  px-5"
+                    className="text-[30px] font-bold mt-[20px] mb-[20px] px-5"
                     style={{ lineHeight: "30px" }}
                   >
                     {i18n.language === "en"
@@ -831,7 +831,7 @@ const ActivityDetails = () => {
                         }`}{" "}
                   </span>
 
-                  <div className="flex justify-between mb-4 px-10">
+                  {/* <div className="flex justify-between mb-4 px-10">
                     <a
                       href={activity?.location?.googleMapUrl ?? ""}
                       target="_blank"
@@ -845,24 +845,10 @@ const ActivityDetails = () => {
                           : activity?.location?.nameTh}{" "}
                       </div>
                     </a>
-
-                    {/* <div className="flex gap-2">
-                    <div className="flex justify-between items-center gap-1">
-                      <IoShareOutline />
-                      <div className="font-normal   underline">
-                        แชร์
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center gap-1">
-                      <MdFavoriteBorder />
-                      <div className="font-normal   underline">
-                        บันทึก
-                      </div>
-                    </div>
                   </div> */}
-                  </div>
                 </>
               )}
+
               <div
                 style={{ width: "200px" }}
                 //className="-mx-4 sm:mx-0 w-screen max-w-none"
@@ -875,10 +861,11 @@ const ActivityDetails = () => {
                   options={{ loop: true }}
                 />
               )}
+
               {/* Desktop Layout */}
               {!isMobile && (
                 <>
-                  <span className="text-[26px] font-semibold   mb-2 ">
+                  <span className="text-[36px] font-bold m-[10px]">
                     {i18n.language === "en"
                       ? `${activity?.nameEn}${
                           activity?.minorNameEn?.trim()
@@ -891,9 +878,8 @@ const ActivityDetails = () => {
                             : ""
                         }`}{" "}
                   </span>
-                  <span className="text-[20px] font-semibold   mb-2"></span>
-
-                  <div className="flex justify-between">
+                  
+                  {/* <div className="flex justify-between">
                     <a
                       href={activity?.location?.googleMapUrl}
                       target="_blank"
@@ -907,21 +893,7 @@ const ActivityDetails = () => {
                           : activity?.location?.nameTh}{" "}
                       </div>
                     </a>
-                    {/* <div className="flex gap-2">
-                    <div className="flex justify-between items-center gap-1">
-                      <IoShareOutline />
-                      <div className="font-normal   underline">
-                        {i18n.language === "en" ? "Share" : "แชร์"}
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center gap-1">
-                      <MdFavoriteBorder />
-                      <div className="font-normal   underline">
-                        {i18n.language === "en" ? "Save" : "บันทึก"}
-                      </div>
-                    </div>
                   </div> */}
-                  </div>
                   <DesktopImageGrid />
                 </>
               )}
