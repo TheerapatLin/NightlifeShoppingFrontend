@@ -38,7 +38,9 @@ import useEmblaCarousel from "embla-carousel-react";
 import EmblaCarousel from "./EmblaCarousel";
 import "./sandbox.css";
 import "./embla.css";
+import ReactModal from "react-modal";
 
+ReactModal.setAppElement("#root");
 dayjs.locale("th");
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utc);
@@ -87,7 +89,7 @@ const ActivityDetails = () => {
   const { setAffiliate, user } = useAuth();
   const [filteredSchedules, setFilteredSchedules] = useState([]);
   const [slots, setSlots] = useState([]);
-
+  const [showMobileBooking, setShowMobileBooking] = useState(false);
   useSyncDayjsLocale();
 
   useEffect(() => {
@@ -709,7 +711,7 @@ const ActivityDetails = () => {
     return (
       <div className="flex">
         <div
-          className="flex items-center rounded-l-lg p-3 wSize cursor-pointer"
+          className="flex items-center rounded-l-lg p-3  cursor-pointer"
           style={{ border: "1px solid black" }}
           onClick={openDatePicker}
           ref={containerRef}
@@ -878,7 +880,7 @@ const ActivityDetails = () => {
                             : ""
                         }`}{" "}
                   </span>
-                  
+
                   {/* <div className="flex justify-between">
                     <a
                       href={activity?.location?.googleMapUrl}
@@ -1229,7 +1231,7 @@ const ActivityDetails = () => {
                 </div>
               )}
 
-              {isMobile && (
+              {/* {isMobile && (
                 <FloatingBar
                   activity={activity}
                   schedule={activity?.schedule}
@@ -1243,8 +1245,20 @@ const ActivityDetails = () => {
                   formatThaiDate={formatThaiDate}
                   activityDetail={activity}
                 />
-              )}
+              )} */}
               {/* บรรทัดสุดท้าย bro */}
+
+              {/* Floating Book Button บน mobile */}
+              {isMobile && activity && (
+                <div className="fixed bottom-0 left-0 w-full bg-white border-t shadow-md z-[9999]">
+                  <button
+                    className="w-full py-4 text-center text-white font-bold text-lg bg-black"
+                    onClick={() => setShowMobileBooking(true)}
+                  >
+                    {i18n.language === "en" ? "Book Now" : "จองตอนนี้"}
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <p className="text-center text-xl">Loading...</p>
@@ -1254,13 +1268,69 @@ const ActivityDetails = () => {
       {/* <div style={{ padding: "20px" }}>
         <ElfsightWidget />
       </div> */}
-
-      <Footer />
+      
+      {/* Booking Modal for Mobile */}
       {isMobile && (
-        <>
-          <br />
-          <br />
-        </>
+        <ReactModal
+          isOpen={showMobileBooking}
+          onRequestClose={() => setShowMobileBooking(false)}
+          contentLabel="Booking"
+          style={{
+            overlay: {
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              zIndex: 1000,
+            },
+            content: {
+              top: "10%",
+              left: "50%",
+              right: "auto",
+              bottom: "auto",
+              marginRight: "-50%",
+              transform: "translate(-50%, 0)",
+              width: "90%",
+              maxHeight: "90%",
+              borderRadius: "12px",
+              padding: "20px",
+              overflow: "auto",
+            },
+          }}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-lg font-bold">
+              {i18n.language === "en" ? "Booking Options" : "ตัวเลือกการจอง"}
+            </div>
+            <button onClick={() => setShowMobileBooking(false)}>
+              <IoClose size={24} />
+            </button>
+          </div>
+
+          {/* ยกส่วนนี้จาก desktop มาใส่ใน modal ได้เลย */}
+          <div className="flex flex-col">
+            <div className="font-bold text-lg mb-4">
+              {i18n.language === "en"
+                ? `Start at ฿${activity?.cost} / person`
+                : `เริ่มต้น ฿${activity?.cost} / คน`}
+            </div>
+
+            <CalendarComponent
+              schedules={activitySlots}
+              startDate={startDate}
+              setStartDate={setStartDate}
+            />
+
+            <div className="flex flex-col h-[300px] mt-4">
+              <ActivityList
+                activity={activity}
+                startDate={startDate}
+                schedules={activitySlots}
+                handlePaymentNavigation={handlePaymentNavigation}
+                formatTime={formatTime}
+                adults={adults}
+                children={children}
+              />
+            </div>
+          </div>
+        </ReactModal>
       )}
     </>
   );
@@ -1853,246 +1923,6 @@ const FloatingBar = ({
       )}
       {isDetailsOpen && (
         <DetailPopup onClose={() => setIsDetailsOpen(false)} dates={dates} />
-      )}
-    </div>
-  );
-};
-
-const DateSelectorCarousel = ({
-  dates,
-  handlePaymentNavigation,
-  formatThaiDate,
-  formatTime,
-  adults,
-  children,
-}) => {
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const containerRef = useRef(null);
-
-  // ฟังก์ชันเพื่อกรองและเรียงลำดับวันที่ตั้งแต่วันนี้เป็นต้นไป
-  const filteredDates = dates
-    ?.filter((date) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // ตั้งเวลาเป็น 00:00:00
-      const activityDate = new Date(date?.activityTime?.start);
-      return activityDate >= today; // กรองวันที่ที่เท่ากับหรือมากกว่าวันนี้
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a?.activityTime?.start);
-      const dateB = new Date(b?.activityTime?.start);
-      return dateA - dateB; // เรียงลำดับวันที่จากน้อยไปมาก
-    });
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const scrollTo = (direction) => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const scrollAmount = 210 * (direction === "right" ? 1 : -1);
-    container.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    setScrollPosition(container.scrollLeft + scrollAmount);
-  };
-
-  const showLeftButton = scrollPosition > 0;
-  const showRightButton =
-    containerRef.current &&
-    scrollPosition <
-      containerRef.current.scrollWidth - containerRef.current.clientWidth;
-
-  // ถ้าไม่มีวันที่เหลือหลังกรอง ให้ return null
-  if (!filteredDates || filteredDates.length === 0) {
-    return <div>ไม่มีวันที่ที่สามารถเลือกได้</div>;
-  }
-
-  return (
-    <div className="relative">
-      {!isMobile && showLeftButton && (
-        <button
-          onClick={() => scrollTo("left")}
-          className="absolute left-0 top-[40%] -translate-y-1/2 z-10 bg-black flex justify-center items-center rounded-full p-2 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow"
-        >
-          <ChevronLeft size={24} style={{ color: "white" }} />
-        </button>
-      )}
-
-      <div
-        ref={containerRef}
-        className="flex gap-3 overflow-x-auto no-scrollbar scroll-smooth"
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-        onScroll={(e) => setScrollPosition(e.currentTarget.scrollLeft)}
-      >
-        {filteredDates.map((date, index) => (
-          <div
-            key={index}
-            className="flex-shrink-0 flex flex-col p-6 w-[210px] rounded-lg hover:border-gray-300 transition-colors"
-            style={{ border: "solid 1px black" }}
-          >
-            <div className="  text-base font-semibold">
-              {formatThaiDate(date?.activityTime.start)}
-            </div>
-            <div className="  text-sm">
-              {formatTime(date.activityTime.start)}-
-              {formatTime(date.activityTime.end)}
-            </div>
-            <div className="  text-base font-bold mt-8 mb-4">
-              ฿{date.cost}
-              <span className="  text-sm font-normal"> / กลุ่ม</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => handlePaymentNavigation(date.id, adults, children)}
-              className="w-full py-2 px-4 rounded-lg text-sm font-semibold bg-black text-white hover:bg-gray-800 transition-colors"
-            >
-              <center>{i18n.language === "en" ? "Choose" : "เลือก"}</center>
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {!isMobile && showRightButton && (
-        <button
-          onClick={() => scrollTo("right")}
-          className="absolute right-0 top-[40%] -translate-y-1/2 z-10 bg-black flex justify-center items-center rounded-full p-2 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow"
-        >
-          <ChevronRight size={24} style={{ color: "white" }} />
-        </button>
-      )}
-    </div>
-  );
-};
-
-const MobileActivityDetails = () => {
-  const [selectedSection, setSelectedSection] = useState(null);
-
-  const sections = [
-    {
-      id: 1,
-      title: "รายละเอียดราคา",
-      shortDesc: "ดูรายละเอียดเกี่ยวกับราคาและค่าใช้จ่ายต่างๆ",
-      included: [
-        "กำหนดการเดินทางที่กำหนดเอง",
-        "เอ็กซ์พีเรียนซ์นำเที่ยว 5 หรือ 6 ชั่วโมง",
-        "ข้อมูลเชิงลึกในท้องถิ่นและเคล็ดลับจากคนวงใน",
-      ],
-      notIncluded: [
-        "ค่าเข้าชม",
-        "อาหารและเครื่องดื่ม",
-        "ค่าเดินทาง",
-        "ค่าใช้จ่ายส่วนตัวอื่นๆ",
-        "ค่าใช้จ่ายเพิ่มเติม: ผู้เข้าร่วมจะเป็นผู้จ่ายค่าเข้าชม ค่าอาหารกลางวัน และค่าเดินทางที่ไม่ใช่ขนส่งสาธารณะให้ผู้จัด",
-      ],
-    },
-    {
-      id: 2,
-      title: "นโยบายยกเลิกการจอง",
-      shortDesc: "ดูรายละเอียดเกี่ยวกับราคาและค่าใช้จ่ายต่างๆ",
-      included: [
-        "กำหนดการเดินทางที่กำหนดเอง",
-        "เอ็กซ์พีเรียนซ์นำเที่ยว 5 หรือ 6 ชั่วโมง",
-        "ข้อมูลเชิงลึกในท้องถิ่นและเคล็ดลับจากคนวงใน",
-      ],
-      notIncluded: [
-        "ค่าเข้าชม",
-        "อาหารและเครื่องดื่ม",
-        "ค่าเดินทาง",
-        "ค่าใช้จ่ายส่วนตัวอื่นๆ",
-        "ค่าใช้จ่ายเพิ่มเติม: ผู้เข้าร่วมจะเป็นผู้จ่ายค่าเข้าชม ค่าอาหารกลางวัน และค่าเดินทางที่ไม่ใช่ขนส่งสาธารณะให้ผู้จัด",
-      ],
-    },
-    {
-      id: 3,
-      title: "คุณสมบัติของผู้เข้าร่วม",
-      shortDesc: "ดูรายละเอียดเกี่ยวกับราคาและค่าใช้จ่ายต่างๆ",
-      included: [
-        "กำหนดการเดินทางที่กำหนดเอง",
-        "เอ็กซ์พีเรียนซ์นำเที่ยว 5 หรือ 6 ชั่วโมง",
-        "ข้อมูลเชิงลึกในท้องถิ่นและเคล็ดลับจากคนวงใน",
-      ],
-      notIncluded: [
-        "ค่าเข้าชม",
-        "อาหารและเครื่องดื่ม",
-        "ค่าเดินทาง",
-        "ค่าใช้จ่ายส่วนตัวอื่นๆ",
-        "ค่าใช้จ่ายเพิ่มเติม: ผู้เข้าร่วมจะเป็นผู้จ่ายค่าเข้าชม ค่าอาหารกลางวัน และค่าเดินทางที่ไม่ใช่ขนส่งสาธารณะให้ผู้จัด",
-      ],
-    },
-  ];
-
-  const DetailPopup = ({ section, onClose }) => (
-    <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
-      <div className="p-4">
-        <button onClick={onClose} className="flex items-center gap-2 mb-4">
-          <IoChevronBackOutline size={24} />
-          <span className="">กลับ</span>
-        </button>
-
-        <h3 className="text-xl font-bold mb-6 ">{section.title}</h3>
-
-        <div className="space-y-6">
-          <div>
-            <h4 className="  text-[14px] font-bold mb-2">มีอะไรรวมอยู่บ้าง</h4>
-            {section.included.map((item, index) => (
-              <div key={index} className="  text-[14px] mb-1">
-                · {item}
-              </div>
-            ))}
-          </div>
-
-          <div>
-            <h4 className="  text-[14px] font-bold mb-2">
-              สิ่งที่ไม่รวมในบริการ
-            </h4>
-            {section.notIncluded.map((item, index) => (
-              <div key={index} className="  text-[14px] mb-1">
-                · {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const SectionPreview = ({ section }) => (
-    <button
-      onClick={() => setSelectedSection(section)}
-      className="w-full p-4 flex justify-between items-center bg-red-400"
-      style={{
-        borderBottom: "solid 1px #dddddd",
-        backgroundColor: "transparent",
-      }}
-    >
-      <div className="text-left">
-        <h3 className="text-black font-semibold mb-1   text-[19px]">
-          {section.title}
-        </h3>
-        <p className="text-sm text-gray-600 ">{section.shortDesc}</p>
-      </div>
-      <IoChevronForwardOutline size={20} className="text-gray-400" />
-    </button>
-  );
-
-  return (
-    <div className="flex flex-col gap-3 md:hidden mb-20 md:mb-0">
-      {sections.map((section) => (
-        <SectionPreview key={section.id} section={section} />
-      ))}
-
-      {selectedSection && (
-        <DetailPopup
-          section={selectedSection}
-          onClose={() => setSelectedSection(null)}
-        />
       )}
     </div>
   );
