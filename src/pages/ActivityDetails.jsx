@@ -449,7 +449,7 @@ const ActivityDetails = () => {
             <div
               key={schedule._id}
               className="flex justify-between py-[15px]"
-              style={{ borderBottom: "solid 1px #dddddd" }}
+              style={{ maxHeight: "100px", borderBottom: "solid 1px #dddddd" }}
             >
               <div className="flex flex-col">
                 <div className="  text-[12px] font-bold">
@@ -1268,7 +1268,7 @@ const ActivityDetails = () => {
       {/* <div style={{ padding: "20px" }}>
         <ElfsightWidget />
       </div> */}
-      
+
       {/* Booking Modal for Mobile */}
       {isMobile && (
         <ReactModal
