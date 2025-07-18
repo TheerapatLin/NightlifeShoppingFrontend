@@ -1203,7 +1203,7 @@ const ActivityDetails = () => {
                           rel="noopener noreferrer"
                           className="text-blue-600 underline"
                         >
-                          https://maps.app.goo.gl/ALTh3gDcW5w9YmPB7
+                          Maps
                         </a>
                       </div>
                     </div>
@@ -1223,7 +1223,7 @@ const ActivityDetails = () => {
                           rel="noopener noreferrer"
                           className="text-blue-600 underline"
                         >
-                          https://maps.app.goo.gl/uvdCGyUo6QjppMaaA
+                          Maps
                         </a>
                       </div>
                     </div>
