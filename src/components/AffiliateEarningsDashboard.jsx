@@ -48,7 +48,7 @@ const AffiliateEarningsDashboard = () => {
           const day = orderDate.getDate();
           const payoutDate = new Date(orderDate);
 
-          if (day <= 16) {
+          if (day <= 15) {
             payoutDate.setMonth(orderDate.getMonth() + 1);
             payoutDate.setDate(1);
           } else {
@@ -59,6 +59,7 @@ const AffiliateEarningsDashboard = () => {
           return {
             status: "Scheduled",
             date: payoutDate,
+            originalDate: orderDate,
             amount: order.affiliateRewardAmount ?? 0,
             method: "Bank Transfer",
             type: "Affiliate",
@@ -196,7 +197,8 @@ const AffiliateEarningsDashboard = () => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="p-2 text-left">Status</th>
-                  <th className="p-2 text-left">Date</th>
+                  <th className="p-2 text-left">Payout Date</th>
+                  <th className="p-2 text-left">Booking Date</th>
                   <th className="p-2 text-left">Amount</th>
                   <th className="p-2 text-left">Method</th>
                   <th className="p-2 text-left">Type</th>
@@ -228,7 +230,23 @@ const AffiliateEarningsDashboard = () => {
                     >
                       <td className="p-2">{payout.status}</td>
                       <td className="p-2">
-                        {payout.date.toLocaleDateString()}
+                        {payout.date.toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="p-2">
+                        {payout.originalDate
+                          ? new Date(payout.originalDate).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              }
+                            )
+                          : "-"}
                       </td>
                       <td className="p-2">฿{payout.amount}</td>
                       <td className="p-2">{payout.method}</td>

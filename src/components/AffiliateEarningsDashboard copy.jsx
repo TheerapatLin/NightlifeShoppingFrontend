@@ -45,17 +45,16 @@ const AffiliateEarningsDashboard = () => {
           const day = orderDate.getDate();
           const payoutDate = new Date(orderDate);
 
-          if (day <= 16) {
+          if (day <= 15) {
             payoutDate.setMonth(orderDate.getMonth() + 1);
-            payoutDate.setDate(1);
           } else {
             payoutDate.setMonth(orderDate.getMonth() + 2);
-            payoutDate.setDate(1);
           }
-
+          payoutDate.setDate(1);
           return {
             status: "Scheduled",
             date: payoutDate,
+            originalDate: order.date, // ✅ ใช้ตอนแสดง booking date
             amount: order.affiliateRewardAmount ?? 0,
             method: "Bank Transfer",
             type: "Affiliate",
@@ -158,7 +157,6 @@ const AffiliateEarningsDashboard = () => {
       </div>
 
       {/* Upcoming Payouts */}
-      {/* Upcoming Payouts */}
       <div className="bg-white rounded-xl p-4 mb-4 text-black">
         <div className="text-lg font-semibold mb-2">
           {t("affiliate.upcoming_payouts") || "Upcoming Payouts"}
@@ -168,7 +166,8 @@ const AffiliateEarningsDashboard = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 text-left">Status</th>
-                <th className="p-2 text-left">Date</th>
+                <th className="p-2 text-left">Booking Date</th>
+                <th className="p-2 text-left">Payout Date</th>
                 <th className="p-2 text-left">Amount</th>
                 <th className="p-2 text-left">Method</th>
                 <th className="p-2 text-left">Type</th>
@@ -177,7 +176,7 @@ const AffiliateEarningsDashboard = () => {
             <tbody>
               {affiliateSummary.upcomingPayouts.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-0">
+                  <td colSpan={6} className="p-0">
                     <div className="min-h-[150px] flex items-center justify-center text-center text-gray-500">
                       {t("affiliate.no_upcoming_payouts") ||
                         "ยังไม่มีข้อมูลการจอง"}
@@ -188,7 +187,14 @@ const AffiliateEarningsDashboard = () => {
                 affiliateSummary.upcomingPayouts.map((payout, idx) => (
                   <tr key={idx} className="border-b">
                     <td className="p-2">{payout.status}</td>
-                    <td className="p-2">{payout.date.toLocaleDateString()}</td>
+                    <td className="p-2">
+                      {payout.originalDate
+                        ? new Date(payout.originalDate).toLocaleDateString()
+                        : "-"}
+                    </td>
+                    <td className="p-2">
+                      {payout.date ? payout.date.toLocaleDateString() : "-"}
+                    </td>
                     <td className="p-2">฿{payout.amount}</td>
                     <td className="p-2">{payout.method}</td>
                     <td className="p-2">{payout.type}</td>

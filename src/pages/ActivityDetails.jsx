@@ -938,10 +938,7 @@ const ActivityDetails = () => {
                     style={{ borderBottom: "solid 1px #dddddd" }}
                   >
                     <br />
-                    <div
-                      className="  text-[16px]"
-                      style={{ color: "black" }}
-                    >
+                    <div className="  text-[16px]" style={{ color: "black" }}>
                       {activity?.descriptionTH &&
                         (i18n.language === "en" ? (
                           <div
@@ -1160,49 +1157,105 @@ const ActivityDetails = () => {
                 </div>
               </div>
 
-              <div
-                className="py-[48px] flex flex-col gap-6"
-                style={{ borderBottom: "solid 1px #dddddd" }}
-              >
-                <div className="  font-bold text-[22px]">
-                  {i18n.language === "en"
-                    ? "Where you'll be"
-                    : "สถานที่จัดกิจกรรม"}
-                </div>
-                <div className="  text-[16px] text-qblack">
-                  <b>
-                    <big>
-                      {i18n.language === "en"
-                        ? activity?.location?.nameEn
-                        : activity?.location?.nameTh}
-                    </big>
-                  </b>
-                  {i18n.language === "en" ? (
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: activity?.location?.addressEn?.join("<br/>"),
-                      }}
-                    />
-                  ) : (
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: activity?.location?.addressTh?.join("<br/>"),
-                      }}
-                    />
-                  )}
-                  <a
-                    href={activity?.location?.googleMapUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center mt-2 text-blue-500"
-                  >
-                    <FaMapMarkerAlt className="mr-2" />
+              {/* where you will be */}
+              {activity._id !== "6787dd2b5e47d804bdc6b012" && (
+                <div
+                  className="py-[48px] flex flex-col gap-6"
+                  style={{ borderBottom: "solid 1px #dddddd" }}
+                >
+                  <div className="  font-bold text-[22px]">
                     {i18n.language === "en"
-                      ? "View on Google Maps"
-                      : "ดูบน Google Maps"}
-                  </a>
+                      ? "Where you'll be"
+                      : "สถานที่จัดกิจกรรม"}
+                  </div>
+                  <div className="  text-[16px] text-qblack">
+                    <b>
+                      <big>
+                        {i18n.language === "en"
+                          ? activity?.location?.nameEn
+                          : activity?.location?.nameTh}
+                      </big>
+                    </b>
+                    {i18n.language === "en" ? (
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: activity?.location?.addressEn?.join("<br/>"),
+                        }}
+                      />
+                    ) : (
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: activity?.location?.addressTh?.join("<br/>"),
+                        }}
+                      />
+                    )}
+                    <a
+                      href={activity?.location?.googleMapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center mt-2 text-blue-500"
+                    >
+                      <FaMapMarkerAlt className="mr-2" />
+                      {i18n.language === "en"
+                        ? "View on Google Maps"
+                        : "ดูบน Google Maps"}
+                    </a>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Our first meeting point */}
+              {activity._id == "6787dd2b5e47d804bdc6b012" && (
+                <div
+                  className="py-[48px] px-[20px] flex flex-col gap-6"
+                  style={{ borderBottom: "solid 1px #dddddd" }}
+                >
+                  <div className="  font-bold text-[22px]">
+                    {i18n.language === "en"
+                      ? "Our first meeting point :"
+                      : "สถานที่นัดพบ : "}
+                  </div>
+                  <div className="text-md leading-relaxed">
+                    <div className="flex items-start gap-2">
+                      <span>📍</span>
+                      <div>
+                        <div>
+                          <b>Weekdays :</b> Bangkok Heightz Rooftop (Restaurant
+                          & Bar 39th floor)
+                        </div>
+                        <a
+                          href="https://maps.app.goo.gl/ALTh3gDcW5w9YmPB7"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline"
+                        >
+                          https://maps.app.goo.gl/ALTh3gDcW5w9YmPB7
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="h-4" />
+
+                    <div className="flex items-start gap-2">
+                      <span>📍</span>
+                      <div>
+                        <div>
+                          <b>Friday & Saturday :</b> The Speakeasy Rooftop Bar
+                          Bangkok (29th floor)
+                        </div>
+                        <a
+                          href="https://maps.app.goo.gl/uvdCGyUo6QjppMaaA"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline"
+                        >
+                          https://maps.app.goo.gl/uvdCGyUo6QjppMaaA
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {isMobile && (
                 <FloatingBar
@@ -1404,9 +1457,7 @@ const FloatingBar = ({
           <div className="flex flex-col gap-3 py-10">
             {Object.keys(groupedDates).map((dateKey) => (
               <div key={dateKey}>
-                <div className="text-base font-bold   p-2">
-                  {dateKey}
-                </div>
+                <div className="text-base font-bold   p-2">{dateKey}</div>
                 {sortByTime(groupedDates[dateKey]).map((date, index) => (
                   <div
                     key={index}
@@ -2017,9 +2068,7 @@ const MobileActivityDetails = () => {
 
         <div className="space-y-6">
           <div>
-            <h4 className="  text-[14px] font-bold mb-2">
-              มีอะไรรวมอยู่บ้าง
-            </h4>
+            <h4 className="  text-[14px] font-bold mb-2">มีอะไรรวมอยู่บ้าง</h4>
             {section.included.map((item, index) => (
               <div key={index} className="  text-[14px] mb-1">
                 · {item}
@@ -2055,9 +2104,7 @@ const MobileActivityDetails = () => {
         <h3 className="text-black font-semibold mb-1   text-[19px]">
           {section.title}
         </h3>
-        <p className="text-sm text-gray-600 ">
-          {section.shortDesc}
-        </p>
+        <p className="text-sm text-gray-600 ">{section.shortDesc}</p>
       </div>
       <IoChevronForwardOutline size={20} className="text-gray-400" />
     </button>
