@@ -1250,13 +1250,34 @@ const ActivityDetails = () => {
 
               {/* Floating Book Button บน mobile */}
               {isMobile && activity && (
-                <div className="fixed bottom-0 left-0 w-full bg-white border-t shadow-md z-[9999]">
-                  <button
-                    className="w-full py-4 text-center text-white font-bold text-lg bg-black"
-                    onClick={() => setShowMobileBooking(true)}
-                  >
-                    {i18n.language === "en" ? "Book Now" : "จองตอนนี้"}
-                  </button>
+                <div className="fixed bottom-4 inset-x-4 z-[9999]">
+                  <div className="flex items-center justify-between px-4 py-3 bg-white rounded-full gap-4 w-full shadow-[0_3px_20px_rgba(0,0,0,0.75)] border border-gray-800">
+                    {/* ซ้าย: ราคา + ยกเลิกฟรี */}
+                    <div className="flex flex-col">
+                      <div className="text-lg text-gray-500 leading-tight">
+                        {i18n.language === "en" ? "From" : "เริ่มต้นที่"}{" "}
+                        <span className="text-xl text-black font-semibold">
+                          ฿{activity.cost?.toLocaleString()}
+                        </span>{" "}
+                        <span className="text-sm text-gray-500 font-normal">
+                          / {i18n.language === "en" ? "person" : "ท่าน"}
+                        </span>
+                      </div>
+                      {/* <div className="text-xs text-rose-500 font-medium leading-tight">
+                        {i18n.language === "en"
+                          ? "Free cancellation"
+                          : "ยกเลิกฟรี"}
+                      </div> */}
+                    </div>
+
+                    {/* ปุ่มขวา */}
+                    <button
+                      className="bg-[#FF385C] hover:bg-[#e62e50] text-white text-base font-bold px-5 py-2 rounded-full whitespace-nowrap"
+                      onClick={() => setShowMobileBooking(true)}
+                    >
+                      {i18n.language === "en" ? "Show Dates" : "แสดงวันที่"}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
