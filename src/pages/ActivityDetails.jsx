@@ -428,7 +428,7 @@ const ActivityDetails = () => {
     }
 
     return (
-      <div className="flex flex-col h-[300px] overflow-y-auto">
+      <div className="flex flex-col h-[90vh] md:h-[300px] overflow-y-auto">
         {filteredSchedules.map((schedule, index) => {
           const participantLimit = schedule.participantLimit || 0;
 
