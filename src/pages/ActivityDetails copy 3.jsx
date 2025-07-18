@@ -89,31 +89,8 @@ const ActivityDetails = () => {
   const { setAffiliate, user } = useAuth();
   const [filteredSchedules, setFilteredSchedules] = useState([]);
   const [slots, setSlots] = useState([]);
-  const [affiliateDiscountInfo, setAffiliateDiscountInfo] = useState(null);
   const [showMobileBooking, setShowMobileBooking] = useState(false);
   useSyncDayjsLocale();
-
-  useEffect(() => {
-    const affiliateRefData = JSON.parse(localStorage.getItem("affiliateRef"));
-    const ref = affiliateRefData?.ref;
-
-    if (!ref || !activity?._id) return;
-
-    axios
-      .get(`${BASE_URL}/accounts/affiliate-discount`, {
-        params: {
-          affiliateCode: ref,
-          activityId: activity._id,
-        },
-      })
-      .then((res) => {
-        setAffiliateDiscountInfo(res.data);
-      })
-      .catch((err) => {
-        console.warn("No affiliate discount found", err);
-        setAffiliateDiscountInfo(null);
-      });
-  }, [activity]);
 
   useEffect(() => {
     const ref = searchParams.get("ref");
@@ -160,6 +137,17 @@ const ActivityDetails = () => {
     } else {
       setStartDate(null);
     }
+  }, [activity]);
+
+  // ✅ ใส่ตรงนี้
+  const availableDates = React.useMemo(() => {
+    if (!activity?.schedule) return new Set();
+
+    return new Set(
+      activity.schedule.map((slot) =>
+        dayjs(slot.startTime).format("YYYY-MM-DD")
+      )
+    );
   }, [activity]);
 
   const [activitySlots, setActivitySlots] = useState([]);
@@ -226,6 +214,36 @@ const ActivityDetails = () => {
     );
   };
 
+  const getDayClassNames = (date, availableDates) => {
+    const isAvailable = isAvailableDate(date, availableDates);
+    return isAvailable ? "available-date" : "unavailable-date";
+  };
+
+  const openDatePicker = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+    datePickerRef.current.setFocus();
+  };
+
+  const filterActivitiesByDate = (activities, selectedDate) => {
+    if (!selectedDate || !activities) return activities;
+
+    return activities.filter(
+      (act) =>
+        dayjs(act.activityTime.start).format("YYYY-MM-DD") ===
+        dayjs(selectedDate).format("YYYY-MM-DD")
+    );
+  };
+  // useEffect(() => {
+  //   const { activityId, scheduleId, adults, children, cost, startDate } =
+  //     location.state || {};
+  //   alert("adults = " + adults);
+  // }, []);
+
   useEffect(() => {
     if (initialAdults !== undefined) {
       setAdults(initialAdults);
@@ -237,11 +255,47 @@ const ActivityDetails = () => {
     }
   }, [initialAdults, initialChildren]);
 
+  const handleDateChange = (date) => {
+    const utcDate = dayjs(date).utc().format();
+    //alert(`Raw date: ${date}`);
+    // alert(`Selected UTC date: ${utcDate}`);
+    setStartDate(utcDate);
+    console.log("Selected UTC date:", utcDate);
+
+    const dayOfWeek = date
+      .toLocaleDateString("en-US", { weekday: "long" })
+      .toLowerCase();
+    const filteredSchedules = activity?.schedule?.filter((schedule) => {
+      const days = schedule.dayString.toLowerCase().split(",");
+      return (
+        days.includes("everyday") ||
+        days.includes(dayOfWeek) ||
+        (days.includes("weekend") &&
+          (dayOfWeek === "saturday" || dayOfWeek === "sunday"))
+      );
+    });
+
+    setFilteredSchedules(filteredSchedules);
+  };
+
   useEffect(() => {
     if (activity && activity?.schedule) {
       setFilteredSchedules([]);
+      //alert("activitylastStartDate = " + activity.lastStartDate);
+      //setStartDate(activity.lastStartDate);
+      //const initialDate = new Date(activity.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
+      //handleDateChange(today);
     }
   }, [activity]);
+
+  // useEffect(() => {
+  //   const affiliate = searchParams.get("affiliate");
+  //   if (affiliate) {
+  //     setAffiliate(affiliate);
+
+  //     navigate(window.location.pathname, { replace: true });
+  //   }
+  // }, [searchParams, setAffiliate]);
 
   // Mobile check
   useEffect(() => {
@@ -254,6 +308,19 @@ const ActivityDetails = () => {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Image navigation
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? (activity?.images?.length || 0) - 1 : prev - 1
+    );
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === (activity?.images?.length || 0) - 1 ? 0 : prev + 1
+    );
+  };
 
   const handleGoBack = () => {
     navigate(-1);
@@ -286,6 +353,40 @@ const ActivityDetails = () => {
     const hours = date.getHours().toString().padStart(2, "0");
     const minutes = date.getMinutes().toString().padStart(2, "0");
     return `${hours}:${minutes}`;
+  };
+
+  const formatThaiDate = (dateStr) => {
+    const thaiMonths = {
+      "01": "ม.ค.",
+      "02": "ก.พ.",
+      "03": "มี.ค.",
+      "04": "เม.ย.",
+      "05": "พ.ค.",
+      "06": "มิ.ย.",
+      "07": "ก.ค.",
+      "08": "ส.ค.",
+      "09": "ก.ย.",
+      10: "ต.ค.",
+      11: "พ.ย.",
+      12: "ธ.ค.",
+    };
+
+    const thaiDays = {
+      0: "อา",
+      1: "จ",
+      2: "อ",
+      3: "พ",
+      4: "พฤ",
+      5: "ศ",
+      6: "ส",
+    };
+
+    const date = new Date(dateStr);
+    const day = date.getDate();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const thaiDay = thaiDays[date.getDay()];
+
+    return `${thaiDay}. ${day} ${thaiMonths[month]}`;
   };
 
   const ActivityList = ({
@@ -475,11 +576,7 @@ const ActivityDetails = () => {
         {isDropdownOpen && (
           <div
             className="absolute -left-10 bg-white border rounded-lg p-4 mt-2 shadow-lg"
-            style={{
-              width: "200px",
-              border: "solid 1px black",
-              zIndex: "19999",
-            }}
+            style={{ width: "200px", border: "solid 1px black",zIndex:"19999" }}
           >
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm">
@@ -540,6 +637,17 @@ const ActivityDetails = () => {
 
   const clearDate = () => {
     setStartDate(null);
+  };
+
+  const isHoliday = (date, holidays) => {
+    return holidays.some(
+      (holiday) =>
+        dayjs(date).format("YYYY-MM-DD") === dayjs(holiday).format("YYYY-MM-DD")
+    );
+  };
+
+  const everydayFromToday = (date) => {
+    return date >= today.setHours(0, 0, 0, 0); // ป้องกันเลือกวันในอดีต
   };
 
   const CalendarComponent = ({ schedules, startDate, setStartDate }) => {
@@ -724,6 +832,22 @@ const ActivityDetails = () => {
                             : ""
                         }`}{" "}
                   </span>
+
+                  {/* <div className="flex justify-between mb-4 px-10">
+                    <a
+                      href={activity?.location?.googleMapUrl ?? ""}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-blue-500"
+                    >
+                      <div className="font-normal   underline">
+                        <FaMapMarkerAlt className="mr-2" />
+                        {i18n.language === "en"
+                          ? activity?.location?.nameEn
+                          : activity?.location?.nameTh}{" "}
+                      </div>
+                    </a>
+                  </div> */}
                 </>
               )}
 
@@ -731,6 +855,7 @@ const ActivityDetails = () => {
                 style={{ width: "200px" }}
                 //className="-mx-4 sm:mx-0 w-screen max-w-none"
               ></div>
+              {/* <MobileImageCarousel activity={activity} /> */}
 
               {isMobile && activity?.image && (
                 <EmblaCarousel
@@ -755,6 +880,22 @@ const ActivityDetails = () => {
                             : ""
                         }`}{" "}
                   </span>
+
+                  {/* <div className="flex justify-between">
+                    <a
+                      href={activity?.location?.googleMapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-blue-500"
+                    >
+                      <div className="font-normal   underline">
+                        <FaMapMarkerAlt className="mr-2" />
+                        {i18n.language === "en"
+                          ? activity?.location?.nameEn
+                          : activity?.location?.nameTh}{" "}
+                      </div>
+                    </a>
+                  </div> */}
                   <DesktopImageGrid />
                 </>
               )}
@@ -942,36 +1083,12 @@ const ActivityDetails = () => {
                     }}
                   >
                     {/* ราคา */}
-                    <div className="font-bold text-[22px] leading-tight">
-                      {affiliateDiscountInfo?.customerDiscount > 0 ? (
-                        <>
-                          <div>
-                            {i18n.language === "en" ? "start at " : "เริ่มต้น "}
-                            <span className="text-lime-600">
-                              ฿
-                              {(
-                                activity.cost -
-                                affiliateDiscountInfo.customerDiscount
-                              ).toLocaleString()}
-                            </span>{" "}
-                            / {i18n.language === "en" ? "person" : "คน"}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {i18n.language === "en"
-                              ? "regular price"
-                              : "จากราคาปกติ"}{" "}
-                            <span className="line-through">
-                              ฿{activity.cost.toLocaleString()}
-                            </span>
-                          </div>
-                        </>
-                      ) : (
-                        <span>
-                          {i18n.language === "en"
-                            ? `start at ฿${activity?.cost.toLocaleString()} / person`
-                            : `เริ่มต้น ฿${activity?.cost.toLocaleString()} / คน`}
-                        </span>
-                      )}
+                    <div className="flex flex-col">
+                      <div className="  font-bold text-[22px]">
+                        {i18n.language === "en"
+                          ? `start at ฿${activity?.cost} / person`
+                          : `เริ่มต้น ฿${activity?.cost} / คน`}
+                      </div>
                     </div>
 
                     {/* วันที่ */}
@@ -1114,6 +1231,23 @@ const ActivityDetails = () => {
                 </div>
               )}
 
+              {/* {isMobile && (
+                <FloatingBar
+                  activity={activity}
+                  schedule={activity?.schedule}
+                  startDate={startDate}
+                  dates={parentId?.map((item) => item)}
+                  cost={activity?.cost}
+                  adults={adults}
+                  children={children}
+                  handlePaymentNavigation={handlePaymentNavigation}
+                  formatTime={formatTime}
+                  formatThaiDate={formatThaiDate}
+                  activityDetail={activity}
+                />
+              )} */}
+              {/* บรรทัดสุดท้าย bro */}
+
               {/* Floating Book Button บน mobile */}
               {isMobile && activity && (
                 <div className="fixed bottom-4 inset-x-4 z-[9999]">
@@ -1129,6 +1263,11 @@ const ActivityDetails = () => {
                           / {i18n.language === "en" ? "person" : "ท่าน"}
                         </span>
                       </div>
+                      {/* <div className="text-xs text-rose-500 font-medium leading-tight">
+                        {i18n.language === "en"
+                          ? "Free cancellation"
+                          : "ยกเลิกฟรี"}
+                      </div> */}
                     </div>
 
                     {/* ปุ่มขวา */}
@@ -1147,6 +1286,9 @@ const ActivityDetails = () => {
           )}
         </div>
       </div>
+      {/* <div style={{ padding: "20px" }}>
+        <ElfsightWidget />
+      </div> */}
 
       {/* Booking Modal for Mobile */}
       {isMobile && (
@@ -1216,3 +1358,593 @@ const ActivityDetails = () => {
 };
 
 export default ActivityDetails;
+
+const FloatingBar = ({
+  activity,
+  activityDetail,
+  schedule,
+  startDate,
+  adults,
+  children,
+  cost,
+  dates,
+  formatTime,
+  formatThaiDate,
+  handlePaymentNavigation,
+}) => {
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [modalCalendar, setModalCalendar] = useState(false);
+  const [modalParticipants, setModalParticipants] = useState(false);
+  const [mobileModalParticipants, setMobileModalParticipants] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [mobileFilteredSchedules, setMobileFilteredSchedules] = useState([]);
+  const [isCleared, setIsCleared] = useState(false);
+  const [adultsCount, setAdultsCount] = useState(adults || 1);
+  const [childrenCount, setChildrenCount] = useState(children || 0);
+
+  const filterFutureDates = (dates, filterDate = null) => {
+    const today = new Date().setHours(0, 0, 0, 0);
+    const filtered = dates?.filter((date) => {
+      const activityDate = new Date(date.activityTime?.start).setHours(
+        0,
+        0,
+        0,
+        0
+      );
+      return (
+        activityDate >= today && (!filterDate || activityDate === filterDate)
+      );
+    });
+    return filtered || [];
+  };
+
+  const groupByDate = (dates) => {
+    return (dates || []).reduce((acc, date) => {
+      const formattedDate = formatThaiDate(date.activityTime?.start);
+      if (!acc[formattedDate]) {
+        acc[formattedDate] = [];
+      }
+      acc[formattedDate].push(date);
+      return acc;
+    }, {});
+  };
+
+  const sortByTime = (dates) => {
+    return dates.sort(
+      (a, b) =>
+        new Date(a.activityTime?.start) - new Date(b.activityTime?.start)
+    );
+  };
+
+  const handleClearDate = () => {
+    setSelectedDate(null);
+    setIsCleared(true);
+  };
+
+  const handleIncreaseAdults = () => {
+    setAdultsCount(adultsCount + 1);
+    localStorage.setItem("adults", adultsCount + 1);
+  };
+
+  const handleDecreaseAdults = () => {
+    if (adultsCount > 0) {
+      setAdultsCount(adultsCount - 1);
+      localStorage.setItem("adults", adultsCount - 1);
+    }
+  };
+
+  const handleIncreaseChildren = () => {
+    setChildrenCount(childrenCount + 1);
+    localStorage.setItem("children", childrenCount + 1);
+  };
+
+  const handleDecreaseChildren = () => {
+    if (childrenCount > 0) {
+      setChildrenCount(childrenCount - 1);
+      localStorage.setItem("children", childrenCount - 1);
+    }
+  };
+
+  const filteredDates = isCleared
+    ? filterFutureDates(dates)
+    : filterFutureDates(dates, selectedDate?.getTime());
+
+  const groupedDates = groupByDate(filteredDates);
+
+  useEffect(() => {
+    //alert(childrenCount);
+    //alert("children :", children);
+    //alert("filteredSchedules = " + JSON.stringify(filteredSchedules));
+  }, []);
+  useEffect(() => {
+    if (activityDetail && activity?.schedule) {
+      const initialDate = new Date(activityDetail?.lastStartDate); // หรือกำหนดวันที่เริ่มต้นที่คุณต้องการ
+      mobileHandleDateChange(initialDate);
+    }
+  }, [activity, activityDetail]);
+
+  const mobileHandleDateChange = (date) => {
+    const dayOfWeek = date
+      .toLocaleDateString("en-US", { weekday: "long" })
+      .toLowerCase();
+    const filteredSchedules = activity?.schedule?.filter((schedule) => {
+      const days = schedule.dayString.toLowerCase().split(",");
+      return (
+        days.includes("everyday") ||
+        days.includes(dayOfWeek) ||
+        (days.includes("weekend") &&
+          (dayOfWeek === "saturday" || dayOfWeek === "sunday"))
+      );
+    });
+    setMobileFilteredSchedules(filteredSchedules);
+  };
+
+  //สำหรับการเลือก mobile แบบปกติ // ยังไม่ได้ใช้
+  const DetailPopup = ({ onClose, dates }) => (
+    <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
+      <div className="p-4">
+        <button onClick={onClose} className="bg-transparent">
+          <IoChevronBackOutline size={24} />
+        </button>
+
+        <div className="flex flex-col">
+          <h3 className="text-2xl text-black font-bold mb-6 ">
+            {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
+          </h3>
+
+          <div className="flex gap-3">
+            <button
+              className="bg-transparent rounded-full px-4 text-sm "
+              style={{
+                border: "1px solid #dddddd",
+              }}
+              onClick={() => setModalCalendar(true)}
+            >
+              {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
+            </button>
+            <button
+              className="bg-transparent rounded-full px-4 text-sm "
+              style={{
+                border: "1px solid #dddddd",
+              }}
+              onClick={() => setMobileModalParticipants(true)}
+            >
+              {i18n.language === "th"
+                ? `ผู้เข้าร่วม ${adultsCount + childrenCount} คน`
+                : `${adultsCount + childrenCount} participant${
+                    adultsCount + childrenCount > 1 ? "s" : ""
+                  }`}
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-3 py-10">
+            {Object.keys(groupedDates).map((dateKey) => (
+              <div key={dateKey}>
+                <div className="text-base font-bold   p-2">{dateKey}</div>
+                {sortByTime(groupedDates[dateKey]).map((date, index) => (
+                  <div
+                    key={index}
+                    className="p-6 mb-4 rounded-lg"
+                    style={{ border: "1px solid #dddddd" }}
+                  >
+                    <div className="flex flex-row justify-between">
+                      <div>
+                        <div className="text-base font-medium ">
+                          {formatTime(date.activityTime?.start)}-
+                          {formatTime(date.activityTime?.end)}
+                        </div>
+                        <div className="text-base ">
+                          <span className="text-base font-medium">
+                            ฿{date.cost}
+                          </span>{" "}
+                          / คน
+                        </div>
+                      </div>
+                      <div>
+                        <button
+                          onClick={() =>
+                            handlePaymentNavigation(
+                              date.id,
+                              adultsCount,
+                              childrenCount
+                            )
+                          }
+                          className="buttonSelectDate"
+                        >
+                          <center>
+                            {i18n.language === "en" ? "Choose" : "เลือก"}
+                          </center>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-col pt-3 text-base ">
+                      <span>รอบนี้กำลังเป็นที่นิยม</span>
+                      <span>ขอเงินคืนไม่ได้</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {modalCalendar && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-22250">
+          <div className="bg-white max-w-sm w-[90%] rounded-lg p-5 overflow-auto">
+            <div className="flex items-center justify-between">
+              <IoClose
+                size={30}
+                className="cursor-pointer"
+                onClick={() => setModalCalendar(false)}
+              />
+              <span className="text-base   font-bold flex-grow text-center">
+                {i18n.language === "en" ? "Choose Date" : "เลือกช่วงวันที่"}
+              </span>
+              <div style={{ width: "30px" }}></div>
+            </div>
+            <LocalizationProvider
+              dateAdapter={AdapterDayjs}
+              adapterLocale={i18n.language}
+            >
+              <DateCalendar
+                className="date-calendar"
+                defaultValue={selectedDate ? dayjs(selectedDate) : null}
+                onChange={(newDate) => {
+                  setSelectedDate(new Date(newDate));
+                  setIsCleared(false);
+                  setModalCalendar(false);
+                  handleDateChange(newDate);
+                }}
+                shouldDisableDate={(date) => {
+                  const currentDate = new Date(date).setHours(0, 0, 0, 0);
+                  const today = new Date().setHours(0, 0, 0, 0);
+                  return currentDate < today; // 🔥 ปิดวันก่อนวันนี้
+                }}
+              />
+            </LocalizationProvider>
+
+            <div className="flex justify-between pt-5">
+              <button
+                onClick={handleClearDate}
+                className="underline font-bold bg-transparent"
+              >
+                {i18n.language === "en" ? "Clear Date" : "เคลียร์วันที่"}
+              </button>
+              <button
+                onClick={() => setModalCalendar(false)}
+                className="py-2 px-4 rounded-lg text-sm font-semibold bg-black text-white hover:bg-gray-800 transition-colors "
+              >
+                {i18n.language === "en" ? "Save" : "บันทึก"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {modalParticipants && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white max-w-sm w-[90%] rounded-lg overflow-auto">
+            <div className="flex items-center justify-between p-5">
+              <IoClose
+                size={30}
+                className="cursor-pointer"
+                onClick={() => setModalParticipants(false)}
+              />
+              <span className="text-base   font-bold flex-grow text-center">
+                {i18n.language === "en" ? "Participants" : "ผู้เข้าร่วม"}
+              </span>
+              <div style={{ width: "30px" }}></div>
+            </div>
+            <div
+              className="flex flex-col gap-5 p-4"
+              style={{ border: "1px solid #dddddd" }}
+            >
+              {/* ผู้ใหญ่ */}
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                  <div className="">
+                    {i18n.language === "en" ? "Adult" : "ผู้ใหญ่"}
+                  </div>
+                  <div className="  text-xs">
+                    {i18n.language === "en"
+                      ? "more than 13"
+                      : "อายุ 13 ปีขึ้นไป"}
+                  </div>
+                </div>
+                <div>
+                  <button
+                    className={`px-2 py-1   ${
+                      adultsCount === 0 ? "text-gray-300" : "text-black"
+                    }`}
+                    onClick={handleDecreaseAdults}
+                    disabled={adultsCount === 0}
+                  >
+                    -
+                  </button>
+                  <span className="mx-3">{adultsCount}</span>
+                  <button
+                    className="px-2 py-1   text-black"
+                    onClick={handleIncreaseAdults}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              {/* เด็ก */}
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                  <div className="">
+                    {i18n.language === "en" ? "Child" : "เด็ก"}
+                  </div>
+                  <div className="  text-xs">
+                    {i18n.language === "en" ? "4-12 years" : "อายุ 4-12 ปี"}
+                  </div>
+                </div>
+                <div>
+                  <button
+                    className={`px-2 py-1   ${
+                      childrenCount === 0 ? "text-gray-300" : "text-black"
+                    }`}
+                    onClick={handleDecreaseChildren}
+                    disabled={childrenCount === 0}
+                  >
+                    -
+                  </button>
+                  <span className="mx-3">{childrenCount}</span>
+                  <button
+                    className="px-2 py-1   text-black"
+                    onClick={handleIncreaseChildren}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-center pt-5 pb-10">
+              <button
+                onClick={() => setModalParticipants(false)}
+                className="py-2 px-4 rounded-lg text-sm font-semibold bg-black text-white hover:bg-gray-800 transition-colors"
+              >
+                บันทึก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div
+      className="fixed bottom-0 left-0 w-full bg-white shadow-md flex items-center justify-around py-4"
+      style={{ zIndex: 50, borderTop: "1px solid #dddddd", padding: "10px" }}
+    >
+      <div>
+        <div
+          className="  font-bold text-sm md:text-base"
+          style={{ fontSize: "17px" }}
+        >
+          {i18n.language === "en"
+            ? ` ฿${activity?.cost}/person`
+            : ` ฿${activity?.cost}/คน`}
+          <br />
+          {selectedDate
+            ? dayjs(selectedDate).format("YYYY-MM-DD")
+            : i18n.language === "en"
+            ? "(Please Select Date)"
+            : "(กรุณาเลือกวันที่ก่อน)"}
+        </div>
+      </div>
+      <div>
+        <button
+          className="buttonSelectDate"
+          style={{ width: "120px", padding: "8px", margin: "5px" }}
+          onClick={() => setModalParticipants(true)}
+        >
+          {i18n.language === "th"
+            ? `ผู้เข้าร่วม ${adultsCount + childrenCount} คน`
+            : `${adultsCount + childrenCount} participant${
+                adultsCount + childrenCount > 1 ? "s" : ""
+              }`}
+        </button>
+        {mobileFilteredSchedules.map((schedule, index) => (
+          <button
+            className="buttonSelectDate"
+            style={{ width: "120px", padding: "8px", margin: "5px" }}
+            onClick={() => {
+              setModalCalendar(true);
+            }}
+          >
+            <center>
+              {i18n.language === "en" ? "Choose Date" : "เลือกวันที่"}
+            </center>
+          </button>
+        ))}
+      </div>
+      {mobileFilteredSchedules.map((schedule, index) => (
+        <button
+          className="buttonSelectBook"
+          style={{
+            width: "280px",
+            fontSize: "22px",
+            height: "90px",
+            padding: "8px",
+            margin: "5px",
+            backgroundColor: selectedDate ? "" : "lightgray", // เปลี่ยนสีพื้นหลังตามค่า selectedDate
+            cursor: selectedDate ? "pointer" : "not-allowed", // เปลี่ยน cursor ตามค่า selectedDate
+          }}
+          onClick={() => {
+            //alert(startDate);
+            handlePaymentNavigation(
+              activity._id,
+              schedule._id,
+              adultsCount,
+              childrenCount,
+              schedule.cost,
+              selectedDate
+            );
+          }}
+          disabled={!selectedDate}
+        >
+          <center>{i18n.language === "en" ? "Book" : "จองกิจกรรม"}</center>
+        </button>
+      ))}
+
+      {/* ปฏิทิน mobile */}
+      {modalCalendar && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-22250">
+          <div className="bg-white max-w-sm w-[90%] rounded-lg p-5 overflow-auto">
+            <div className="flex items-center justify-between">
+              <IoClose
+                size={30}
+                className="cursor-pointer"
+                onClick={() => setModalCalendar(false)}
+              />
+              <span className="text-base   font-bold flex-grow text-center">
+                {i18n.language === "en" ? "Choose Date" : "เลือกช่วงวันที่"}
+              </span>
+              <div style={{ width: "30px" }}></div>
+            </div>
+            <LocalizationProvider
+              dateAdapter={AdapterDayjs}
+              adapterLocale={i18n.language}
+            >
+              <DateCalendar
+                className="date-calendar"
+                defaultValue={selectedDate ? dayjs(selectedDate) : null}
+                onChange={(newDate) => {
+                  setSelectedDate(new Date(newDate));
+                  setIsCleared(false);
+                  setModalCalendar(false);
+                  handleDateChange(newDate);
+                }}
+                shouldDisableDate={(date) => {
+                  const currentDate = new Date(date).setHours(0, 0, 0, 0);
+                  const today = new Date().setHours(0, 0, 0, 0);
+                  return currentDate < today; // 🔥 ปิดวันก่อนวันนี้
+                }}
+              />
+            </LocalizationProvider>
+
+            <div className="flex justify-between pt-5">
+              <button
+                onClick={handleClearDate}
+                className="underline font-bold bg-transparent"
+              >
+                {i18n.language === "en" ? "Clear Date" : "เคลียร์วันที่"}
+              </button>
+              <button
+                onClick={() => setModalCalendar(false)}
+                className="py-2 px-4 rounded-lg text-sm font-semibold bg-black text-white hover:bg-gray-800 transition-colors "
+              >
+                {i18n.language === "en" ? "Save" : "บันทึก"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {modalParticipants && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          style={{ padding: "10px" }}
+        >
+          <div className="bg-white max-w-sm w-[90%] rounded-lg overflow-auto">
+            <div className="flex items-center justify-between p-5">
+              <IoClose
+                size={30}
+                className="cursor-pointer"
+                onClick={() => setModalParticipants(false)}
+              />
+              <span
+                className="text-base   font-bold  text-center"
+                style={{ width: "100px" }}
+              >
+                {i18n.language === "en" ? "Participants" : "ผู้เข้าร่วม"}
+              </span>
+              <div style={{ width: "30px" }}></div>
+            </div>
+            <div
+              className="flex flex-col gap-5 p-4"
+              style={{ border: "1px solid #dddddd" }}
+            >
+              {/******************* ผู้ใหญ่ *******************/}
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                  <div className="">
+                    {i18n.language === "en" ? "Adult" : "ผู้ใหญ่"}
+                  </div>
+                  <div className="  text-xs">
+                    {" "}
+                    {i18n.language === "en"
+                      ? "more than 20"
+                      : "อายุ 20 ปีขึ้นไป"}
+                  </div>
+                </div>
+                <div>
+                  <button
+                    className={`px-2 py-1   ${
+                      adultsCount === 0 ? "text-gray-300" : "text-black"
+                    }`}
+                    onClick={handleDecreaseAdults}
+                    disabled={adultsCount === 0}
+                  >
+                    -
+                  </button>
+                  <span className="mx-3">{adultsCount}</span>
+                  <button
+                    className="px-2 py-1   text-black"
+                    onClick={handleIncreaseAdults}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/*******************  เด็ก ***********************/}
+              {/* <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                  <div className="">
+                    {i18n.language === "en" ? "Child" : "เด็ก"}
+                  </div>
+                  <div className="  text-xs">
+                    {i18n.language === "en" ? "4-12 years" : "อายุ 4-12 ปี"}
+                  </div>
+                </div>
+                <div>
+                  <button
+                    className={`px-2 py-1   ${
+                      childrenCount === 0 ? "text-gray-300" : "text-black"
+                    }`}
+                    onClick={handleDecreaseChildren}
+                    disabled={childrenCount === 0}
+                  >
+                    -
+                  </button>
+                  <span className="mx-3">{childrenCount}</span>
+                  <button
+                    className="px-2 py-1   text-black"
+                    onClick={handleIncreaseChildren}
+                  >
+                    +
+                  </button>
+                </div>
+              </div> */}
+            </div>
+
+            <div className="flex justify-center pt-5 pb-10">
+              <button
+                onClick={() => setModalParticipants(false)}
+                className="py-2 px-4 rounded-lg text-sm font-semibold bg-black text-white hover:bg-gray-800 transition-colors"
+              >
+                {i18n.language === "en" ? "Close" : "ปิด"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isDetailsOpen && (
+        <DetailPopup onClose={() => setIsDetailsOpen(false)} dates={dates} />
+      )}
+    </div>
+  );
+};

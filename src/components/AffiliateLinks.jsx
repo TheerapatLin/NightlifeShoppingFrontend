@@ -15,6 +15,7 @@ function AffiliateLinks() {
   const [loadingSave, setLoadingSave] = useState(null);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
   const [loadingSummary, setLoadingSummary] = useState(false);
+  const [affiliateDiscountInfo, setAffiliateDiscountInfo] = useState(null);
   const [affiliateSummary, setAffiliateSummary] = useState({
     orders: [],
     totalEarnings: 0,
@@ -49,6 +50,42 @@ function AffiliateLinks() {
 
     fetchAffiliateSummary();
   }, []);
+
+  useEffect(() => {
+    const affiliateRefData = JSON.parse(localStorage.getItem("affiliateRef"));
+    const ref = affiliateRefData?.ref;
+
+    const fetchAffiliateDiscount = async () => {
+      if (!ref || !activities.length) return;
+
+      // ดึงส่วนลดของทุก activity (หรือเฉพาะตัวที่คุณต้องการ)
+      for (const activity of activities) {
+        try {
+          const res = await axios.get(
+            `${BASE_URL}/accounts/affiliate-discount`,
+            {
+              params: {
+                affiliateCode: ref,
+                activityId: activity._id,
+              },
+            }
+          );
+
+          // บันทึกข้อมูลแต่ละอันไว้ใน state ตาม activityId
+          setAffiliateDiscountInfo((prev) => ({
+            ...prev,
+            [activity._id]: res.data,
+          }));
+        } catch (err) {
+          console.warn(
+            `ไม่พบ affiliate setting สำหรับ activity ${activity._id}`
+          );
+        }
+      }
+    };
+
+    fetchAffiliateDiscount();
+  }, [activities]);
 
   useEffect(() => {
     const fetchAffiliateActivities = async () => {
