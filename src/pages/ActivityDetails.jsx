@@ -1034,7 +1034,7 @@ const ActivityDetails = () => {
                         ))}
                     </div>
                     <a
-                      href="https://www.instagram.com/nightlife.run/"
+                      href="https://www.instagram.com/_u/nightlife.run/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block w-full text-center text-sm mt-3 font-medium text-gray-800 bg-gray-100 px-6 py-2 rounded-xl hover:bg-gray-200 transition"
