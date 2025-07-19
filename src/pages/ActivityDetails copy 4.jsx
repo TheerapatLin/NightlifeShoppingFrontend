@@ -640,25 +640,9 @@ const ActivityDetails = () => {
               placeholderText={
                 i18n.language === "en" ? "Select Date" : "เลือกวันที่"
               }
-              className="cursor-pointer"
+              className="cursor-pointer "
               filterDate={filterDate}
               minDate={new Date()}
-              popperPlacement="auto"
-              popperModifiers={[
-                {
-                  name: "offset",
-                  options: {
-                    offset: [0, 20], // เลื่อนลง 20px
-                  },
-                },
-                {
-                  name: "preventOverflow",
-                  options: {
-                    boundary: "viewport",
-                  },
-                },
-              ]}
-              withPortal // 🔥 ตัวนี้สำคัญที่สุดสำหรับ mobile
             />
           </div>
           <FaChevronDown size={16} />
