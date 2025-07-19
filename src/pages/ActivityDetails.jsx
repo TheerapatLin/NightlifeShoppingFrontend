@@ -207,6 +207,8 @@ const ActivityDetails = () => {
       localStorage.removeItem("appliedDiscountCode");
       localStorage.removeItem("discountCodeTimestamp");
     }
+    localStorage.removeItem("appliedDiscountCode");
+    localStorage.removeItem("discountCodeTimestamp");
 
     //alert(`startDate : ${startDate}`);
     const paymentState = {
