@@ -46,23 +46,24 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(utc);
 
 import { forwardRef } from "react";
-
 const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
   <div
     onClick={onClick}
     ref={ref}
-    className="cursor-pointer w-full"
+    className="cursor-pointer w-full min-w-[120px] flex items-center justify-between"
     style={{
       border: "1px solid #ccc",
-      padding: "8px 12px",
+      padding: "10px 12px",
       borderRadius: "8px",
       backgroundColor: "#fff",
+      fontSize: "14px",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
     }}
   >
-    <div className="text-xs font-bold mb-1">
-      {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
-    </div>
-    <div className="text-sm">{value || "-"}</div>
+    <span>{value || "-"}</span>
+    <FaChevronDown size={14} />
   </div>
 ));
 
@@ -492,7 +493,7 @@ const ActivityDetails = () => {
                 : `จำนวน ${adults + children} คน`}
             </label>
           </div>
-          <FaChevronDown size={16} />
+          {/* <FaChevronDown size={16} /> */}
         </div>
 
         {/* Dropdown */}
@@ -639,15 +640,24 @@ const ActivityDetails = () => {
             <DatePicker
               selected={startDate}
               onChange={handleDateChange}
+              customInput={<CustomDateInput />}
               dateFormat="dd/MM/yyyy"
               locale="th"
               filterDate={filterDate}
               minDate={new Date()}
-              withPortal
-              customInput={<CustomDateInput />}
+              {...(isMobile
+                ? {
+                    withPortal: true,
+                    portalId: "calendar-portal",
+                    popperClassName: "datepicker-popper-center",
+                  }
+                : {
+                    // Desktop ปล่อยให้ popup ปกติ
+                    popperPlacement: "bottom-start",
+                  })}
             />
           </div>
-          <FaChevronDown size={16} />
+          {/* <FaChevronDown size={16} /> */}
         </div>
         <div
           className="flex items-center rounded-r-lg p-3 w-[150px]"
@@ -1305,6 +1315,17 @@ const ActivityDetails = () => {
           </div>
         </ReactModal>
       )}
+      <style jsx global>{`
+        .datepicker-popper-center {
+          position: fixed !important;
+          top: 50% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
+          z-index: 9999 !important;
+          width: 90vw;
+          max-width: 360px;
+        }
+      `}</style>
     </>
   );
 };
