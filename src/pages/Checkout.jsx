@@ -163,40 +163,6 @@ const Checkout = (props) => {
     }
   }, [activityId, scheduleId, schedule]);
 
-  const formatThaiDate = (dateStr) => {
-    const thaiMonths = {
-      "01": "ม.ค.",
-      "02": "ก.พ.",
-      "03": "มี.ค.",
-      "04": "เม.ย.",
-      "05": "พ.ค.",
-      "06": "มิ.ย.",
-      "07": "ก.ค.",
-      "08": "ส.ค.",
-      "09": "ก.ย.",
-      10: "ต.ค.",
-      11: "พ.ย.",
-      12: "ธ.ค.",
-    };
-
-    const thaiDays = {
-      0: "อา",
-      1: "จ",
-      2: "อ",
-      3: "พ",
-      4: "พฤ",
-      5: "ศ",
-      6: "ส",
-    };
-
-    const date = new Date(dateStr);
-    const day = date.getDate();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const thaiDay = thaiDays[date.getDay()];
-
-    return `${thaiDay}. ${day} ${thaiMonths[month]}`;
-  };
-
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("th-TH", {
       style: "currency",
@@ -296,69 +262,6 @@ const Checkout = (props) => {
     await refreshPaymentIntent({ forceClearCode: true });
   };
 
-  // const refreshPaymentIntent = async ({ forceClearCode = false } = {}) => {
-  //   const stored = localStorage.getItem("affiliateRef");
-  //   const affiliateCode = stored ? JSON.parse(stored)?.ref : null;
-  //   const previousPaymentIntentId =
-  //     localStorage.getItem("paymentIntentId") || null;
-
-  //   try {
-  //     const response = await fetch(
-  //       `${BASE_URL}/activity-order/create-payment-intent`,
-  //       {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({
-  //           items: [
-  //             {
-  //               id: "activity",
-  //               costPerPerson: cost,
-  //               amountAdults: adults,
-  //               amountChildren: children,
-  //               activityId,
-  //               scheduleId,
-  //               startDate,
-  //             },
-  //           ],
-  //           affiliateCode,
-  //           appliedDiscountCode: forceClearCode
-  //             ? ""
-  //             : appliedCode || enteredCode,
-  //           previousPaymentIntentId, // ✅ ส่งไป backend
-  //         }),
-  //       }
-  //     );
-
-  //     if (!response.ok) {
-  //       throw new Error("Failed to refresh payment intent");
-  //     }
-
-  //     const data = await response.json();
-
-  //     priceDetails.originalPrice = data.originalPrice;
-  //     priceDetails.discountAmount = data.discountAmount;
-  //     priceDetails.affiliateDiscountAmount = data.affiliateDiscountAmount;
-  //     priceDetails.paidAmount = data.paidAmount;
-
-  //     setPriceDetails({
-  //       originalPrice: data.originalPrice,
-  //       discountAmount: data.discountAmount,
-  //       affiliateDiscountAmount: data.affiliateDiscountAmount,
-  //       paidAmount: data.paidAmount,
-  //     });
-
-  //     props.state.setClientSecret(data.clientSecret);
-
-  //     if (data.paymentIntentId) {
-  //       localStorage.setItem("paymentIntentId", data.paymentIntentId);
-  //     }
-
-  //     return data.clientSecret;
-  //   } catch (error) {
-  //     console.error("Error refreshing payment intent:", error);
-  //   }
-  // };
-
   const refreshPaymentIntent = async ({ forceClearCode = false } = {}) => {
     const affiliateCode = affiliate;
     const previousPaymentIntentId = forceClearCode
@@ -416,7 +319,11 @@ const Checkout = (props) => {
         discountAmount: data.discountAmount,
         affiliateDiscountAmount: data.affiliateDiscountAmount,
         paidAmount: data.paidAmount,
+        discountCodeIsPerOrder: data.discountCodeIsPerOrder,
+        discountCodeDescriptions: data.discountCodeDescriptions,
+        discountCodeShortDescriptions: data.discountCodeShortDescriptions,
       });
+      //alert(JSON.stringify(data.discountCodeDescriptions, null, 2));
 
       props.state.setClientSecret(data.clientSecret);
 
@@ -450,13 +357,32 @@ const Checkout = (props) => {
           </div>
 
           {priceDetails.discountAmount > 0 && (
-            <div className="flex justify-between text-green-700">
-              <div className="  text-[16px]">
-                {i18n.language === "th" ? "ส่วนลดโค้ด" : "Discount Code"}
+            <div className="text-green-700">
+              <div className="flex justify-between text-[16px]">
+                <div>
+                  {i18n.language === "th"
+                    ? `ส่วนลดโค้ด${
+                        priceDetails.discountCodeIsPerOrder === false &&
+                        adults + children > 1
+                          ? ` x ${adults + children}`
+                          : ""
+                      }`
+                    : `Discount Code${
+                        priceDetails.discountCodeIsPerOrder === false &&
+                        adults + children > 1
+                          ? ` x ${adults + children}`
+                          : ""
+                      }`}
+                </div>
+                <div>-{formatCurrency(priceDetails.discountAmount)}</div>
               </div>
-              <div className="  text-[16px]">
-                -{formatCurrency(priceDetails.discountAmount)}
-              </div>
+              {priceDetails.discountCodeDescriptions && (
+                <div className="text-[12px] text-gray-600 mt-[0px] leading-[18px]">
+                  {i18n.language === "th"
+                    ? priceDetails.discountCodeDescriptions.th
+                    : priceDetails.discountCodeDescriptions.en}
+                </div>
+              )}
             </div>
           )}
 

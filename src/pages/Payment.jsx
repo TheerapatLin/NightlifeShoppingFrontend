@@ -122,6 +122,9 @@ const Payment = () => {
           discountAmount: data.discountAmount,
           affiliateDiscountAmount: data.affiliateDiscountAmount,
           paidAmount: data.paidAmount,
+          discountCodeIsPerOrder: data.discountCodeIsPerOrder,
+          discountCodeDescriptions: data.discountCodeDescriptions,
+          discountCodeShortDescriptions: data.discountCodeShortDescriptions,
         });
 
         if (data.paymentIntentId) {
