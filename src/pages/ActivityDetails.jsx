@@ -747,54 +747,54 @@ const ActivityDetails = () => {
               {/* Desktop Layout */}
               {!isMobile && (
                 <div>
-                  <div className="flex justify-between items-center px-6 py-2">
-                    {/* LEFT: Title */}
-                    <div className="flex flex-col text-left">
-                      <span className="text-[36px] font-extrabold leading-tight">
-                        {i18n.language === "en"
-                          ? activity?.nameEn
-                          : activity?.nameTh}
-                      </span>
+                  <div
+                    className="flex flex-col items-center px-6 py-2"
+                    style={{ maxWidth: "600px", margin: "0 auto" }}
+                  >
+                    {/* Title */}
+                    <span className="text-[40px] font-extrabold leading-tight text-center">
+                      {i18n.language === "en"
+                        ? activity?.nameEn
+                        : activity?.nameTh}
+                    </span>
 
+                    {/* Minor name + Divider + Host in a row */}
+                    <div className="flex items-center justify-center mt-2 gap-6 w-full">
+                      {/* Minor name */}
                       {(i18n.language === "en"
                         ? activity?.minorNameEn?.trim()
                         : activity?.minorNameTh?.trim()) && (
-                        <span className="text-[18px] font-medium text-gray-500 mt-2">
+                        <div className="basis-2/3 text-[18px] font-medium text-gray-500 text-center">
                           {i18n.language === "en"
                             ? activity?.minorNameEn
                             : activity?.minorNameTh}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Divider */}
-                    <div className="h-[70px] w-px bg-gray-300 mx-6" />
-
-                    {/* RIGHT: Host */}
-                    <div className="flex items-center gap-4">
-                      {activity?.hostImage && (
-                        <img
-                          src={`/img/${activity.hostImage}`}
-                          alt="host"
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      )}
-                      <div className="flex flex-col">
-                        <div className="text-[15px] font-semibold text-gray-800">
-                          {i18n.language === "en"
-                            ? `Hosted by ${
-                                capitalize(
-                                  stripHtmlTags(activity?.hostNameEN)
-                                ) || "Petzz"
-                              }`
-                            : `โฮสต์โดย ${
-                                stripHtmlTags(activity?.hostNameTH) || "เพชรร"
-                              }`}
                         </div>
-                        <div className="text-[13px] text-gray-500 leading-snug">
-                          {i18n.language === "en"
-                            ? "Nightlife expert who travel the world"
-                            : "ผู้เชี่ยวชาญเรื่องไนท์ไลฟ์ ที่เดินทางไปทั่วโลก"}
+                      )}
+
+                      {/* Divider */}
+                      <div className="h-6 w-px bg-gray-300" />
+
+                      {/* Host info */}
+                      <div className="basis-1/3 flex items-center gap-3">
+                        {activity?.hostImage && (
+                          <img
+                            src={`/img/${activity.hostImage}`}
+                            alt="host"
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        )}
+                        <div className="flex flex-col text-left">
+                          <div className="text-[15px] font-semibold text-gray-800">
+                            {i18n.language === "en"
+                              ? `Hosted by ${
+                                  capitalize(
+                                    stripHtmlTags(activity?.hostNameEN)
+                                  ) || "Petzz"
+                                }`
+                              : `โฮสต์โดย ${
+                                  stripHtmlTags(activity?.hostNameTH) || "เพชรร"
+                                }`}
+                          </div>
                         </div>
                       </div>
                     </div>
