@@ -34,7 +34,6 @@ import i18n from "../i18n";
 import Footer from "../components/Footer";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import useSyncDayjsLocale from "../components/useSyncDayjsLocale";
-import useEmblaCarousel from "embla-carousel-react";
 import EmblaCarousel from "./EmblaCarousel";
 import "./sandbox.css";
 import "./embla.css";
@@ -50,15 +49,16 @@ const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
   <div
     onClick={onClick}
     ref={ref}
-    className="cursor-pointer w-full min-w-[120px] flex items-center justify-between"
+    className="cursor-pointer w-full min-w-[140px] flex items-center justify-between"
     style={{
       border: "1px solid #ccc",
       padding: "10px 12px",
       borderRadius: "8px",
       backgroundColor: "#fff",
-      fontSize: "14px",
+      fontSize: "16px",
       whiteSpace: "nowrap",
       overflow: "hidden",
+      fontWeight:'bold',
       textOverflow: "ellipsis",
     }}
   >
@@ -68,18 +68,13 @@ const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
 ));
 
 const ActivityDetails = () => {
-  const today = new Date();
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const [activity, setActivity] = useState(null);
-  const [parentId, setParentId] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [startDate, setStartDate] = useState(null);
-  const datePickerRef = useRef(null);
-  const containerRef = useRef(null);
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   const { adults: initialAdults, children: initialChildren } =
     location.state || {};
@@ -92,9 +87,7 @@ const ActivityDetails = () => {
     return savedChildren ? parseInt(savedChildren, 10) : initialChildren || 0;
   });
   const [searchParams] = useSearchParams();
-  const { setAffiliate, user } = useAuth();
   const [filteredSchedules, setFilteredSchedules] = useState([]);
-  const [slots, setSlots] = useState([]);
   const [affiliateDiscountInfo, setAffiliateDiscountInfo] = useState(null);
   const [showMobileBooking, setShowMobileBooking] = useState(false);
   useSyncDayjsLocale();
@@ -493,7 +486,7 @@ const ActivityDetails = () => {
                 : `จำนวน ${adults + children} คน`}
             </label>
           </div>
-          {/* <FaChevronDown size={16} /> */}
+          <FaChevronDown size={16} />
         </div>
 
         {/* Dropdown */}
@@ -900,7 +893,7 @@ const ActivityDetails = () => {
                       ? activity?.descriptionEN
                       : activity?.descriptionTH) && (
                       <div
-                        className="text-[14px] text-gray-700 "
+                        className="text-[14px] md:mt-[30px] text-gray-700 "
                         dangerouslySetInnerHTML={{
                           __html:
                             i18n.language === "en"
@@ -1272,7 +1265,7 @@ const ActivityDetails = () => {
               transform: "translate(-50%, 0)",
               width: "90%",
               height: "75%",
-              borderRadius: "12px",
+              borderRadius: "20px",
               padding: "20px",
               overflow: "auto",
             },
