@@ -648,7 +648,7 @@ const ActivityDetails = () => {
                 {
                   name: "offset",
                   options: {
-                    offset: [0, 20], // เลื่อนลง 20px
+                    offset: [0, 20],
                   },
                 },
                 {
@@ -658,8 +658,12 @@ const ActivityDetails = () => {
                   },
                 },
               ]}
-              withPortal // 🔥 ตัวนี้สำคัญที่สุดสำหรับ mobile
-              readOnly
+              withPortal
+          
+              onClick={(e) => {
+                // บังคับให้เปิดปฏิทินตอนคลิก input
+                datePickerRef.current?.setOpen(true);
+              }}
             />
           </div>
           <FaChevronDown size={16} />
