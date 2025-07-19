@@ -1002,6 +1002,7 @@ const ActivityDetails = () => {
                         </div>
                       </div>
                     </div>
+
                     {/* 2 */}
                     {/* <div className="flex gap-2 mb-[24px]">
                     <IoShieldCheckmarkSharp size={20} />
@@ -1032,6 +1033,14 @@ const ActivityDetails = () => {
                           </>
                         ))}
                     </div>
+                    <a
+                      href="https://ig.me/m/nightlife.run/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full text-center text-sm mt-3 font-medium text-gray-800 bg-gray-100 px-6 py-2 rounded-xl hover:bg-gray-200 transition"
+                    >
+                      Message Host
+                    </a>
                     {/* <div className="flex flex-col md:flex-row gap-10 items-center mt-[32px]">
                     <button
                       className="w-full py-[13px] px-[23px] rounded-lg   text-[16px] font-bold"
