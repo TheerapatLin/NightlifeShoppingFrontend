@@ -194,6 +194,20 @@ const ActivityDetails = () => {
     cost,
     startDate
   ) => {
+    const codeTimestamp = localStorage.getItem("discountCodeTimestamp");
+    if (codeTimestamp) {
+      const now = Date.now();
+      const elapsed = now - parseInt(codeTimestamp, 10);
+      if (elapsed > 10 * 60 * 1000) {
+        // ลบโค้ดที่เก็บไว้นานเกิน 10 นาที
+        localStorage.removeItem("appliedDiscountCode");
+        localStorage.removeItem("discountCodeTimestamp");
+      }
+    } else {
+      localStorage.removeItem("appliedDiscountCode");
+      localStorage.removeItem("discountCodeTimestamp");
+    }
+
     //alert(`startDate : ${startDate}`);
     const paymentState = {
       activityId,

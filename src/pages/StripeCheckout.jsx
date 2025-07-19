@@ -213,7 +213,7 @@ const StripeContainer = ({ clientSecret }) => {
               }}
             >
               <button
-                className="flex w-48 bg-green-600 hover:bg-green-800 focus:outline-none rounded-lg text-white font-CerFont text-[20px] py-2 px-4 shadow-lg transition duration-300"
+                className="flex w-48 bg-green-600 hover:bg-green-800 focus:outline-none rounded-lg text-white text-[20px] py-2 px-4 shadow-lg transition duration-300"
                 style={{
                   minWidth: "100%",
                   justifyContent: "center",

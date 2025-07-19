@@ -104,6 +104,11 @@ export default function CompletePage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    // ✅ ล้าง localStorage โค้ดส่วนลดเมื่อเข้าหน้านี้
+    localStorage.removeItem("ref");
+    localStorage.removeItem("appliedDiscountCode");
+    localStorage.removeItem("discountCodeTimestamp");
+
     if (!stripe) {
       return;
     }
@@ -165,7 +170,7 @@ export default function CompletePage() {
                   width: "30vw",
                 }}
               >
-                <div style={{ fontSize: "32px" , color:'white' }}>
+                <div style={{ fontSize: "32px", color: "white" }}>
                   <Lottie options={defaultOptions} height={250} width={250} />
                   Order Completed!
                 </div>
@@ -184,9 +189,7 @@ export default function CompletePage() {
                     className="w-full h-[50px] black-btn flex justify-center items-center"
                     style={{ width: "300px" }}
                   >
-                    <span className="text-sm font-semibold">
-                      Back Home
-                    </span>
+                    <span className="text-sm font-semibold">Back Home</span>
                   </div>
                 </Link>
               </div>

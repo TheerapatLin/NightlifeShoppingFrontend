@@ -252,19 +252,29 @@ const Checkout = (props) => {
       if (res.data.valid) {
         setAppliedCode(enteredCode);
         localStorage.setItem("appliedDiscountCode", enteredCode);
+        localStorage.setItem("discountCodeTimestamp", Date.now().toString());
         setCodeModalOpen(false);
         setEnteredCode("");
         setDiscount(res.data.discountValue);
-        alert("✅ Code applied successfully!");
 
-        // ✅ Call create-payment-intent again
         await refreshPaymentIntent();
       } else {
-        const message =
-          res.data.message || "❌ Invalid code. Please try again.";
-        alert(`❌ ${message}`);
+        setAppliedCode("");
+        setEnteredCode("");
+        localStorage.removeItem("appliedDiscountCode");
+        localStorage.removeItem("discountCodeTimestamp");
+        setDiscount(0);
+
+        await refreshPaymentIntent({ forceClearCode: true });
       }
     } catch (err) {
+      // ❌ ล้างโค้ดออก ถ้าใช้ไม่ได้
+      setAppliedCode("");
+      setEnteredCode("");
+      localStorage.removeItem("appliedDiscountCode");
+      localStorage.removeItem("discountCodeTimestamp");
+      setDiscount(0);
+
       console.error(err);
       const message =
         err.response?.data?.message ||
@@ -280,6 +290,7 @@ const Checkout = (props) => {
     setAppliedCode("");
     setDiscount(0);
     localStorage.removeItem("appliedDiscountCode");
+    localStorage.removeItem("discountCodeTimestamp");
 
     // เรียก refreshPaymentIntent แบบบังคับ appliedDiscountCode = "" ทันที
     await refreshPaymentIntent({ forceClearCode: true });
@@ -376,16 +387,30 @@ const Checkout = (props) => {
             appliedDiscountCode: forceClearCode
               ? ""
               : appliedCode || enteredCode,
-            previousPaymentIntentId, // pass only if available
+            previousPaymentIntentId,
           }),
         }
       );
 
-      if (!response.ok) throw new Error("Failed to refresh payment intent");
+      if (!response.ok) {
+        // 🔥 ถ้าเป็น status 400 ให้ล้างโค้ดส่วนลด
+        if (response.status === 400) {
+          const data = await response.json();
+          alert(data?.error || "❌ Discount code not applicable.");
+
+          // ✅ ล้างโค้ดออกจาก state และ localStorage
+          setAppliedCode("");
+          setEnteredCode("");
+          localStorage.removeItem("appliedDiscountCode");
+          localStorage.removeItem("discountCodeTimestamp");
+          setDiscount(0);
+        }
+
+        throw new Error("Failed to refresh payment intent");
+      }
 
       const data = await response.json();
 
-      // Update price details safely
       setPriceDetails({
         originalPrice: data.originalPrice,
         discountAmount: data.discountAmount,
@@ -402,7 +427,6 @@ const Checkout = (props) => {
       return data.clientSecret;
     } catch (error) {
       console.error("Error refreshing payment intent:", error);
-      // Reset paymentIntentId to avoid reuse issues
       localStorage.removeItem("paymentIntentId");
     }
   };
