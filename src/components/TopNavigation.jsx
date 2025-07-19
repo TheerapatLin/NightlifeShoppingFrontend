@@ -63,6 +63,8 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   };
 
   const handleLogout = async () => {
+    localStorage.removeItem("appliedDiscountCode");
+    localStorage.removeItem("discountCodeTimestamp");
     await logout();
     navigate("/");
   };
