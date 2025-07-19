@@ -5,5 +5,5 @@ body {
   background-image: url('../../img/gradient_bg_5.jpg');
   background-attachment: fixed;
   background-size: cover ;
-  font-family: 'Noto Sans Thai', sans-serif;
+  /* font-family: 'Noto Sans Thai', sans-serif; */
 }

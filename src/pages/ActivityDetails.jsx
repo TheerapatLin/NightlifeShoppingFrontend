@@ -355,7 +355,7 @@ const ActivityDetails = () => {
                   {i18n.language === "en" ? "Session " : "รอบที่ "}
                   {index + 1}
                 </div>
-                <div className="  text-[16px]">
+                <div className="text-[18px] font-medium">
                   {formatTime(schedule.startTime)} -{" "}
                   {formatTime(schedule.endTime)}
                 </div>
@@ -372,13 +372,33 @@ const ActivityDetails = () => {
               </div>
 
               <div className="flex flex-col items-end mr-2">
-                <div className="  text-[14px] font-bold">
-                  {schedule.cost === 0
-                    ? i18n.language === "en"
-                      ? "Free"
-                      : "ฟรี"
-                    : `฿ ${schedule.cost}`}{" "}
-                  / {i18n.language === "en" ? "person" : "คน"}
+                <div className="text-right text-[14px] font-bold">
+                  {affiliateDiscountInfo?.customerDiscount > 0 ? (
+                    <>
+                      <span className=" text-lime-600 font-extrabold text-[20px] leading-none">
+                        ฿
+                        {(
+                          schedule.cost - affiliateDiscountInfo.customerDiscount
+                        ).toLocaleString()}
+                      </span>{" "}
+                      / {i18n.language === "en" ? "person" : "คน"}
+                      <div className="text-[12.5px] text-gray-500  leading-none">
+                        {i18n.language === "en"
+                          ? "regular price"
+                          : "จากราคาปกติ"}{" "}
+                        <span className="line-through">
+                          ฿{schedule.cost.toLocaleString()}
+                        </span>
+                      </div>
+                    </>
+                  ) : schedule.cost === 0 ? (
+                    <>{i18n.language === "en" ? "Free" : "ฟรี"}</>
+                  ) : (
+                    <>
+                      ฿{schedule.cost.toLocaleString()} /{" "}
+                      {i18n.language === "en" ? "person" : "คน"}
+                    </>
+                  )}
                 </div>
 
                 <button
@@ -465,7 +485,7 @@ const ActivityDetails = () => {
                 ? `${adults + children} guest${
                     adults + children > 1 ? "s" : ""
                   }`
-                : `ผู้เข้าร่วม ${adults + children} คน`}
+                : `จำนวน ${adults + children} คน`}
             </label>
           </div>
           <FaChevronDown size={16} />
@@ -742,7 +762,7 @@ const ActivityDetails = () => {
               {/* Desktop Layout */}
               {!isMobile && (
                 <>
-                  <span className="text-[36px] font-bold m-[10px]">
+                  <span className="text-[36px] font-extrabold m-[10px]">
                     {i18n.language === "en"
                       ? `${activity?.nameEn}${
                           activity?.minorNameEn?.trim()
@@ -944,27 +964,11 @@ const ActivityDetails = () => {
                     {/* ราคา */}
                     <div className="font-bold text-[22px] leading-tight">
                       {affiliateDiscountInfo?.customerDiscount > 0 ? (
-                        <>
-                          <div>
-                            {i18n.language === "en" ? "start at " : "เริ่มต้น "}
-                            <span className="text-lime-600">
-                              ฿
-                              {(
-                                activity.cost -
-                                affiliateDiscountInfo.customerDiscount
-                              ).toLocaleString()}
-                            </span>{" "}
-                            / {i18n.language === "en" ? "person" : "คน"}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {i18n.language === "en"
-                              ? "regular price"
-                              : "จากราคาปกติ"}{" "}
-                            <span className="line-through">
-                              ฿{activity.cost.toLocaleString()}
-                            </span>
-                          </div>
-                        </>
+                        <span>
+                          {i18n.language === "en"
+                            ? `start at ฿${activity?.cost.toLocaleString()} / person`
+                            : `เริ่มต้น ฿${activity?.cost.toLocaleString()} / คน`}
+                        </span>
                       ) : (
                         <span>
                           {i18n.language === "en"
@@ -1117,18 +1121,41 @@ const ActivityDetails = () => {
               {/* Floating Book Button บน mobile */}
               {isMobile && activity && (
                 <div className="fixed bottom-4 inset-x-4 z-[9999]">
-                  <div className="flex items-center justify-between px-4 py-3 bg-white rounded-full gap-4 w-full shadow-[0_3px_20px_rgba(0,0,0,0.75)] border border-gray-800">
+                  <div className="flex items-center justify-between pl-[20px] px-4 py-3 bg-white rounded-full gap-4 w-full shadow-[0_3px_20px_rgba(0,0,0,0.75)] border border-gray-800">
                     {/* ซ้าย: ราคา + ยกเลิกฟรี */}
                     <div className="flex flex-col">
-                      <div className="text-lg text-gray-500 leading-tight">
+                      {/* บรรทัดแสดงราคาหลัก */}
+                      <div className="text-lg text-gray-500 leading-none">
                         {i18n.language === "en" ? "From" : "เริ่มต้นที่"}{" "}
-                        <span className="text-xl text-black font-semibold">
-                          ฿{activity.cost?.toLocaleString()}
+                        <span
+                          className={`text-xl font-bold inline-block leading-none relative ${
+                            affiliateDiscountInfo?.customerDiscount > 0
+                              ? "text-lime-600"
+                              : "text-black"
+                          }`}
+                        >
+                          ฿
+                          {(
+                            activity.cost -
+                            (affiliateDiscountInfo?.customerDiscount || 0)
+                          ).toLocaleString()}
                         </span>{" "}
                         <span className="text-sm text-gray-500 font-normal">
                           / {i18n.language === "en" ? "person" : "ท่าน"}
                         </span>
                       </div>
+
+                      {/* ถ้ามีส่วนลดให้โชว์ราคาปกติ */}
+                      {affiliateDiscountInfo?.customerDiscount > 0 && (
+                        <div className="text-[12.5px] text-gray-500 mt-[2px] leading-none pl-[20px]">
+                          {i18n.language === "en"
+                            ? "Regular price"
+                            : "จากราคาปกติ"}{" "}
+                          <span className="line-through">
+                            ฿{activity.cost?.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* ปุ่มขวา */}
@@ -1185,7 +1212,7 @@ const ActivityDetails = () => {
 
           {/* ยกส่วนนี้จาก desktop มาใส่ใน modal ได้เลย */}
           <div className="flex flex-col">
-            <div className="font-bold text-lg mb-4">
+            <div className="font-bold text-[24px] mb-4">
               {i18n.language === "en"
                 ? `Start at ฿${activity?.cost} / person`
                 : `เริ่มต้น ฿${activity?.cost} / คน`}
