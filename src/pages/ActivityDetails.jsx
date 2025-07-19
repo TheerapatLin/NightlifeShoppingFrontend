@@ -659,6 +659,7 @@ const ActivityDetails = () => {
                 },
               ]}
               withPortal // 🔥 ตัวนี้สำคัญที่สุดสำหรับ mobile
+              readOnly
             />
           </div>
           <FaChevronDown size={16} />
