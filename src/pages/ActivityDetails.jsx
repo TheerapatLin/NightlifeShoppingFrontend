@@ -45,21 +45,26 @@ dayjs.locale("th");
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utc);
 
-const OPTIONS = {};
-const SLIDE_COUNT = 5;
-const SLIDES = [
-  { id: 1, src: "https://picsum.photos/id/1015/600/300" },
-  { id: 2, src: "https://picsum.photos/id/1016/600/300" },
-  { id: 3, src: "https://picsum.photos/id/1018/600/300" },
-];
-const inlineStyles = {
-  datePicker: {
-    cursor: "pointer",
-    fontFamily: "CerFont",
-    fontSize: "46px", // กำหนดขนาดฟอนต์
-    fontWeight: "600", // กำหนดน้ำหนักฟอนต์
-  },
-};
+import { forwardRef } from "react";
+
+const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
+  <div
+    onClick={onClick}
+    ref={ref}
+    className="cursor-pointer w-full"
+    style={{
+      border: "1px solid #ccc",
+      padding: "8px 12px",
+      borderRadius: "8px",
+      backgroundColor: "#fff",
+    }}
+  >
+    <div className="text-xs font-bold mb-1">
+      {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
+    </div>
+    <div className="text-sm">{value || "-"}</div>
+  </div>
+));
 
 const ActivityDetails = () => {
   const today = new Date();
@@ -632,38 +637,14 @@ const ActivityDetails = () => {
               {i18n.language === "en" ? "Select Date" : "เลือกวันที่"}
             </label>
             <DatePicker
-              ref={datePickerRef}
               selected={startDate}
               onChange={handleDateChange}
               dateFormat="dd/MM/yyyy"
               locale="th"
-              placeholderText={
-                i18n.language === "en" ? "Select Date" : "เลือกวันที่"
-              }
-              className="cursor-pointer"
               filterDate={filterDate}
               minDate={new Date()}
-              popperPlacement="auto"
-              popperModifiers={[
-                {
-                  name: "offset",
-                  options: {
-                    offset: [0, 20],
-                  },
-                },
-                {
-                  name: "preventOverflow",
-                  options: {
-                    boundary: "viewport",
-                  },
-                },
-              ]}
               withPortal
-          
-              onClick={(e) => {
-                // บังคับให้เปิดปฏิทินตอนคลิก input
-                datePickerRef.current?.setOpen(true);
-              }}
+              customInput={<CustomDateInput />}
             />
           </div>
           <FaChevronDown size={16} />
