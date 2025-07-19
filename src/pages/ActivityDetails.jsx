@@ -704,7 +704,16 @@ const ActivityDetails = () => {
       </>
     </div>
   );
+  /* ฟังก์ชันลบ HTML tag */
+  const stripHtmlTags = (html) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent || "";
+  };
 
+  const capitalize = (str) =>
+    typeof str === "string" && str.length > 0
+      ? str.charAt(0).toUpperCase() + str.slice(1)
+      : "";
   return (
     <>
       <div
@@ -738,27 +747,59 @@ const ActivityDetails = () => {
               {/* Desktop Layout */}
               {!isMobile && (
                 <div>
-                  <div className="mx-auto" style={{ maxWidth: "800px" }}>
-                    {/* บรรทัดหลัก: name */}
-
-                    <span className="block text-[36px] font-extrabold text-center m-[10px]">
-                      {i18n.language === "en"
-                        ? activity?.nameEn
-                        : activity?.nameTh}
-                    </span>
-
-                    {/* บรรทัดรอง: minor name (เฉพาะถ้ามี) */}
-
-                    {(i18n.language === "en"
-                      ? activity?.minorNameEn?.trim()
-                      : activity?.minorNameTh?.trim()) && (
-                      <span className="block text-[18px] font-medium text-center text-gray-500 -mt-2 mb-2">
+                  <div className="flex justify-between items-center px-6 py-2">
+                    {/* LEFT: Title */}
+                    <div className="flex flex-col text-left">
+                      <span className="text-[36px] font-extrabold leading-tight">
                         {i18n.language === "en"
-                          ? activity?.minorNameEn
-                          : activity?.minorNameTh}
+                          ? activity?.nameEn
+                          : activity?.nameTh}
                       </span>
-                    )}
+
+                      {(i18n.language === "en"
+                        ? activity?.minorNameEn?.trim()
+                        : activity?.minorNameTh?.trim()) && (
+                        <span className="text-[18px] font-medium text-gray-500 mt-2">
+                          {i18n.language === "en"
+                            ? activity?.minorNameEn
+                            : activity?.minorNameTh}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-[70px] w-px bg-gray-300 mx-6" />
+
+                    {/* RIGHT: Host */}
+                    <div className="flex items-center gap-4">
+                      {activity?.hostImage && (
+                        <img
+                          src={`/img/${activity.hostImage}`}
+                          alt="host"
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      )}
+                      <div className="flex flex-col">
+                        <div className="text-[15px] font-semibold text-gray-800">
+                          {i18n.language === "en"
+                            ? `Hosted by ${
+                                capitalize(
+                                  stripHtmlTags(activity?.hostNameEN)
+                                ) || "Petzz"
+                              }`
+                            : `โฮสต์โดย ${
+                                stripHtmlTags(activity?.hostNameTH) || "เพชรร"
+                              }`}
+                        </div>
+                        <div className="text-[13px] text-gray-500 leading-snug">
+                          {i18n.language === "en"
+                            ? "Nightlife expert who travel the world"
+                            : "ผู้เชี่ยวชาญเรื่องไนท์ไลฟ์ ที่เดินทางไปทั่วโลก"}
+                        </div>
+                      </div>
+                    </div>
                   </div>
+
                   <DesktopImageGrid />
                 </div>
               )}
@@ -808,7 +849,36 @@ const ActivityDetails = () => {
                           </span>
                         )}
                   </div>
-                  <hr className="mx-4 my-2 h-[1px] bg-gray-300 border-none" />
+                  <hr className="mx-6 my-2 h-[1px] bg-gray-300 border-none" />
+                  <div className="flex items-center gap-4 mx-4">
+                    {/* Host Image */}
+                    {activity?.hostImage && (
+                      <img
+                        src={`/img/${activity.hostImage}`}
+                        alt="host"
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    )}
+
+                    {/* Host Info */}
+                    <div className="flex flex-col">
+                      <div className="text-[15px] font-semibold text-gray-800">
+                        {i18n.language === "en"
+                          ? `Hosted by ${
+                              capitalize(stripHtmlTags(activity?.hostNameEN)) ||
+                              "Petz"
+                            }`
+                          : `โฮสต์โดย ${
+                              stripHtmlTags(activity?.hostNameTH) || "เพชร"
+                            }`}
+                      </div>
+                      <div className="text-[13px] text-gray-500 leading-snug">
+                        {i18n.language === "en"
+                          ? "Nightlife expert who travel the world"
+                          : "ผู้เชี่ยวชาญเรื่องไนท์ไลฟ์ ที่เดินทางไปทั่วโลก"}
+                      </div>
+                    </div>
+                  </div>
                 </>
               )}
               <div
@@ -827,12 +897,19 @@ const ActivityDetails = () => {
                     className="pb-[48px]"
                     style={{ borderBottom: "solid 1px #dddddd" }}
                   >
+                    {/* Host Image */}
+                    <div className="flex items-center gap-4">
+                      {/* Host Image */}
+                    </div>
+                    {isMobile && (
+                      <hr className="mx-2 my-2 h-[1px] bg-gray-300 border-none" />
+                    )}
                     <br />
                     {(i18n.language === "en"
                       ? activity?.descriptionEN
                       : activity?.descriptionTH) && (
                       <div
-                        className="text-[14px] text-gray-700 leading-1.2 text-justify"
+                        className="text-[14px] text-gray-700 "
                         dangerouslySetInnerHTML={{
                           __html:
                             i18n.language === "en"
@@ -841,161 +918,6 @@ const ActivityDetails = () => {
                         }}
                       />
                     )}
-                    {/* <div class="space-y-6 text-sm text-gray-800">
-                      Join us for an incredible night filled with great vibes,
-                      an electric atmosphere, and a host who knows how to bring
-                      people together. Thanks to our strong connections with top
-                      venues, you’ll enjoy exclusive perks like free entry to
-                      certain nightclubs—something not everyone can get! Plus,
-                      wherever we go, you’ll have the chance to meet local
-                      friends, making your night even more special.
-                      <br />
-                      <br />
-                      We will go to 2 bars and 2 nightclubs in one night out!
-                      <br />
-                      Apart from some free drinks you can get from us. Each
-                      venue extra drink would cost 300–500 Baht.
-                      <br />
-                      <br />
-                      <b class="uppercase text-sm">This is our plan :</b>
-                      <div class="space-y-4">
-                        <div class="flex items-start gap-4">
-                          <img
-                            src="https://a0.muscache.com/im/pictures/lombard/MtTemplate-224832-active_media/original/52434c97-0c1b-4f28-8b4e-9cb998b04a19.jpg"
-                            class="w-[80px] h-[80px] object-cover rounded-xl flex-shrink-0"
-                            alt="Meet at cozy spot"
-                          />
-                          <div>
-                            <div class="font-semibold text-sm">
-                              Meet at cozy spot
-                            </div>
-                            <div class="text-gray-600">
-                              We choose an easy-to-reach meeting point,
-                              accessible by public transportation.
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="flex items-start gap-4">
-                          <img
-                            src="https://a0.muscache.com/im/pictures/Mt/MtTemplate-224832/original/a7623658-c5ed-42a5-8246-09dbab51b6b3.png"
-                            class="w-[80px] h-[80px] object-cover rounded-xl flex-shrink-0"
-                            alt="Get to know each other"
-                          />
-                          <div>
-                            <div class="font-semibold text-sm">
-                              Get to know each other
-                            </div>
-                            <div class="text-gray-600">
-                              The uniqueness of this experience is that you can
-                              meet both travelers and locals. Most of locals who
-                              join are female. Our host will help break the ice.
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="flex items-start gap-4">
-                          <img
-                            src="https://a0.muscache.com/im/pictures/Mt/MtTemplate-224832/original/49e73465-3439-4247-ac2e-044b3b26395e.jpeg"
-                            class="w-[80px] h-[80px] object-cover rounded-xl flex-shrink-0"
-                            alt="Party in style in a private van"
-                          />
-                          <div>
-                            <div class="font-semibold text-sm">
-                              Party in style in a private van
-                            </div>
-                            <div class="text-gray-600">
-                              Hop into our private luxury van with some free
-                              drinks along the way as we head to three more
-                              exciting spots.
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="flex items-start gap-4">
-                          <img
-                            src="https://a0.muscache.com/im/pictures/Mt/MtTemplate-224832/original/5add8383-1f85-47d9-b37a-750b690841e3.jpeg"
-                            class="w-[80px] h-[80px] object-cover rounded-xl flex-shrink-0"
-                            alt="Sky bar, nice view, and fancy drink"
-                          />
-                          <div>
-                            <div class="font-semibold text-sm">
-                              Sky bar, nice view, and fancy drink
-                            </div>
-                            <div class="text-gray-600">
-                              Enjoy stunning city views and artistic cocktails
-                              at our handpicked sky bar.
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="flex items-start gap-4">
-                          <img
-                            src="https://a0.muscache.com/im/pictures/Mt/MtTemplate-224832/original/04f647cb-629e-4acb-9a09-a774efdd7459.jpeg"
-                            class="w-[80px] h-[80px] object-cover rounded-xl flex-shrink-0"
-                            alt="Live music with nice decoration"
-                          />
-                          <div>
-                            <div class="font-semibold text-sm">
-                              Live music with nice decoration
-                            </div>
-                            <div class="text-gray-600">
-                              We’ll turn up the vibe with live music and cool,
-                              stylish venues at the next stop.
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="flex items-start gap-4">
-                          <img
-                            src="https://a0.muscache.com/im/pictures/Mt/MtTemplate-224832/original/0121b3d0-08ee-4a5c-9a08-56322ef906d2.jpeg"
-                            class="w-[80px] h-[80px] object-cover rounded-xl flex-shrink-0"
-                            alt="Open the dance floor"
-                          />
-                          <div>
-                            <div class="font-semibold text-sm">
-                              Open the dance floor
-                            </div>
-                            <div class="text-gray-600">
-                              Continue the night at a top-notch nightclub
-                              playing EDM or Hip-hop, depending on the night,
-                              with special access included.
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="flex items-start gap-4">
-                          <img
-                            src="https://a0.muscache.com/im/pictures/Mt/MtTemplate-224832/original/e3a8350d-3330-4b84-a4ac-b790e8c79ea6.jpeg"
-                            class="w-[80px] h-[80px] object-cover rounded-xl flex-shrink-0"
-                            alt="Super club"
-                          />
-                          <div>
-                            <div class="font-semibold text-sm">Super club</div>
-                            <div class="text-gray-600">
-                              A trendy, high-energy club with parties every day.
-                              On weekdays, we often get free entry, and if
-                              there's a cover charge, it includes one free
-                              drink.
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="mt-6 space-y-2 text-sm">
-                        <b class="uppercase">DRESS CODE :</b>
-                        <br />
-                        👕 <b>Men:</b> NO shorts, tank tops, sportswear, sandals
-                        or flipflops.
-                        <br />
-                        👠 <b>Female:</b> NO sandals or flipflops.
-                        <br />
-                        🪪{" "}
-                        <b>
-                          Please bring your actual ID card, driving license, or
-                          passport. Must be 20+.
-                        </b>
-                      </div>
-                    </div> */}
                   </div>
 
                   <div
