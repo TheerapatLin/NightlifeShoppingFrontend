@@ -734,7 +734,7 @@ const ActivityDetails = () => {
                   />
                 </div>
               )}
-              {isMobile && (
+              {/* {isMobile && (
                 <>
                   <span
                     className="text-[30px] font-bold mt-[20px] mb-[20px] px-5 text-center"
@@ -753,7 +753,30 @@ const ActivityDetails = () => {
                         }`}{" "}
                   </span>
                 </>
-              )}
+              )} */}
+
+              <>
+                {/* บรรทัดหลัก: name */}
+                <span className="block text-[30px] font-bold text-center text-black leading-snug px-4 mt-4 mb-0">
+                  {i18n.language === "en"
+                    ? activity?.nameEn ?? ""
+                    : activity?.nameTh ?? ""}
+                </span>
+
+                {/* บรรทัดรอง: minor name ถ้ามี */}
+                {i18n.language === "en"
+                  ? activity?.minorNameEn?.trim() && (
+                      <span className="block text-[18px] font-semibold text-center text-gray-500 text-black leading-snug px-4 mt-1 mb-3">
+                        {activity.minorNameEn}
+                      </span>
+                    )
+                  : activity?.minorNameTh?.trim() && (
+                      <span className="block text-[18px] font-semibold text-center text-gray-500 text-black leading-snug px-4 mt-1 mb-3">
+                        {activity.minorNameTh}
+                      </span>
+                    )}
+                <hr className="" />
+              </>
 
               <div
                 style={{ width: "200px" }}
