@@ -724,18 +724,20 @@ const ActivityDetails = () => {
           )} */}
 
           {activity ? (
-            <div className="flex flex-col">
+            <div className="flex flex-col pt-2 ">
               {/* Mobile Layout */}
               {isMobile && activity?.image && (
-                <EmblaCarousel
-                  slides={activity.image}
-                  options={{ loop: true }}
-                />
+                <div className="flex flex-col m-3 bg-white shadow rounded-[30px] overflow-hidden">
+                  <EmblaCarousel
+                    slides={activity.image}
+                    options={{ loop: true }}
+                  />
+                </div>
               )}
               {isMobile && (
                 <>
                   <span
-                    className="text-[30px] font-bold mt-[20px] mb-[20px] px-5"
+                    className="text-[30px] font-bold mt-[20px] mb-[20px] px-5 text-center"
                     style={{ lineHeight: "30px" }}
                   >
                     {i18n.language === "en"

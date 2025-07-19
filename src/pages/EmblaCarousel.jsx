@@ -1,17 +1,14 @@
 import React, { useEffect } from "react";
-import { DotButton, useDotButton } from "./EmblaCarouselDotButton";
+import useEmblaCarousel from "embla-carousel-react";
 import {
   PrevButton,
   NextButton,
   usePrevNextButtons,
 } from "./EmblaCarouselArrowButtons";
-import useEmblaCarousel from "embla-carousel-react";
+import { DotButton, useDotButton } from "./EmblaCarouselDotButton";
 
-const EmblaCarousel = (props) => {
-  const { slides, options } = props;
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: true,
-  });
+const EmblaCarousel = ({ slides, options }) => {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, ...options });
 
   const { selectedIndex, scrollSnaps, onDotButtonClick } =
     useDotButton(emblaApi);
@@ -23,32 +20,31 @@ const EmblaCarousel = (props) => {
     onNextButtonClick,
   } = usePrevNextButtons(emblaApi);
 
-  // ✅ เพิ่ม autoplay ที่นี่
+  // ✅ autoplay
   useEffect(() => {
     if (!emblaApi) return;
 
     const interval = setInterval(() => {
       if (!emblaApi.canScrollNext()) {
-        emblaApi.scrollTo(0); // วนกลับภาพแรก
+        emblaApi.scrollTo(0);
       } else {
         emblaApi.scrollNext();
       }
-    }, 4000); // 4 วินาที
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [emblaApi]);
 
   return (
     <section className="embla">
-      <div className="embla__viewport" ref={emblaRef}>
+      <div className="embla__viewport relative" ref={emblaRef}>
         <div className="embla__container">
-          {/* {slides.map((index) => (
-            <div className="embla__slide" key={index}>
-              <div className="embla__slide__number">{index + 1}</div>
-            </div>
-          ))} */}
           {slides.map((slide, index) => (
-            <div className="embla__slide h-[55vh]" key={index}>
+            <div
+              className="embla__slide h-[50vh]"
+              key={index}
+              style={{ position: "relative" }}
+            >
               <img
                 src={slide.fileName}
                 alt={`Slide ${index + 1}`}
@@ -57,23 +53,36 @@ const EmblaCarousel = (props) => {
             </div>
           ))}
         </div>
-      </div>
 
-      <div className="embla__controls">
-        {/* <div className="embla__buttons">
-          <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
-          <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
-        </div> */}
-
-        <div className="embla__dots">
+        {/* ✅ dot overlay แบบ inline */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: ".5rem",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 10,
+            display: "flex",
+            gap: "0.5rem",
+          }}
+        >
           {scrollSnaps.map((_, index) => (
-            <DotButton
-              key={index}
-              onClick={() => onDotButtonClick(index)}
-              className={"embla__dot".concat(
-                index === selectedIndex ? " embla__dot--selected" : ""
-              )}
-            />
+            <>
+              <button
+                key={index}
+                onClick={() => onDotButtonClick(index)}
+                style={{
+
+                  borderRadius: "9999px",
+                  backgroundColor:
+                    index === selectedIndex ? "#22c55e" : "white",
+                  opacity: index === selectedIndex ? 1 : 0.5,
+                  transition: "opacity 0.3s",
+                  transform: index === selectedIndex ? "scale(0.9)" : "scale(0.6)",
+                  cursor: "pointer",
+                }}
+              />
+            </>
           ))}
         </div>
       </div>
