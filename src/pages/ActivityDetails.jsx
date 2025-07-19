@@ -712,7 +712,7 @@ const ActivityDetails = () => {
         style={{ paddingTop: "60px" }}
       >
         <div className="bg-white w-full max-w-7xl rounded-none md:rounded-xl px-0 md:px-10 pb-8 md:py-8">
-          {isMobile && (
+          {/* {isMobile && (
             <div className="px-10">
               <button
                 onClick={handleGoBack}
@@ -721,11 +721,17 @@ const ActivityDetails = () => {
                 <IoChevronBackOutline size={20} style={{ color: "white" }} />
               </button>
             </div>
-          )}
+          )} */}
 
           {activity ? (
             <div className="flex flex-col">
               {/* Mobile Layout */}
+              {isMobile && activity?.image && (
+                <EmblaCarousel
+                  slides={activity.image}
+                  options={{ loop: true }}
+                />
+              )}
               {isMobile && (
                 <>
                   <span
@@ -751,13 +757,6 @@ const ActivityDetails = () => {
                 style={{ width: "200px" }}
                 //className="-mx-4 sm:mx-0 w-screen max-w-none"
               ></div>
-
-              {isMobile && activity?.image && (
-                <EmblaCarousel
-                  slides={activity.image}
-                  options={{ loop: true }}
-                />
-              )}
 
               {/* Desktop Layout */}
               {!isMobile && (
