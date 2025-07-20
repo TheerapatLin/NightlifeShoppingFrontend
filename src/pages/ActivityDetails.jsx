@@ -718,6 +718,7 @@ const ActivityDetails = () => {
     typeof str === "string" && str.length > 0
       ? str.charAt(0).toUpperCase() + str.slice(1)
       : "";
+
   return (
     <>
       <div
@@ -748,7 +749,7 @@ const ActivityDetails = () => {
                 </div>
               )}
 
-              {/* Desktop Layout */}
+              {/* Desktop Main Layout */}
               {!isMobile && (
                 <div>
                   <div
@@ -807,6 +808,8 @@ const ActivityDetails = () => {
                   <DesktopImageGrid />
                 </div>
               )}
+              
+              {/* Mobile Main Layout */}
               {isMobile && (
                 <>
                   {/* บรรทัดหลัก: name */}
@@ -833,8 +836,8 @@ const ActivityDetails = () => {
                           </span>
                         )}
                   </div>
-                  <hr className="mx-6 my-2 h-[1px] bg-gray-300 border-none" />
-                  <div className="flex items-center gap-4 mx-4">
+                  <hr className="mx-[35px] sm:mx-0 my-2 h-[1px] bg-gray-300 border-none" />
+                  <div className="mx-[50px] sm:mx-0 flex items-center gap-4 mx-4 ">
                     {/* Host Image */}
                     {activity?.hostImage && (
                       <img
@@ -845,7 +848,7 @@ const ActivityDetails = () => {
                     )}
 
                     {/* Host Info */}
-                    <div className="flex flex-col">
+                    <div className="flex flex-col ">
                       <div className="text-[15px] font-semibold text-gray-800">
                         {i18n.language === "en"
                           ? `Hosted by ${
@@ -872,7 +875,7 @@ const ActivityDetails = () => {
 
               {/* แบ่งเป็นสอง div */}
               <div
-                className="flex justify-between  px-5"
+                className="mx-[10px] sm:mx-0 flex justify-between  px-5"
                 style={{ borderBottom: "solid 1px #dddddd", color: "black" }}
               >
                 {/* ข้อมูลส่วนหน้าพื้นที่ 60 % */}
@@ -886,14 +889,14 @@ const ActivityDetails = () => {
                       {/* Host Image */}
                     </div>
                     {isMobile && (
-                      <hr className="mx-2 my-2 h-[1px] bg-gray-300 border-none" />
+                      <hr className="mx-2 mt-2  h-[1px] bg-gray-300 border-none" />
                     )}
                     <br />
                     {(i18n.language === "en"
                       ? activity?.descriptionEN
                       : activity?.descriptionTH) && (
                       <div
-                        className="text-[14px] md:mt-[30px] text-gray-700 "
+                        className="text-[14px] mt-2 sm:mt-[40px]  text-gray-700 "
                         dangerouslySetInnerHTML={{
                           __html:
                             i18n.language === "en"
