@@ -919,7 +919,7 @@ const ActivityDetails = () => {
                         activity.included.map((item) => (
                           <div
                             key={item.id}
-                            className="py-[24px] px-[16px] flex flex-col rounded-[30px]"
+                            className="py-[24px] px-[16px] flex flex-col rounded-[30px] shadow-lg"
                             style={{
                               border: "solid 1px #dddddd",
                               flex: "1 1 calc(25% - 16px)",
