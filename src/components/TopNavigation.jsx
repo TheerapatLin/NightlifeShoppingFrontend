@@ -232,7 +232,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                   >
                     Activity
                   </Link> */}
-                    {isLoggedIn && user?.role === "admin" && (
+                    {/* {isLoggedIn && user?.role === "admin" && (
                       <Link
                         to="/certificate"
                         className={`item02 ${
@@ -242,7 +242,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                       >
                         Certificate
                       </Link>
-                    )}
+                    )} */}
                     <div className="ml-auto" />
                     <div
                       style={{

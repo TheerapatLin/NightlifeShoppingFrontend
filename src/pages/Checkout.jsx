@@ -588,6 +588,7 @@ const Checkout = (props) => {
         </div>
       </div>
 
+      {/* Modal กรอก Code */}
       {codeModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-80 shadow-lg relative">

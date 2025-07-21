@@ -4,12 +4,14 @@ import ActivitiesForm from "../components/ActivitiesForm";
 import UserDeals from "../components/UserDeals";
 import UserEvents from "../components/UserEvents";
 import UserProfile from "../components/UserProfile";
+import UserSuperAdmin from "../components/UserSuperAdmin";
 import AffiliateDashboard from "../components/AffiliateDashboard";
 import AffiliateLinks from "../components/AffiliateLinks";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import SlotDetailModal from "../components/SlotDetailModal";
+import { FaCrown } from "react-icons/fa";
 // import axios from "axios";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -163,6 +165,8 @@ function Profile() {
               Events
             </button>
             {(user?.role == "admin" ||
+              user?.role == "superadmin" ||
+              user?.role == "host" ||
               user?.role == "affiliator_host" ||
               user?.role == "host_affiliator" ||
               user?.role == "affiliator") && (
@@ -180,7 +184,11 @@ function Profile() {
                 Affiliate
               </button>
             )}
-            {(user?.role == "admin" || user?.role == "host") && (
+            {(user?.role == "admin" ||
+              user?.role == "superadmin" ||
+              user?.role == "host" ||
+              user?.role == "affiliator_host" ||
+              user?.role == "host_affiliator") && (
               <button
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
                   selectedTab === "scheduler"
@@ -193,6 +201,17 @@ function Profile() {
                 }}
               >
                 Scheduler
+              </button>
+            )}
+            {user?.role === "superadmin" && (
+              <button
+                className="flex-shrink-0 px-4 py-2 rounded-full text-sm bg-yellow-500 text-white hover:bg-yellow-600 flex items-center gap-1"
+                onClick={() => {
+                  setSelectedTab("superadmin");
+                  localStorage.setItem("profileSelectedTab", "superadmin");
+                }}
+              >
+                <FaCrown className="text-white" />
               </button>
             )}
           </div>
@@ -208,7 +227,9 @@ function Profile() {
           {selectedTab === "affiliate" && <AffiliateDashboard />}
 
           {selectedTab === "scheduler" &&
-            (user?.role == "admin" || user?.role == "host") && (
+            (user?.role == "admin" ||
+              user?.role == "superadmin" ||
+              user?.role == "host") && (
               <>
                 <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2 w-full">
                   <div className="w-full lg:w-[70%]">
@@ -229,6 +250,8 @@ function Profile() {
                 </div>
               </>
             )}
+
+          {selectedTab === "superadmin" && <UserSuperAdmin />}
         </div>
       </div>
     </>
