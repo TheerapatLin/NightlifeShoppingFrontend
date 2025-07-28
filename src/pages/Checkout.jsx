@@ -391,10 +391,10 @@ const Checkout = (props) => {
             <div className="flex justify-between text-green-700 text-[16px]">
               <div>
                 {i18n.language === "th"
-                  ? `ส่วนลด Affiliate${
+                  ? `ส่วนลดพิเศษ${
                       adults + children > 1 ? ` x ${adults + children}` : ""
                     }`
-                  : `Affiliate Discount${
+                  : `Special Discount${
                       adults + children > 1 ? ` x ${adults + children}` : ""
                     }`}
               </div>
