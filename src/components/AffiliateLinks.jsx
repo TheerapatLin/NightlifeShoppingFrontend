@@ -232,19 +232,31 @@ function AffiliateLinks() {
         )
       )}
 
-      <div className="text-white text-center mb-4 flex items-end justify-center gap-2">
-        <span className="text-sm opacity-80">
-          {t("affiliate.your_ref_code")}
-        </span>
-        <span className="text-xl font-bold tracking-wide">
-          {user?.affiliateCode}
-        </span>
-        <button
-          onClick={() => copyToClipboard(user?.affiliateCode || "")}
-          className="ml-1 text-xs bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded"
-        >
-          {t("affiliate.copy")}
-        </button>
+   
+
+      {/* ลิงก์ Affiliate หลัก */}
+      <div className="text-center mt-2 mb-4">
+        <div className="inline-block bg-white/20 backdrop-blur-md px-4 py-3 rounded-xl text-white shadow">
+          <div className="text-sm font-medium mb-1">
+            Your affiliate profile link
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <input
+              type="text"
+              readOnly
+              value={`${FRONTEND_URL}/a/${user?.affiliateCode}`}
+              className="text-sm text-black px-2 py-1 rounded w-[280px]"
+            />
+            <button
+              onClick={() =>
+                copyToClipboard(`${FRONTEND_URL}/a/${user?.affiliateCode}`)
+              }
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+            >
+              Copy
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

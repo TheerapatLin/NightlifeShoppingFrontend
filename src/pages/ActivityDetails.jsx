@@ -58,7 +58,7 @@ const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
       fontSize: "16px",
       whiteSpace: "nowrap",
       overflow: "hidden",
-      fontWeight:'bold',
+      fontWeight: "bold",
       textOverflow: "ellipsis",
     }}
   >
@@ -93,7 +93,7 @@ const ActivityDetails = () => {
   useSyncDayjsLocale();
 
   useEffect(() => {
-    const affiliateRefData = JSON.parse(localStorage.getItem("affiliateRef"));
+    const affiliateRefData = JSON.parse(sessionStorage.getItem("affiliateRef"));
     const ref = affiliateRefData?.ref;
 
     if (!ref || !activity?._id) return;
@@ -115,29 +115,69 @@ const ActivityDetails = () => {
   }, [activity]);
 
   useEffect(() => {
-    const ref = searchParams.get("ref");
-    if (ref) {
-      const existing = JSON.parse(localStorage.getItem("affiliateRef"));
+    const bc = new BroadcastChannel("affiliate_channel");
 
-      const now = Date.now();
-      const expireInMs = 7 * 24 * 60 * 60 * 1000; // 7 days = 604800000 ms
-
-      if (
-        !existing ||
-        existing.ref !== ref ||
-        (existing.expiresAt && existing.expiresAt < now)
-      ) {
-        localStorage.setItem(
-          "affiliateRef",
-          JSON.stringify({
-            ref,
-            storedAt: now,
-            expiresAt: now + expireInMs,
-          })
-        );
+    // ฟังเมื่อมี tab ใหม่ขอ sync ref
+    bc.onmessage = (event) => {
+      if (event.data.type === "requestRef") {
+        const existing = sessionStorage.getItem("affiliateRef");
+        if (existing) {
+          bc.postMessage({
+            type: "syncRef",
+            ...JSON.parse(existing),
+          });
+        }
       }
 
-      // ล้างจาก URL
+      if (event.data.type === "syncRef") {
+        const { ref, storedAt, expiresAt } = event.data;
+        const existing = JSON.parse(sessionStorage.getItem("affiliateRef"));
+        if (!existing || existing.ref !== ref) {
+          sessionStorage.setItem(
+            "affiliateRef",
+            JSON.stringify({ ref, storedAt, expiresAt })
+          );
+        }
+      }
+    };
+
+    // ขอ ref ถ้า tab นี้ไม่มี
+    const current = sessionStorage.getItem("affiliateRef");
+    if (!current) {
+      bc.postMessage({ type: "requestRef" });
+    }
+
+    return () => {
+      bc.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      const now = Date.now();
+      const expireInMs = 7 * 24 * 60 * 60 * 1000;
+
+      // เก็บเฉพาะใน sessionStorage
+      sessionStorage.setItem(
+        "affiliateRef",
+        JSON.stringify({
+          ref,
+          storedAt: now,
+          expiresAt: now + expireInMs,
+        })
+      );
+
+      // ส่งไปยัง tab อื่น
+      const bc = new BroadcastChannel("affiliate_channel");
+      bc.postMessage({
+        type: "syncRef",
+        ref,
+        storedAt: now,
+        expiresAt: now + expireInMs,
+      });
+      bc.close();
+
       navigate(window.location.pathname, { replace: true });
     }
   }, [searchParams]);
@@ -808,7 +848,7 @@ const ActivityDetails = () => {
                   <DesktopImageGrid />
                 </div>
               )}
-              
+
               {/* Mobile Main Layout */}
               {isMobile && (
                 <>

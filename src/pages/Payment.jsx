@@ -79,7 +79,7 @@ const Payment = () => {
 
   useEffect(() => {
     const createPaymentIntent = async () => {
-      const stored = localStorage.getItem("affiliateRef");
+      const stored = sessionStorage.getItem("affiliateRef");
       const affiliateCode = stored ? JSON.parse(stored)?.ref : null;
 
       const previousPaymentIntentId =

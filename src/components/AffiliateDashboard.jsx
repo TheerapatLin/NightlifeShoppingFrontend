@@ -39,7 +39,7 @@ export default function AffiliateDashboard() {
               : "bg-gray-200 text-gray-800 hover:bg-gray-300"
           }`}
         >
-          Bank Info
+          Payout Info
         </button>
       </div>
 

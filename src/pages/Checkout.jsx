@@ -57,7 +57,7 @@ const Checkout = (props) => {
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const { windowSize } = useGlobalEvent();
   //const { affiliate } = useAuth();
-  const stored = localStorage.getItem("affiliateRef");
+  const stored = sessionStorage.getItem("affiliateRef");
   const affiliate = stored ? JSON.parse(stored)?.ref : null;
   const priceDetails = props.state?.priceDetails ||
     location.state?.priceDetails || {
@@ -215,16 +215,17 @@ const Checkout = (props) => {
         }
       );
 
-      if (res.data.valid) {
+      if (res.data.valid || res.data.isAffiliateCode) {
         setAppliedCode(enteredCode);
         localStorage.setItem("appliedDiscountCode", enteredCode);
         localStorage.setItem("discountCodeTimestamp", Date.now().toString());
         setCodeModalOpen(false);
         setEnteredCode("");
-        setDiscount(res.data.discountValue);
+        setDiscount(res.data.discountValue || 0);
 
         await refreshPaymentIntent();
       } else {
+        // ❌ ล้างโค้ดถ้าไม่ valid และไม่ใช่ affiliate
         setAppliedCode("");
         setEnteredCode("");
         localStorage.removeItem("appliedDiscountCode");
