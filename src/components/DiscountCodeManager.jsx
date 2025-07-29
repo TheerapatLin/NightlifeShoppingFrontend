@@ -15,19 +15,34 @@ const DiscountCodeManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedCode, setSelectedCode] = useState(null);
-  const [formData, setFormData] = useState({
+  const formatDate = (date) => date.toISOString().substring(0, 10);
+
+  const today = new Date();
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(today.getMonth() - 1);
+
+  const threeMonthsLater = new Date();
+  threeMonthsLater.setMonth(today.getMonth() + 3);
+
+  const defaultFormData = {
     code: "",
     discountType: "amount",
     discountValue: 0,
     eventIdsInorExclude: "all",
     eventIds: [],
-  });
+    userRestrictionMode: "all",
+    allowedUserEmails: [],
+    blockedUserEmails: [],
+    validFrom: formatDate(oneMonthAgo), // ✅ ถูกต้อง
+    validUntil: formatDate(threeMonthsLater), // ✅ ถูกต้อง
+  };
+
+  const [formData, setFormData] = useState(defaultFormData);
 
   const fetchCodes = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/discount-code`, {
         headers: {
-          "Content-Type": "multipart/form-data",
           "device-fingerprint": "12345678",
         },
         withCredentials: true,
@@ -42,12 +57,18 @@ const DiscountCodeManager = () => {
     try {
       const res = await axios.get(`${BASE_URL}/activity`, {
         headers: {
-          "Content-Type": "multipart/form-data",
           "device-fingerprint": "12345678",
         },
         withCredentials: true,
       });
-      setActivities(res.data.activities || []);
+      const result = Array.isArray(res.data) ? res.data : res.data.activities;
+      setActivities(
+        (result || []).sort((a, b) => {
+          const nameA = (a.nameTh || a.nameEn || "").toLowerCase();
+          const nameB = (b.nameTh || b.nameEn || "").toLowerCase();
+          return nameA.localeCompare(nameB);
+        })
+      );
     } catch (err) {
       console.error("Failed to fetch activities", err);
     }
@@ -55,7 +76,9 @@ const DiscountCodeManager = () => {
 
   useEffect(() => {
     fetchCodes();
-    if (user?.role === "superadmin") fetchActivities();
+    if (user?.role === "superadmin") {
+      fetchActivities();
+    }
   }, [user]);
 
   const openModal = (code = null) => {
@@ -65,19 +88,22 @@ const DiscountCodeManager = () => {
       setSelectedCode(code);
       setFormData({
         ...code,
-        eventIds: code.eventIds || [],
+        eventIds: (code.eventIds || []).map((id) =>
+          typeof id === "object" && id._id ? id._id.toString() : id.toString()
+        ),
         eventIdsInorExclude: code.eventIdsInorExclude || "all",
+        userRestrictionMode: code.userRestrictionMode || "all",
+        allowedUserEmails: code.allowedUserEmails || [],
+        blockedUserEmails: code.blockedUserEmails || [],
+        validFrom: code.validFrom ? formatDate(new Date(code.validFrom)) : "",
+        validUntil: code.validUntil
+          ? formatDate(new Date(code.validUntil))
+          : "",
       });
     } else {
       setIsEditing(false);
       setSelectedCode(null);
-      setFormData({
-        code: "",
-        discountType: "amount",
-        discountValue: 0,
-        eventIdsInorExclude: "all",
-        eventIds: [],
-      });
+      setFormData(defaultFormData); // ← ใช้ default ที่มี validFrom/Until แล้ว
     }
   };
 
@@ -94,11 +120,12 @@ const DiscountCodeManager = () => {
     try {
       const config = {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
           "device-fingerprint": "12345678",
         },
         withCredentials: true,
       };
+
       if (isEditing && selectedCode?._id) {
         await axios.put(
           `${BASE_URL}/discount-code/${selectedCode._id}`,
@@ -108,10 +135,23 @@ const DiscountCodeManager = () => {
       } else {
         await axios.post(`${BASE_URL}/discount-code`, formData, config);
       }
+
       closeModal();
       fetchCodes();
     } catch (err) {
-      console.error("Save failed", err);
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Unknown error occurred.";
+
+      // ถ้ามีคำว่า "already exists" → แจ้งเตือนชัดเจน
+      if (msg.toLowerCase().includes("already exists")) {
+        alert("❗ โค้ดนี้มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+      } else {
+        alert(`ไม่สามารถบันทึกได้: ${msg}`);
+      }
+
+      console.error("Save failed", msg);
     }
   };
 
@@ -121,7 +161,6 @@ const DiscountCodeManager = () => {
     try {
       await axios.delete(`${BASE_URL}/discount-code/${id}`, {
         headers: {
-          "Content-Type": "multipart/form-data",
           "device-fingerprint": "12345678",
         },
         withCredentials: true,
@@ -221,9 +260,95 @@ const DiscountCodeManager = () => {
               className="w-full border px-3 py-2"
             />
           </div>
+
+          {/* 🔽 แทรกตรงนี้เลย */}
           <div>
             <label className="block font-medium mb-1">
-              Event Restriction Mode
+              User Restriction Mode
+            </label>
+            <select
+              name="userRestrictionMode"
+              value={formData.userRestrictionMode}
+              onChange={handleChange}
+              className="w-full border px-3 py-2"
+            >
+              <option value="all">All Users</option>
+              <option value="include">Include Only These Emails</option>
+              <option value="exclude">Exclude These Emails</option>
+            </select>
+          </div>
+
+          {formData.userRestrictionMode !== "all" && (
+            <div className="mt-3">
+              <label className="block font-medium mb-1">
+                {formData.userRestrictionMode === "include"
+                  ? "Allowed Emails"
+                  : "Blocked Emails"}
+              </label>
+              <div className="space-y-2">
+                {(formData.userRestrictionMode === "include"
+                  ? formData.allowedUserEmails
+                  : formData.blockedUserEmails
+                ).map((email, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData((prev) => {
+                          const key =
+                            prev.userRestrictionMode === "include"
+                              ? "allowedUserEmails"
+                              : "blockedUserEmails";
+                          const updatedList = [...prev[key]];
+                          updatedList[index] = value;
+                          return { ...prev, [key]: updatedList };
+                        });
+                      }}
+                      className="flex-1 border px-3 py-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => {
+                          const key =
+                            prev.userRestrictionMode === "include"
+                              ? "allowedUserEmails"
+                              : "blockedUserEmails";
+                          const updatedList = [...prev[key]];
+                          updatedList.splice(index, 1);
+                          return { ...prev, [key]: updatedList };
+                        });
+                      }}
+                      className="px-2 text-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => {
+                      const key =
+                        prev.userRestrictionMode === "include"
+                          ? "allowedUserEmails"
+                          : "blockedUserEmails";
+                      return { ...prev, [key]: [...prev[key], ""] };
+                    });
+                  }}
+                  className="text-blue-600 underline text-sm"
+                >
+                  + Add Email
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label className="block font-medium mb-1">
+              Acitivty Restriction Mode
             </label>
             <select
               name="eventIdsInorExclude"
@@ -236,35 +361,67 @@ const DiscountCodeManager = () => {
               <option value="exclude">Exclude These</option>
             </select>
           </div>
+
           {user?.role === "superadmin" && (
             <div>
               <label className="block font-medium mb-1">
                 Select Activities
               </label>
               <div className="max-h-[200px] overflow-y-auto border px-3 py-2 rounded">
-                {activities.map((activity) => (
-                  <label key={activity._id} className="block mb-1">
-                    <input
-                      type="checkbox"
-                      value={activity._id}
-                      checked={formData.eventIds.includes(activity._id)}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        const value = e.target.value;
-                        setFormData((prev) => ({
-                          ...prev,
-                          eventIds: checked
-                            ? [...prev.eventIds, value]
-                            : prev.eventIds.filter((id) => id !== value),
-                        }));
-                      }}
-                    />{" "}
-                    {activity.name}
-                  </label>
-                ))}
+                {activities.map((activity) => {
+                  const activityId = activity._id.toString();
+                  const isChecked = formData.eventIds.includes(activityId);
+
+                  return (
+                    <label key={activityId} className="block mb-1">
+                      <input
+                        type="checkbox"
+                        value={activityId}
+                        checked={isChecked}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setFormData((prev) => {
+                            const currentIds = prev.eventIds.map((id) =>
+                              id.toString()
+                            );
+                            return {
+                              ...prev,
+                              eventIds: checked
+                                ? [...currentIds, activityId]
+                                : currentIds.filter((id) => id !== activityId),
+                            };
+                          });
+                        }}
+                      />{" "}
+                      {activity.nameTh || activity.nameEn || "Unnamed"}
+                    </label>
+                  );
+                })}
               </div>
             </div>
           )}
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Valid From</label>
+          <input
+            type="date"
+            name="validFrom"
+            value={formData.validFrom}
+            onChange={handleChange}
+            className="w-full border px-3 py-2"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Valid Until</label>
+          <input
+            type="date"
+            name="validUntil"
+            value={formData.validUntil}
+            onChange={handleChange}
+            className="w-full border px-3 py-2"
+          />
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
