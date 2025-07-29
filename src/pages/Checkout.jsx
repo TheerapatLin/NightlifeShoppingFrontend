@@ -163,6 +163,16 @@ const Checkout = (props) => {
     }
   }, [activityId, scheduleId, schedule]);
 
+  useEffect(() => {
+    if (affiliate) {
+      // ลบ discount code ออก
+      setAppliedCode("");
+      setEnteredCode("");
+      localStorage.removeItem("appliedDiscountCode");
+      localStorage.removeItem("discountCodeTimestamp");
+    }
+  }, [affiliate]);
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("th-TH", {
       style: "currency",
@@ -511,7 +521,7 @@ const Checkout = (props) => {
                   </div>
                 </div>
 
-                {!appliedCode ? (
+                {!affiliate && !appliedCode ? (
                   <button
                     className="mt-3 px-4 py-2 mb-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 active:bg-blue-800 transition duration-150 ease-in-out font-semibold text-sm"
                     onClick={() => setCodeModalOpen(true)}
@@ -520,7 +530,7 @@ const Checkout = (props) => {
                       ? "+ Enter Discount Code"
                       : "+ ใส่โค้ดส่วนลด"}
                   </button>
-                ) : (
+                ) : !affiliate && appliedCode ? (
                   <div className="mt-2 flex items-center space-x-2">
                     <span className="text-green-700 font-semibold text-sm">
                       {appliedCode}
@@ -538,7 +548,7 @@ const Checkout = (props) => {
                       Change
                     </button>
                   </div>
-                )}
+                ) : null}
 
                 {affiliate && (
                   <div className="text-[14px] font-normal text-gray-600  ">
