@@ -217,7 +217,8 @@ const DiscountCodeManager = () => {
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         contentLabel="Edit Discount Code"
-        className="bg-white text-black max-w-xl mx-auto mt-[10vh] p-6 rounded shadow-lg"
+        // className="bg-white text-black max-w-xl mx-auto mt-[10vh] p-6 rounded shadow-lg max-h-[80vh] overflow-y-auto"
+        className="bg-white text-black max-w-xl mx-auto mt-[10vh] p-6 rounded shadow-lg max-h-[80vh] overflow-y-auto min-h-[300px]"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 z-50"
       >
         <h3 className="text-xl font-bold mb-4">

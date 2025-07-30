@@ -14,6 +14,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import i18n from "../i18n";
 
 const Checkout = (props) => {
+  //const emailRef = useRef("");
   const { t, i18n } = useTranslation();
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ const Checkout = (props) => {
   const [discount, setDiscount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("credit");
+  const userEmailRef = useRef("");
   const { windowSize } = useGlobalEvent();
   //const { affiliate } = useAuth();
   const stored = sessionStorage.getItem("affiliateRef");
@@ -87,6 +89,11 @@ const Checkout = (props) => {
     cost,
     startDate,
   ]);
+
+  // ✅ เพิ่ม useEffect นี้เพื่อ debug ให้ชัวร์ว่า sync แล้ว
+  useEffect(() => {
+    console.log("📬 userEmailRef.current synced:", userEmailRef.current);
+  }, []);
 
   useEffect(() => {
     localStorage.removeItem("client_secret");
@@ -233,9 +240,10 @@ const Checkout = (props) => {
         setEnteredCode("");
         setDiscount(res.data.discountValue || 0);
 
-        await refreshPaymentIntent();
+        setTimeout(() => {
+          refreshPaymentIntent();
+        }, 50);
       } else {
-        // ❌ ล้างโค้ดถ้าไม่ valid และไม่ใช่ affiliate
         setAppliedCode("");
         setEnteredCode("");
         localStorage.removeItem("appliedDiscountCode");
@@ -273,6 +281,15 @@ const Checkout = (props) => {
     await refreshPaymentIntent({ forceClearCode: true });
   };
 
+  const clearDiscountCode = async () => {
+    setAppliedCode("");
+    setEnteredCode("");
+    localStorage.removeItem("appliedDiscountCode");
+    localStorage.removeItem("discountCodeTimestamp");
+    setDiscount(0);
+    await refreshPaymentIntent({ forceClearCode: true });
+  };
+
   const refreshPaymentIntent = async ({ forceClearCode = false } = {}) => {
     const affiliateCode = affiliate;
     const previousPaymentIntentId = forceClearCode
@@ -302,6 +319,7 @@ const Checkout = (props) => {
               ? ""
               : appliedCode || enteredCode,
             previousPaymentIntentId,
+            userEmail: userEmailRef.current,
           }),
         }
       );
@@ -499,7 +517,7 @@ const Checkout = (props) => {
                           ? formatDate(startDate, "en-US")
                           : formatDate(startDate)}{" "}
                         {isMobile && <br />}({formatTime(schedule.startTime)} -{" "}
-                        {formatTime(schedule.endTime)})
+                        {formatTime(schedule.endTime)} ICT )
                       </>
                     ) : i18n.language === "en" ? (
                       "Loading..."
@@ -541,12 +559,12 @@ const Checkout = (props) => {
                     >
                       Remove
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => setCodeModalOpen(true)}
                       className="text-blue-600 underline text-xs"
                     >
                       Change
-                    </button>
+                    </button> */}
                   </div>
                 ) : null}
 
@@ -584,7 +602,11 @@ const Checkout = (props) => {
                 </div>
               )}
 
-              <StripeContainer clientSecret={clientSecret} />
+              <StripeContainer
+                clientSecret={clientSecret}
+                clearDiscountCode={clearDiscountCode}
+                userEmailRef={userEmailRef}
+              />
             </div>
 
             {/* Desktop Price Box */}

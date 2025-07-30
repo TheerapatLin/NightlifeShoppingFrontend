@@ -23,7 +23,8 @@ const paymentElementOptions = {
   layout: "accordion",
   paymentMethodOrder: ["card", "promptpay"],
 };
-const StripeContainer = ({ clientSecret }) => {
+
+const StripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef }) => {
   const { t, i18n } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -45,7 +46,6 @@ const StripeContainer = ({ clientSecret }) => {
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  
   useEffect(() => {
     localStorage.removeItem("client_secret");
     const checkMobile = () => {
@@ -107,7 +107,6 @@ const StripeContainer = ({ clientSecret }) => {
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        // Make sure to change this to your payment completion page
         return_url: `${window.location.origin}/order-complete`,
         payment_method_data: {
           billing_details: {
@@ -119,6 +118,13 @@ const StripeContainer = ({ clientSecret }) => {
     });
 
     if (error) {
+      if (
+        error.message?.toLowerCase().includes("discount code") &&
+        typeof clearDiscountCode === "function"
+      ) {
+        await clearDiscountCode(); // ✅ เคลียร์โค้ดส่วนลด
+      }
+
       if (error.type === "card_error" || error.type === "validation_error") {
         setMessage(error.message);
       } else if (error.type === "canceled") {
@@ -140,6 +146,7 @@ const StripeContainer = ({ clientSecret }) => {
       setFullName(user.name);
       setEmail(user.email);
       setConfirmEmail(user.email);
+      userEmailRef.current = user.email; // ✅ sync ref ทันที
     }
   }, [user]);
 
@@ -165,7 +172,11 @@ const StripeContainer = ({ clientSecret }) => {
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                userEmailRef.current = e.target.value; // ✅ sync ref ทันที
+                //setUserEmail(e.target.value); // ✅ sync กลับไป Checkout
+              }}
               placeholder="Enter your email"
               className="w-full p-2 border border-gray-300 rounded"
               disabled={!!user?.email}
@@ -177,7 +188,11 @@ const StripeContainer = ({ clientSecret }) => {
               type="email"
               required
               value={confirmEmail}
-              onChange={(e) => setConfirmEmail(e.target.value)}
+              onChange={(e) => {
+                setConfirmEmail(e.target.value);
+                userEmailRef.current = e.target.value; // ✅ sync ref ทันที
+                //setUserEmail(e.target.value); // ✅ sync กลับไป Checkout เช่นกัน
+              }}
               placeholder="Confirm your email"
               className="w-full p-2 border border-gray-300 rounded"
               disabled={!!user?.email}

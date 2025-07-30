@@ -9,6 +9,7 @@ import { loadStripe } from "@stripe/stripe-js";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const Payment = () => {
+  const [email, setEmail] = useState(""); // ✅ เพิ่ม
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   const location = useLocation();
   const [clientSecret, setClientSecret] = useState("");
@@ -105,6 +106,8 @@ const Payment = () => {
               ],
               affiliateCode,
               appliedDiscountCode,
+              setClientSecret,
+              userEmail: email || "",
               previousPaymentIntentId,
             }),
           }
@@ -177,6 +180,8 @@ const Payment = () => {
                       startDate,
                       priceDetails,
                       setPriceDetails,
+                      email, // ✅ เพิ่ม
+                      setEmail, // ✅ เพิ่ม
                     }}
                   />
                 }
