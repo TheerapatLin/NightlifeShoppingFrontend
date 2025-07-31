@@ -157,8 +157,12 @@ const UserManager = () => {
     return (
       <div className="max-w-5xl mx-auto text-white px-4">
         <h2 className="text-2xl font-bold mt-8 mb-4">จัดการบัญชีผู้ใช้</h2>
-        <div className="bg-white rounded text-black h-40 flex items-center justify-center">
-          <div className="h-10 w-10 border-4 border-gray-300 border-t-gray-700 rounded-full animate-spin" />
+
+        {/* กล่องโหลดดิ้ง */}
+        <div className="bg-white rounded text-black h-48 flex flex-col items-center justify-center gap-3">
+          {/* วงกลมหมุนให้เห็นชัดขึ้น */}
+          <div className="h-10 w-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+          <p className="text-sm text-gray-600">Loading...</p>
         </div>
       </div>
     );

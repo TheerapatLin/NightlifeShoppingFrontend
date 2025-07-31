@@ -189,8 +189,17 @@ const DiscountCodeManager = () => {
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto px-4 text-white">
-        <div className="flex justify-center items-center h-40">
-          <div className="h-10 w-10 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+        <div className="flex justify-between items-center mt-6 mb-4">
+          <h2 className="text-2xl font-bold">Discount Codes</h2>
+        </div>
+        <div className="bg-white rounded text-black h-48 flex flex-col items-center justify-center gap-3">
+          {/* วงกลมหมุน (contrast ชัด) */}
+          <div
+            className="h-10 w-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"
+            aria-label="Loading"
+            role="status"
+          />
+          <p className="text-sm text-gray-600">Loading...</p>
         </div>
       </div>
     );
