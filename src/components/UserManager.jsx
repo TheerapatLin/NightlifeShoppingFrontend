@@ -15,6 +15,7 @@ const roles = [
 const UserManager = () => {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL.replace(/\/$/, "");
   const [users, setUsers] = useState([]);
+  const [userCount, setUserCount] = useState(0); // ✅ จำนวนผู้ใช้ทั้งหมด
   const [loading, setLoading] = useState(true); // ✅ loading
   const [savingId, setSavingId] = useState(null); // ✅ saving (ต่อแถว)
 
@@ -39,7 +40,9 @@ const UserManager = () => {
           withCredentials: true,
         }
       );
-      setUsers(res.data?.data?.users || []);
+      const list = res.data?.data?.users || [];
+      setUsers(list);
+      setUserCount(res.data?.data?.count ?? list.length); // ✅ ตั้งค่าจำนวน
     } catch (err) {
       console.error("โหลด users ไม่สำเร็จ", err);
     } finally {
@@ -163,7 +166,10 @@ const UserManager = () => {
 
   return (
     <div className="max-w-5xl mx-auto text-white px-4">
-      <h2 className="text-2xl font-bold mt-8 mb-4">จัดการบัญชีผู้ใช้</h2>
+      <h2 className="text-2xl font-bold mt-8 mb-4">
+        จัดการบัญชีผู้ใช้{" "}
+        <span className="text-white/70">({userCount} คน)</span>
+      </h2>
       <div className="overflow-x-auto bg-white rounded text-black">
         <table className="w-full">
           <thead className="bg-gray-200 text-left">
