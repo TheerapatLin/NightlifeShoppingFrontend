@@ -46,8 +46,6 @@ import RedirectAffiliate from "./pages/RedirectAffiliate";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-
-
 function App() {
   return (
     <GoogleOAuthProvider clientId="264872388310-dopb96r58u05v3b7ukrjq03u6ktrdh6t.apps.googleusercontent.com">
@@ -87,7 +85,7 @@ function useWindowSize() {
     function handleResize() {
       setWindowSize({ width: window.innerWidth });
     }
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 

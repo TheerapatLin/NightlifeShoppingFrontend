@@ -90,7 +90,7 @@ function Profile() {
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange, { passive: true });
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);

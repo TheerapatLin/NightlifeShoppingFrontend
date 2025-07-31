@@ -46,7 +46,7 @@ function News() {
     const handleScroll = () => {
       setTop(window.scrollY);
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
