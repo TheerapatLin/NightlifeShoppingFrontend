@@ -16,6 +16,7 @@ const DiscountCodeManager = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedCode, setSelectedCode] = useState(null);
   const formatDate = (date) => date.toISOString().substring(0, 10);
+  const [loading, setLoading] = useState(true);
 
   const today = new Date();
   const oneMonthAgo = new Date();
@@ -75,10 +76,23 @@ const DiscountCodeManager = () => {
   };
 
   useEffect(() => {
-    fetchCodes();
-    if (user?.role === "superadmin") {
-      fetchActivities();
-    }
+    let isMounted = true;
+
+    const init = async () => {
+      try {
+        await fetchCodes();
+        if (user?.role === "superadmin") {
+          await fetchActivities();
+        }
+      } finally {
+        if (isMounted) setLoading(false); // NEW: ปิดโหลดเมื่อดึงเสร็จ
+      }
+    };
+
+    init();
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   const openModal = (code = null) => {
@@ -170,6 +184,17 @@ const DiscountCodeManager = () => {
       console.error("Delete failed", err);
     }
   };
+
+  // ⬇️⬇️⬇️ วาง “ก่อน return หลัก” ตรงนี้ ⬇️⬇️⬇️
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 text-white">
+        <div className="flex justify-center items-center h-40">
+          <div className="h-10 w-10 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 text-white">

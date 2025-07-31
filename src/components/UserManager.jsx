@@ -1,17 +1,26 @@
 // components/UserManager.jsx
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Pencil, Save, X } from "lucide-react";
 
-const roles = ["user", "admin", "affiliator", "host", "host_affiliator"];
+const roles = [
+  "user",
+  "admin",
+  "superadmin",
+  "affiliator",
+  "host",
+  "host_affiliator",
+];
 
 const UserManager = () => {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL.replace(/\/$/, "");
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true); // ✅ loading
+  const [savingId, setSavingId] = useState(null); // ✅ saving (ต่อแถว)
+
   const [editingId, setEditingId] = useState(null);
   const [editedData, setEditedData] = useState({ role: "", affiliateCode: "" });
 
-  // === NEW: sort state ===
   const [sortKey, setSortKey] = useState(null); // 'name' | 'email' | 'role' | null
   const [sortOrder, setSortOrder] = useState("asc"); // 'asc' | 'desc'
   const collator = useMemo(
@@ -21,27 +30,28 @@ const UserManager = () => {
   );
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(
         `${BASE_URL}/accounts/superadmin/all-accounts`,
         {
-          headers: {
-            "device-fingerprint": "12345678",
-          },
+          headers: { "device-fingerprint": "12345678" },
           withCredentials: true,
         }
       );
-      setUsers(res.data.data.users || []);
+      setUsers(res.data?.data?.users || []);
     } catch (err) {
       console.error("โหลด users ไม่สำเร็จ", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const startEdit = (user) => {
-    setEditingId(user._id);
+  const startEdit = (u) => {
+    setEditingId(u._id);
     setEditedData({
-      role: user.role || "",
-      affiliateCode: user.affiliateCode || "",
+      role: u.role || "",
+      affiliateCode: u.affiliateCode || "",
     });
   };
 
@@ -52,17 +62,21 @@ const UserManager = () => {
 
   const saveEdit = async (id) => {
     try {
-      await axios.put(
-        `${BASE_URL}/accounts/superadmin/update/${id}`,
-        editedData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "device-fingerprint": "12345678",
-          },
-          withCredentials: true,
-        }
-      );
+      setSavingId(id);
+      const payload = {
+        ...editedData,
+        affiliateCode:
+          typeof editedData.affiliateCode === "string"
+            ? editedData.affiliateCode.trim()
+            : editedData.affiliateCode,
+      };
+      await axios.put(`${BASE_URL}/accounts/superadmin/update/${id}`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          "device-fingerprint": "12345678",
+        },
+        withCredentials: true,
+      });
       cancelEdit();
       fetchUsers();
     } catch (err) {
@@ -70,14 +84,17 @@ const UserManager = () => {
         err?.response?.data?.message || "ไม่สามารถบันทึกข้อมูลผู้ใช้ได้";
       alert(`❗ เซฟไม่สำเร็จ: ${msg}`);
       console.error("บันทึกไม่สำเร็จ:", msg);
+    } finally {
+      setSavingId(null);
     }
   };
 
   useEffect(() => {
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // === NEW: helpers for sorting ===
+  // === sorting helpers ===
   const getFieldValue = (u, key) => {
     if (key === "name") return (u.user?.name ?? "").toString();
     if (key === "email") return (u.user?.email ?? "").toString();
@@ -86,9 +103,8 @@ const UserManager = () => {
   };
 
   const handleSort = (key) => {
-    if (sortKey === key) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
+    if (sortKey === key) setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
+    else {
       setSortKey(key);
       setSortOrder("asc");
     }
@@ -132,6 +148,18 @@ const UserManager = () => {
       </th>
     );
   };
+
+  // ✅ Loading (สั้น ๆ)
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto text-white px-4">
+        <h2 className="text-2xl font-bold mt-8 mb-4">จัดการบัญชีผู้ใช้</h2>
+        <div className="bg-white rounded text-black h-40 flex items-center justify-center">
+          <div className="h-10 w-10 border-4 border-gray-300 border-t-gray-700 rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto text-white px-4">
@@ -182,6 +210,7 @@ const UserManager = () => {
                         })
                       }
                       className="border rounded px-2 py-1 w-full"
+                      placeholder="เช่น ABC123 หรือ my_code-01"
                     />
                   ) : (
                     u.affiliateCode || "-"
@@ -190,7 +219,16 @@ const UserManager = () => {
                 <td className="p-2">
                   {editingId === u._id ? (
                     <div className="flex gap-2">
-                      <button onClick={() => saveEdit(u._id)}>
+                      <button
+                        onClick={() => saveEdit(u._id)}
+                        disabled={savingId === u._id}
+                        className={
+                          savingId === u._id
+                            ? "opacity-60 cursor-not-allowed"
+                            : ""
+                        }
+                        title={savingId === u._id ? "Saving..." : "Save"}
+                      >
                         <Save size={18} className="text-green-600" />
                       </button>
                       <button onClick={cancelEdit}>
