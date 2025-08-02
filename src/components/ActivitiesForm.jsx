@@ -24,8 +24,12 @@ import utc from "dayjs/plugin/utc"; // นำเข้า utc plugin เพื�
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-function ActivitiesForm({ selectedDate, selectedEvent, onClose, refreshSlots }) {
-
+function ActivitiesForm({
+  selectedDate,
+  selectedEvent,
+  onClose,
+  refreshSlots,
+}) {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
   //ข้อมูล user ที่ล็อคอิน
   const { user } = useAuth();
@@ -603,23 +607,66 @@ function ActivitiesForm({ selectedDate, selectedEvent, onClose, refreshSlots }) 
             label="ค่าใช้จ่าย(บาท)"
             variant="outlined"
             type="number"
-            InputProps={{ inputProps: { min: 0 } }}
             fullWidth
             name="expenses"
             value={dataForm.expenses}
-            onChange={handleChange}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (Number(value) >= 0 || value === "") {
+                handleChange(e);
+              }
+            }}
+            InputProps={{
+              inputProps: { min: 0 },
+              onWheel: (e) => e.target.blur(),
+              sx: {
+                // ซ่อน spinner บน Chrome/Safari/Edge
+                "input::-webkit-outer-spin-button": {
+                  WebkitAppearance: "none",
+                  margin: 0,
+                },
+                "input::-webkit-inner-spin-button": {
+                  WebkitAppearance: "none",
+                  margin: 0,
+                },
+                // ซ่อน spinner บน Firefox
+                "input[type=number]": { MozAppearance: "textfield" },
+              },
+            }}
           />
 
           <TextField
             label="จำนวนคนที่เข้าร่วม"
             name="participantLimit"
             type="number"
-            InputProps={{ inputProps: { min: 1 } }}
-            value={dataForm.participantLimit || ""} // ตรวจสอบให้แน่ใจว่าค่าไม่เป็น undefined
-            onChange={handleChange}
+            fullWidth
+            value={dataForm.participantLimit || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (Number(value) >= 0 || value === "") {
+                handleChange(e);
+              }
+            }}
+            InputProps={{
+              inputProps: { min: 0 },
+              onWheel: (e) => e.target.blur(),
+              sx: {
+                // ซ่อนปุ่ม spinner บน Chrome/Safari/Edge
+                "input::-webkit-outer-spin-button": {
+                  WebkitAppearance: "none",
+                  margin: 0,
+                },
+                "input::-webkit-inner-spin-button": {
+                  WebkitAppearance: "none",
+                  margin: 0,
+                },
+                // ซ่อนปุ่ม spinner บน Firefox
+                "input[type=number]": { MozAppearance: "textfield" },
+              },
+            }}
           />
 
-          <FormControl fullWidth variant="outlined">
+          {/* <FormControl fullWidth variant="outlined">
             <InputLabel id="repeat-label">สร้างกิจกรรมซ้ำ</InputLabel>
             <Select
               labelId="repeat-label"
@@ -632,7 +679,7 @@ function ActivitiesForm({ selectedDate, selectedEvent, onClose, refreshSlots }) 
               <MenuItem value="daily">รายวัน</MenuItem>
               <MenuItem value="weekly">รายสัปดาห์</MenuItem>
             </Select>
-          </FormControl>
+          </FormControl> */}
 
           {dataForm.repeat === "daily" && (
             <div className="flex items-center space-x-2 ml-5">
