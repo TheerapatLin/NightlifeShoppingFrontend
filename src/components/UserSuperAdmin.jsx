@@ -46,19 +46,6 @@ function UserSuperAdmin() {
             บัญชีผู้ใช้
           </button>
 
-          {/* ✅ ปุ่ม disabled: Payout */}
-          <button
-            disabled={disabledTabs.payout}
-            aria-disabled={disabledTabs.payout}
-            title="กำลังพัฒนา"
-            className={`${btnBase} ${
-              activeTab === "payout" ? activeCls : inactiveCls
-            } ${disabledTabs.payout ? disabledCls : ""}`}
-            onClick={() => toggleTab("payout")}
-          >
-            จัดการ Payout
-          </button>
-
           {/* ✅ ปุ่ม disabled: Booking */}
           {/* <button
             disabled={disabledTabs.booking}
@@ -79,6 +66,20 @@ function UserSuperAdmin() {
             onClick={() => toggleTab("booking")}
           >
             จัดการ Booking Order
+          </button>
+
+
+          {/* ✅ ปุ่ม disabled: Payout */}
+          <button
+            disabled={disabledTabs.payout}
+            aria-disabled={disabledTabs.payout}
+            title="กำลังพัฒนา"
+            className={`${btnBase} ${
+              activeTab === "payout" ? activeCls : inactiveCls
+            } ${disabledTabs.payout ? disabledCls : ""}`}
+            onClick={() => toggleTab("payout")}
+          >
+            จัดการ Payout
           </button>
         </div>
       </div>
