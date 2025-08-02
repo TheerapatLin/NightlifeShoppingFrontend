@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import DiscountCodeManager from "../components/DiscountCodeManager";
 import AffiliateDashboard from "../components/AffiliateDashboard";
+import OrderManager from "../components/OrderManager"; // ✅
 import UserManager from "./UserManager";
 
 function UserSuperAdmin() {
   const [activeTab, setActiveTab] = useState(null);
 
   // ✅ ระบุแท็บที่ “ปิดใช้งานชั่วคราว”
-  const disabledTabs = { payout: true, booking: true };
+  const disabledTabs = { payout: true, booking: false };
 
   const toggleTab = (tabName) => {
     if (disabledTabs[tabName]) return; // ❌ กันการสลับไปแท็บที่ disabled
@@ -59,7 +60,7 @@ function UserSuperAdmin() {
           </button>
 
           {/* ✅ ปุ่ม disabled: Booking */}
-          <button
+          {/* <button
             disabled={disabledTabs.booking}
             aria-disabled={disabledTabs.booking}
             title="กำลังพัฒนา"
@@ -69,6 +70,15 @@ function UserSuperAdmin() {
             onClick={() => toggleTab("booking")}
           >
             จัดการ Booking
+          </button> */}
+
+          <button
+            className={`${btnBase} ${
+              activeTab === "booking" ? activeCls : inactiveCls
+            }`}
+            onClick={() => toggleTab("booking")}
+          >
+            จัดการ Booking Order
           </button>
         </div>
       </div>
@@ -76,7 +86,9 @@ function UserSuperAdmin() {
       <div>
         {activeTab === "discount" && <DiscountCodeManager />}
         {activeTab === "users" && <UserManager />}
+        {activeTab === "booking" && <OrderManager />}
 
+        {/* ✅ ใส่ตรงนี้ */}
         {/* แท็บที่ disabled จะไม่ถูกเปิด จึงไม่ต้อง render อะไร */}
       </div>
     </div>
