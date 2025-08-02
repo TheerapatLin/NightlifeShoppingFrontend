@@ -461,9 +461,16 @@ function ActivitiesForm({
   return (
     <div className="flex flex-col py-2 h-[75vh] overflow-auto pb-4 space-y-2">
       <div className="flex items-center justify-center relative">
-        <span className="text-center text-lg font-medium">
-          {dataForm.date ? dataForm.date : "กรุณาเลือกวัน"}
+        <span
+          className={
+            dataForm.date
+              ? "text-center text-[36px] font-bold text-black"
+              : "text-center text-[24px] font-normal text-red-500"
+          }
+        >
+          {dataForm.date ? dataForm.date : "กรุณาเลือกวันก่อน"}
         </span>
+
         <IoIosCloseCircle
           size={30}
           className="absolute right-[3%] cursor-pointer"
