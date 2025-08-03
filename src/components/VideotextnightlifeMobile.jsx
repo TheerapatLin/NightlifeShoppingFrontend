@@ -228,7 +228,7 @@ function VideotextnightlifeMobile() {
                   style={{
                     width: "100%",
                     aspectRatio: "1.6",
-                    maxHeight: "30vh",
+                    maxHeight: "22vh",
                     marginBottom: "0px",
                   }}
                 >
