@@ -1137,12 +1137,12 @@ const ActivityDetails = () => {
                   className="py-[48px] flex flex-col gap-6"
                   style={{ borderBottom: "solid 1px #dddddd" }}
                 >
-                  <div className="  font-bold text-[22px]">
+                  <div className="  font-bold text-[22px] pl-[20px]">
                     {i18n.language === "en"
                       ? "Where you'll be"
                       : "สถานที่จัดกิจกรรม"}
                   </div>
-                  <div className="  text-[16px] text-qblack">
+                  <div className="  text-[16px] text-qblack pl-[20px]">
                     <b>
                       <big>
                         {i18n.language === "en"
