@@ -55,6 +55,36 @@ function VideotextnightlifeMobile() {
   const [showOverlay, setShowOverlay] = useState(false);
 
   useEffect(() => {
+    const lockScroll = () => {
+      // ล็อก scroll ที่ body
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    };
+
+    const unlockScroll = () => {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    };
+
+    if (showOverlay) {
+      lockScroll();
+
+      // 🔒 บล็อก gesture scroll บนมือถือ
+      const preventTouch = (e) => e.preventDefault();
+      document.addEventListener("touchmove", preventTouch, { passive: false });
+
+      return () => {
+        unlockScroll();
+        document.removeEventListener("touchmove", preventTouch);
+      };
+    } else {
+      unlockScroll();
+    }
+  }, [showOverlay]);
+
+  useEffect(() => {
     if (location.pathname === "/mingle-options-mobile") {
       setShowOverlay(true);
     } else {
@@ -81,6 +111,12 @@ function VideotextnightlifeMobile() {
   const goToSecondLink = () => {
     navigate("/activityDetails/67c595419a49e9a1544f0b36");
   };
+
+  const goToThirdLink = () => {
+    navigate("/activityDetails/68565aaeef699b0880757060");
+  };
+
+  const linkHandlers = [goToFirstLink, goToSecondLink, goToThirdLink];
 
   return (
     <div
@@ -172,7 +208,7 @@ function VideotextnightlifeMobile() {
               Choose your kind of Mingle
             </h2>
 
-            {[1, 2].map((_, i) => (
+            {[1, 2, 3].map((_, i) => (
               <div
                 key={i}
                 style={{
@@ -192,9 +228,7 @@ function VideotextnightlifeMobile() {
                   <img
                     src={`/img/mingle_00${i + 1}.jpg`}
                     alt={`Option ${i + 1}`}
-                    onClick={() =>
-                      i === 0 ? goToFirstLink() : goToSecondLink()
-                    }
+                    onClick={() => linkHandlers[i]?.()}
                     style={{
                       width: "100%",
                       height: "100%",
@@ -300,7 +334,7 @@ function VideotextnightlifeMobile() {
                 </button>
               </div>
             </div>
-            
+
             <div
               style={{
                 maxWidth: "45%",

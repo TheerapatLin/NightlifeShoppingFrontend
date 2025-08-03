@@ -84,6 +84,11 @@ function Videotextnightlife() {
     navigate("/activityDetails/67c595419a49e9a1544f0b36");
   };
 
+  const goToThirdLink = () => {
+    navigate("/activityDetails/68565aaeef699b0880757060");
+  };
+  const linkHandlers = [goToFirstLink, goToSecondLink, goToThirdLink];
+  
   return (
     <div
       style={{
@@ -189,7 +194,7 @@ function Videotextnightlife() {
                 width: "100%",
               }}
             >
-              {[1, 2].map((_, i) => (
+              {[1, 2, 3].map((_, i) => (
                 <div
                   key={i}
                   style={{
@@ -210,9 +215,7 @@ function Videotextnightlife() {
                     <img
                       src={`/img/mingle_00${i + 1}.jpg`}
                       alt={`Option ${i + 1}`}
-                      onClick={() =>
-                        i === 0 ? goToFirstLink() : goToSecondLink()
-                      }
+                      onClick={() => linkHandlers[i]?.()}
                       style={{
                         width: "100%",
                         height: "100%",
