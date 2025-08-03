@@ -228,8 +228,8 @@ function VideotextnightlifeMobile() {
                   style={{
                     width: "100%",
                     aspectRatio: "1.6",
-                    maxHeight: "40vh",
-                    marginBottom: "10px",
+                    maxHeight: "30vh",
+                    marginBottom: "0px",
                   }}
                 >
                   <img
@@ -253,14 +253,14 @@ function VideotextnightlifeMobile() {
                     }
                   />
                 </div>
-                <div
+                {/* <div
                   style={{
                     fontStyle: "italic",
                     fontSize: "clamp(0.8rem, 1.8vw, 1rem)",
                   }}
                 >
                   {mingleTexts[i] || ""}
-                </div>
+                </div> */}
               </div>
             ))}
           </div>
