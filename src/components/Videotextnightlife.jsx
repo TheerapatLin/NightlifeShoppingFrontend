@@ -4,6 +4,13 @@ import styles from "../public/css/Videotextnightlife.module.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { letterSpacing, width } from "@mui/system";
 
+const mingleTexts = [
+  "Meet. Mingle. Connect.",
+  "A wild night awaits.",
+  "One night. Endless stories.",
+  "Something new every time.", // เพิ่มได้เรื่อยๆ
+];
+
 const inlineStyles = {
   h1: {
     fontSize: "2em",
@@ -88,7 +95,7 @@ function Videotextnightlife() {
     navigate("/activityDetails/68565aaeef699b0880757060");
   };
   const linkHandlers = [goToFirstLink, goToSecondLink, goToThirdLink];
-  
+
   return (
     <div
       style={{
@@ -240,9 +247,7 @@ function Videotextnightlife() {
                       fontSize: "clamp(0.8rem, 1vw, 1rem)",
                     }}
                   >
-                    {i === 0
-                      ? "Meet. Mingle. Connect."
-                      : "A wild night awaits."}
+                    {mingleTexts[i] || ""}
                   </div>
                 </div>
               ))}

@@ -3,6 +3,13 @@ import video from "../video/mainVDO.mp4";
 import styles from "../public/css/Videotextnightlife.module.css";
 import { useNavigate, useLocation } from "react-router-dom";
 
+const mingleTexts = [
+  "Meet. Mingle. Connect.",
+  "A wild night awaits.",
+  "One night. Endless stories.",
+  "Something new every time.", // เพิ่มได้เรื่อยๆ
+];
+
 const inlineStyles = {
   h1: {
     fontSize: "2em",
@@ -252,7 +259,7 @@ function VideotextnightlifeMobile() {
                     fontSize: "clamp(0.8rem, 1.8vw, 1rem)",
                   }}
                 >
-                  {i === 0 ? "Meet. Mingle. Connect." : "A wild night awaits."}
+                  {mingleTexts[i] || ""}
                 </div>
               </div>
             ))}
