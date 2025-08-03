@@ -214,7 +214,7 @@ function Videotextnightlife() {
                   <div
                     style={{
                       width: "100%",
-                      aspectRatio: "1.6",
+                      aspectRatio: "2",
                       maxHeight: "40vh",
                       margin: "0 auto",
                     }}
