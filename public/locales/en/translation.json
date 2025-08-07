@@ -59,7 +59,8 @@
         "expired": "This deal has expired"
     },
     "auth": {
-        "orLoginWith": "or log in with"
+        "orLoginWith": "or log in with",
+        "forgotpassword": "Forgot Password"
     },
     "venue": {
         "type": "Venue Type",

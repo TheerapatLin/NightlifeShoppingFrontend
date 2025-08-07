@@ -29,6 +29,17 @@ function SignUpForm() {
   const [isLoadingLottieLoad, setIsLoadingLottieLoad] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isJustSignup, setIsJustSignup] = useState(false);
+
+  // Oreq Dev
+  const [isJustForgotPassword, setIsJustForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotMessage, setForgotMessage] = useState("");
+  const [isForgotSuccess, setIsForgotSuccess] = useState(false);
+  const [showLoginContent, setShowLoginContent] = useState(true);
+
+
+  //-------------------------------------------------------------------------------
+
   const [emailSentText, setEmailSentText] = useState(
     "ลงทะเบียนเรียบร้อยแล้ว!\nกรุณาตรวจสอบอีเมล\nก่อน Log in ครั้งแรก"
   );
@@ -113,8 +124,31 @@ function SignUpForm() {
     );
   }
 
+
+  // Oreq Dev
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${BASE_URL}/auth/forgot-password`, {
+        email: forgotEmail.toLowerCase().trim(),
+      });
+      setForgotMessage("กรุณาตรวจสอบอีเมลของคุณเพื่อรีเซ็ตรหัสผ่าน");
+      setIsForgotSuccess(true);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        setForgotMessage("ไม่พบอีเมลนี้ในระบบ");
+      } else {
+        setForgotMessage("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้งในภายหลัง");
+      }
+      setIsForgotSuccess(false);
+    }
+  };
+  //---
   const handleClick = () => {
-    if (flipped) setIsJustSignup(false);
+    if (flipped) {
+      setIsJustForgotPassword(false)
+      setIsJustSignup(false)
+    }
     setFlipped(!flipped);
   };
 
@@ -317,6 +351,23 @@ function SignUpForm() {
     }
   }, [isJustSignup]);
 
+  // Oreq Dev useEffect
+  useEffect(() => {
+    if (!isJustForgotPassword) {
+      const timer = setTimeout(() => {
+        setShowLoginContent(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    } else {
+      // ซ่อน login content ทันทีตอนกดลืมรหัสผ่าน
+      setShowLoginContent(false);
+    }
+  }, [isJustForgotPassword]);
+
+  // ---
+
+
   return (
     <>
       <div
@@ -353,7 +404,7 @@ function SignUpForm() {
                 position: "relative",
                 width: "100%",
                 overflow: "hidden",
-                transition: "all 1s ease",
+                transition: "all 0.5s ease",
                 maxHeight: isJustSignup ? "400px" : "0px",
               }}
             >
@@ -410,6 +461,106 @@ function SignUpForm() {
               </div>
             </div>
 
+            {/* Oreq Dev Popup */}
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                overflow: "hidden",
+                transition: "all 0.5s ease",
+                maxHeight: isJustForgotPassword ? "400px" : "0px",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  right: "0px",
+                  top: "0px",
+                  width: "40px",
+                  height: "40px",
+                  padding: "8px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 10,
+                }}
+                onClick={() => setIsJustForgotPassword(false)}
+
+
+              >
+                <img src={closeIcon} alt="close" style={{ width: "20px", height: "20px" }} />
+              </div>
+
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "column",
+                  padding: "20px 0 30px 0",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "22px",
+                    fontWeight: "600",
+                    marginBottom: "20px",
+                    textAlign: "center",
+                  }}
+                >
+                  🔒 {t("auth.forgotpassword")}
+                </div>
+
+                <form
+                  onSubmit={handleForgotPasswordSubmit}
+                  style={{
+                    width: "80%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "15px",
+                  }}
+                >
+                  <TextField
+                    required
+                    label="Enter your email"
+                    variant="outlined"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    fullWidth
+                    InputProps={{ style: { borderRadius: "12px" } }}
+                  />
+                  <button
+                    className="button1"
+                    type="submit"
+                    style={{
+                      width: "100%",
+                      padding: "12px 0",
+                      fontSize: "16px",
+                      borderRadius: "12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Send Reset Link
+                  </button>
+                </form>
+                {forgotMessage && (
+                  <div
+                    style={{
+                      marginTop: "15px",
+                      color: isForgotSuccess ? "green" : "red",
+                      textAlign: "center",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {forgotMessage}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {!isJustForgotPassword && showLoginContent && (
             <form
               key={"loginForm"}
               onSubmit={handleLoginSubmit}
@@ -419,6 +570,7 @@ function SignUpForm() {
                 color: "red",
               }}
             >
+              {showLoginContent && (
               <div
                 style={{
                   display: "flex",
@@ -467,6 +619,25 @@ function SignUpForm() {
                   {isNotRegistered &&
                     "This email is not registered. Please sign up."}
                 </div>
+                {/* Oreq Dev */}
+                  <div style={{ textAlign: "right", marginTop: "8px", marginBottom: "20px" }}>
+                    <button
+                      type="button"
+                      onClick={() => setIsJustForgotPassword(true)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#1976d2",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        padding: 0,
+                        textDecoration: "underline",
+                      }}
+                    >
+                      {t("auth.forgotpassword")}
+                    </button>
+                  </div>
+
                 <button className="button1" type="submit">
                   Log in
                 </button>
@@ -493,7 +664,9 @@ function SignUpForm() {
 
                 <GoogleLoginButton BASE_URL={BASE_URL} />
               </div>
+              )}
             </form>
+            )}
             <div
               style={{
                 display: "flex",
