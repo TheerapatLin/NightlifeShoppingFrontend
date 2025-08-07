@@ -659,10 +659,13 @@ const ActivityDetails = () => {
     }
 
     return (
-      <div className="flex">
+      <div
+        className="flex rounded-[20px]"
+        style={{ border: "2px solid lightgrey" }}
+      >
         <div
-          className="flex items-center rounded-l-lg p-3  cursor-pointer"
-          style={{ border: "1px solid black" }}
+          className="flex items-center rounded-l-[20px] p-3  cursor-pointer"
+          // style={{ border: "2px solid lightgrey" }}
           onClick={openDatePicker}
           ref={containerRef}
         >
@@ -692,9 +695,10 @@ const ActivityDetails = () => {
           </div>
           {/* <FaChevronDown size={16} /> */}
         </div>
+        <div class="w-px bg-gray-300 h-full"></div>
         <div
-          className="flex items-center rounded-r-lg p-3 w-[150px]"
-          style={{ border: "1px solid black" }}
+          className="flex items-center rounded-r-[20px] p-3 w-[150px]"
+          // style={{ border: "2px solid lightgrey" }}
         >
           <div className="flex flex-col w-full">
             <ParticipantDropdown onSave={handleSaveParticipants} />
@@ -1064,17 +1068,12 @@ const ActivityDetails = () => {
                   </div>
                 </div>
 
-                {/* ข้อมูลส่วนหลัง พื้นที่ 40 % */}
-                <div className="hidden md:flex h-auto w-full lg:w-[40%] justify-end relative">
+                {/* กล่องตารางกิจกรรม % */}
+                <div className="hidden md:flex h-auto w-full lg:w-[40%] justify-end ">
                   <div
-                    className="flex flex-col p-[24px] mt-[48px] stickySize rounded-[30px] mb-16 shadow-xl h-auto"
-                    style={{
-                      border: "solid 1px #dddddd",
-                      top: "100px",
-                      position: "sticky",
-                    }}
+                    className="flex flex-col p-6 mt-12 mb-16 h-auto rounded-[30px] stickySize shadow-xl border border-[#dddddd]"
+                    style={{position:'sticky',top:'100px'}}
                   >
-                    {/* ราคา */}
                     <div className="font-bold text-[22px] leading-tight">
                       {affiliateDiscountInfo?.customerDiscount > 0 ? (
                         <span>
@@ -1116,7 +1115,7 @@ const ActivityDetails = () => {
                     {/* Show more button - always at bottom */}
                     <div className="">
                       <button
-                        className="py-[10px] px-[20px] rounded-lg   
+                        className="py-[10px] px-[20px] rounded-[20px]   
                       text-[16px] font-bold w-full bg-transparent hover:bg-slate-100"
                         style={{
                           border: "solid 1px gray",
@@ -1233,7 +1232,7 @@ const ActivityDetails = () => {
 
               {/* Floating Book Button บน mobile */}
               {isMobile && activity && (
-                <div className="fixed bottom-4 inset-x-4 z-[9999]">
+                <div className="bottom-4 inset-x-4 z-[9999] fixed">
                   <div className="flex items-center justify-between pl-[20px] px-4 py-3 bg-white rounded-full gap-4 w-full shadow-[0_3px_20px_rgba(0,0,0,0.75)] border border-gray-800">
                     {/* ซ้าย: ราคา + ยกเลิกฟรี */}
                     <div className="flex flex-col">
