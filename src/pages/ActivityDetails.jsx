@@ -203,27 +203,27 @@ const ActivityDetails = () => {
 
   const [activitySlots, setActivitySlots] = useState([]);
 
-  useEffect(() => {
-    const fetchActivitySlots = async () => {
-      try {
-        const res = await axios.get(
-          `${
-            import.meta.env.VITE_BASE_API_URL_LOCAL
-          }/activity-slot?activityId=${activity._id}`,
-          {
-            withCredentials: true,
-          }
-        );
-        setActivitySlots(res.data);
-      } catch (error) {
-        console.error("Error fetching activity slots:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchActivitySlots = async () => {
+  //     try {
+  //       const res = await axios.get(
+  //         `${
+  //           import.meta.env.VITE_BASE_API_URL_LOCAL
+  //         }/activity-slot?activityId=${activity._id}`,
+  //         {
+  //           withCredentials: true,
+  //         }
+  //       );
+  //       setActivitySlots(res.data);
+  //     } catch (error) {
+  //       console.error("Error fetching activity slots:", error);
+  //     }
+  //   };
 
-    if (activity?._id) {
-      fetchActivitySlots();
-    }
-  }, [activity]);
+  //   if (activity?._id) {
+  //     fetchActivitySlots();
+  //   }
+  // }, [activity]);
 
   const handlePaymentNavigation = (
     activityId,
@@ -297,26 +297,55 @@ const ActivityDetails = () => {
     navigate(-1);
   };
 
+  // useEffect(() => {
+  //   const fetchActivityData = async () => {
+  //     try {
+  //       const response = await axios.get(`${BASE_URL}/activity/${id}`, {
+  //         withCredentials: true,
+  //       });
+  //       const activityData = response.data.activity;
+  //       if (activityData) {
+  //         console.log("activityData =", response.data);
+  //         setActivity(activityData);
+  //       } else {
+  //         setError("Activity not found");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching the activity details:", error);
+  //       setError(`Error fetching data: ${error.message}`);
+  //     }
+  //   };
+
+  //   fetchActivityData();
+  // }, [id]);
   useEffect(() => {
-    const fetchActivityData = async () => {
+    const fetchActivityAndSlots = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/activity/${id}`, {
-          withCredentials: true,
-        });
-        const activityData = response.data.activity;
+        const [activityRes, slotRes] = await Promise.all([
+          axios.get(`${BASE_URL}/activity/${id}`, {
+            withCredentials: true,
+          }),
+          axios.get(`${BASE_URL}/activity-slot?activityId=${id}`, {
+            withCredentials: true,
+          }),
+        ]);
+
+        const activityData = activityRes.data.activity;
+        const slotsData = slotRes.data;
+
         if (activityData) {
-          console.log("activityData =", response.data);
           setActivity(activityData);
+          setActivitySlots(slotsData);
         } else {
           setError("Activity not found");
         }
       } catch (error) {
-        console.error("Error fetching the activity details:", error);
+        console.error("Error fetching activity or slots:", error);
         setError(`Error fetching data: ${error.message}`);
       }
     };
 
-    fetchActivityData();
+    fetchActivityAndSlots();
   }, [id]);
 
   const formatTime = (timeStr) => {
@@ -1072,7 +1101,7 @@ const ActivityDetails = () => {
                 <div className="hidden md:flex h-auto w-full lg:w-[40%] justify-end ">
                   <div
                     className="flex flex-col p-6 mt-12 mb-16 h-auto rounded-[30px] stickySize shadow-xl border border-[#dddddd]"
-                    style={{position:'sticky',top:'100px'}}
+                    style={{ position: "sticky", top: "100px" }}
                   >
                     <div className="font-bold text-[22px] leading-tight">
                       {affiliateDiscountInfo?.customerDiscount > 0 ? (
