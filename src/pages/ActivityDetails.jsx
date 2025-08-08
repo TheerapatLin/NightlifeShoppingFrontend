@@ -38,6 +38,8 @@ import EmblaCarousel from "./EmblaCarousel";
 import "./sandbox.css";
 import "./embla.css";
 import ReactModal from "react-modal";
+import Lottie from "lottie-web";
+import loadingAnimation1 from "../public/lottie/diamond.json"; // ใช้ตัวเดียวกับหน้า SignUp ก็ได้
 
 ReactModal.setAppElement("#root");
 dayjs.locale("th");
@@ -274,6 +276,22 @@ const ActivityDetails = () => {
   const handleGoBack = () => {
     navigate(-1);
   };
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (
+      isLoading &&
+      document.getElementById("lottieActivity")?.innerHTML === ""
+    ) {
+      Lottie.loadAnimation({
+        container: document.getElementById("lottieActivity"),
+        animationData: loadingAnimation1,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+      });
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     const fetchActivityAndSlots = async () => {
@@ -296,9 +314,11 @@ const ActivityDetails = () => {
         } else {
           setError("Activity not found");
         }
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching activity or slots:", error);
         setError(`Error fetching data: ${error.message}`);
+        setIsLoading(false);
       }
     };
 
@@ -766,6 +786,23 @@ const ActivityDetails = () => {
               </button>
             </div>
           )} */}
+
+          {isLoading && (
+            <div
+              className="flex justify-center items-center"
+              style={{
+                width: "100%",
+                height: "70vh",
+                backgroundColor: "transparent",
+                zIndex: 9999,
+              }}
+            >
+              <div
+                id="lottieActivity"
+                style={{ width: "300px", height: "300px" }}
+              />
+            </div>
+          )}
 
           {activity ? (
             <div className="flex flex-col pt-2 ">
