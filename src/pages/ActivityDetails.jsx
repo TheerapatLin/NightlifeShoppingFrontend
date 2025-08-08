@@ -799,7 +799,7 @@ const ActivityDetails = () => {
             >
               <div
                 id="lottieActivity"
-                style={{ width: "300px", height: "300px" }}
+                style={{ width: "150px", height: "150px" }}
               />
             </div>
           )}
