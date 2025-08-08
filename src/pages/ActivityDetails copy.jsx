@@ -203,6 +203,28 @@ const ActivityDetails = () => {
 
   const [activitySlots, setActivitySlots] = useState([]);
 
+  // useEffect(() => {
+  //   const fetchActivitySlots = async () => {
+  //     try {
+  //       const res = await axios.get(
+  //         `${
+  //           import.meta.env.VITE_BASE_API_URL_LOCAL
+  //         }/activity-slot?activityId=${activity._id}`,
+  //         {
+  //           withCredentials: true,
+  //         }
+  //       );
+  //       setActivitySlots(res.data);
+  //     } catch (error) {
+  //       console.error("Error fetching activity slots:", error);
+  //     }
+  //   };
+
+  //   if (activity?._id) {
+  //     fetchActivitySlots();
+  //   }
+  // }, [activity]);
+
   const handlePaymentNavigation = (
     activityId,
     scheduleId,
@@ -275,6 +297,27 @@ const ActivityDetails = () => {
     navigate(-1);
   };
 
+  // useEffect(() => {
+  //   const fetchActivityData = async () => {
+  //     try {
+  //       const response = await axios.get(`${BASE_URL}/activity/${id}`, {
+  //         withCredentials: true,
+  //       });
+  //       const activityData = response.data.activity;
+  //       if (activityData) {
+  //         console.log("activityData =", response.data);
+  //         setActivity(activityData);
+  //       } else {
+  //         setError("Activity not found");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching the activity details:", error);
+  //       setError(`Error fetching data: ${error.message}`);
+  //     }
+  //   };
+
+  //   fetchActivityData();
+  // }, [id]);
   useEffect(() => {
     const fetchActivityAndSlots = async () => {
       try {
