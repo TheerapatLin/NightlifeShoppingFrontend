@@ -12,37 +12,97 @@ const roles = [
   "host_affiliator",
 ];
 
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
+
+// 🔧 debounce helper
+function debounce(fn, delay = 800) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
+
 const UserManager = () => {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL.replace(/\/$/, "");
   const [users, setUsers] = useState([]);
-  const [userCount, setUserCount] = useState(0); // ✅ จำนวนผู้ใช้ทั้งหมด
-  const [loading, setLoading] = useState(true); // ✅ loading
-  const [savingId, setSavingId] = useState(null); // ✅ saving (ต่อแถว)
+  const [userCount, setUserCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState(null);
 
   const [editingId, setEditingId] = useState(null);
   const [editedData, setEditedData] = useState({ role: "", affiliateCode: "" });
 
-  const [sortKey, setSortKey] = useState(null); // 'name' | 'email' | 'role' | null
-  const [sortOrder, setSortOrder] = useState("asc"); // 'asc' | 'desc'
-  const collator = useMemo(
-    () =>
-      new Intl.Collator(["th", "en"], { sensitivity: "base", numeric: true }),
-    []
-  );
+  // ✅ ให้การเรียงทำที่ backend (default: ใหม่→เก่า)
+  const [sortKey, setSortKey] = useState("createdAt"); // name | email | role | createdAt
+  const [sortOrder, setSortOrder] = useState("desc"); // asc | desc
 
+  // ✅ pagination
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // ✅ search & role filter
+  const [q, setQ] = useState("");
+  const [roleChecks, setRoleChecks] = useState({
+    all: true,
+    user: false,
+    admin: false,
+    superadmin: false,
+    affiliator: false,
+    host: false,
+    host_affiliator: false,
+  });
+
+  // แปลงวันเวลา
+  const formatDateTime = (iso) => {
+    if (!iso) return "-";
+    const t = new Date(iso);
+    if (Number.isNaN(t.getTime())) return "-";
+    return t.toLocaleString("th-TH", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+  };
+
+  // โหลดข้อมูล
   const fetchUsers = async () => {
     setLoading(true);
     try {
+      // สร้างพารามิเตอร์ roles
+      let rolesParam = "all";
+      if (!roleChecks.all) {
+        const picked = Object.entries(roleChecks)
+          .filter(([k, v]) => k !== "all" && v)
+          .map(([k]) => k);
+        if (picked.length > 0) rolesParam = picked.join(",");
+      }
+
       const res = await axios.get(
         `${BASE_URL}/accounts/superadmin/all-accounts`,
         {
+          params: {
+            page,
+            limit: pageSize,
+            sortKey,
+            sortOrder,
+            q: q || undefined,
+            roles: rolesParam,
+          },
           headers: { "device-fingerprint": "12345678" },
           withCredentials: true,
         }
       );
       const list = res.data?.data?.users || [];
       setUsers(list);
-      setUserCount(res.data?.data?.count ?? list.length); // ✅ ตั้งค่าจำนวน
+      const count = res.data?.data?.count ?? list.length;
+      setUserCount(count);
+      setTotalPages(res.data?.data?.totalPages ?? 1);
     } catch (err) {
       console.error("โหลด users ไม่สำเร็จ", err);
     } finally {
@@ -81,7 +141,7 @@ const UserManager = () => {
         withCredentials: true,
       });
       cancelEdit();
-      fetchUsers();
+      fetchUsers(); // รีเฟรชหน้าปัจจุบัน
     } catch (err) {
       const msg =
         err?.response?.data?.message || "ไม่สามารถบันทึกข้อมูลผู้ใช้ได้";
@@ -92,44 +152,29 @@ const UserManager = () => {
     }
   };
 
+  // โหลดครั้งแรก & ทุกครั้งที่ dependency เปลี่ยน
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [page, pageSize, sortKey, sortOrder, q, roleChecks]);
 
-  // === sorting helpers ===
-  const getFieldValue = (u, key) => {
-    if (key === "name") return (u.user?.name ?? "").toString();
-    if (key === "email") return (u.user?.email ?? "").toString();
-    if (key === "role") return (u.role ?? "").toString();
-    return "";
-  };
-
+  // เปลี่ยนคีย์เรียง
   const handleSort = (key) => {
-    if (sortKey === key) setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
-    else {
+    if (sortKey === key) {
+      setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
+    } else {
       setSortKey(key);
       setSortOrder("asc");
     }
+    setPage(1);
   };
 
-  const sortedUsers = useMemo(() => {
-    if (!sortKey) return users;
-    const arr = [...users];
-    arr.sort((a, b) => {
-      const av = getFieldValue(a, sortKey);
-      const bv = getFieldValue(b, sortKey);
-      const cmp = collator.compare(av, bv);
-      return sortOrder === "asc" ? cmp : -cmp;
-    });
-    return arr;
-  }, [users, sortKey, sortOrder, collator]);
-
+  // ส่วนหัวคอลัมน์ที่กดเรียงได้
   const SortableTh = ({ label, columnKey }) => {
     const isActive = sortKey === columnKey;
     const arrow = !isActive ? "↕" : sortOrder === "asc" ? "▲" : "▼";
     return (
-      <th className="p-2">
+      <th className="p-2 whitespace-nowrap">
         <button
           type="button"
           onClick={() => handleSort(columnKey)}
@@ -152,15 +197,56 @@ const UserManager = () => {
     );
   };
 
-  // ✅ Loading (สั้น ๆ)
+  // debounce ช่องค้นหา
+  const applySearchDebounced = useMemo(
+    () =>
+      debounce((val) => {
+        setPage(1);
+        setQ(val);
+      }, 400),
+    []
+  );
+
+  // toggle role filter (All exclusive)
+  const toggleRole = (key) => {
+    setPage(1);
+    setRoleChecks((prev) => {
+      if (key === "all") {
+        return {
+          all: true,
+          user: false,
+          admin: false,
+          superadmin: false,
+          affiliator: false,
+          host: false,
+          host_affiliator: false,
+        };
+      } else {
+        const next = { ...prev, all: false, [key]: !prev[key] };
+        const anyChecked = Object.entries(next)
+          .filter(([k]) => k !== "all")
+          .some(([, v]) => v);
+        if (!anyChecked) {
+          return {
+            all: true,
+            user: false,
+            admin: false,
+            superadmin: false,
+            affiliator: false,
+            host: false,
+            host_affiliator: false,
+          };
+        }
+        return next;
+      }
+    });
+  };
+
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto text-white px-4">
         <h2 className="text-2xl font-bold mt-8 mb-4">จัดการบัญชีผู้ใช้</h2>
-
-        {/* กล่องโหลดดิ้ง */}
         <div className="bg-white rounded text-black h-48 flex flex-col items-center justify-center gap-3">
-          {/* วงกลมหมุนให้เห็นชัดขึ้น */}
           <div className="h-10 w-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
           <p className="text-sm text-gray-600">Loading...</p>
         </div>
@@ -168,28 +254,122 @@ const UserManager = () => {
     );
   }
 
+  // แสดงช่วงรายการปัจจุบัน
+  const startIdx = userCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endIdx = Math.min(page * pageSize, userCount);
+
   return (
     <div className="max-w-5xl mx-auto text-white px-4">
       <h2 className="text-2xl font-bold mt-8 mb-4">
         จัดการบัญชีผู้ใช้{" "}
-        <span className="text-white/70">({userCount} คน)</span>
+        <span className="text-white/70">
+          ({userCount} คน) — แสดง {startIdx}-{endIdx}
+        </span>
       </h2>
+
+      {/* Controls แถวบน: page size + pager */}
+      <div className="mb-3 flex items-center gap-3">
+        <label className="text-sm text-white/80">แสดงต่อหน้า</label>
+        <select
+          value={pageSize}
+          onChange={(e) => {
+            setPageSize(parseInt(e.target.value, 10));
+            setPage(1);
+          }}
+          className="text-black border rounded px-2 py-1"
+        >
+          {PAGE_SIZE_OPTIONS.map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
+
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+          >
+            ก่อนหน้า
+          </button>
+          <span className="text-white/80 text-sm">
+            หน้า {page} / {totalPages}
+          </span>
+          <button
+            className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+          >
+            ถัดไป
+          </button>
+        </div>
+      </div>
+
+      {/* 🔎 Search + Role Filters */}
+      <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+        {/* Search */}
+        <div className="flex-1">
+          <input
+            type="text"
+            className="w-full rounded px-3 py-2 text-black border"
+            placeholder="ค้นหาชื่อหรืออีเมล..."
+            onChange={(e) => applySearchDebounced(e.target.value)}
+            defaultValue={q}
+            aria-label="Search users by name or email"
+          />
+        </div>
+
+        {/* Role filters */}
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            { key: "all", label: "All" },
+            ...roles.map((r) => ({ key: r, label: r })),
+          ].map((r) => (
+            <label
+              key={r.key}
+              className={`cursor-pointer select-none px-2 py-1 rounded border ${
+                roleChecks[r.key]
+                  ? "bg-white text-black"
+                  : "bg-transparent text-white"
+              }`}
+              title={
+                r.key === "all" ? "แสดงทุก role" : `กรองเฉพาะ role: ${r.label}`
+              }
+            >
+              <input
+                type="checkbox"
+                className="mr-1 align-middle"
+                checked={!!roleChecks[r.key]}
+                onChange={() => toggleRole(r.key)}
+              />
+              <span className="align-middle">{r.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* ตาราง */}
       <div className="overflow-x-auto bg-white rounded text-black">
         <table className="w-full">
           <thead className="bg-gray-200 text-left">
             <tr>
               <SortableTh label="ชื่อ" columnKey="name" />
               <SortableTh label="อีเมล" columnKey="email" />
+              <SortableTh label="วันเวลาสมัคร" columnKey="createdAt" />
               <SortableTh label="Role" columnKey="role" />
               <th className="p-2">Affiliate Code</th>
               <th className="p-2">Action</th>
             </tr>
           </thead>
           <tbody>
-            {sortedUsers.map((u) => (
+            {users.map((u) => (
               <tr key={u._id} className="border-t">
                 <td className="p-2">{u.user?.name || "-"}</td>
                 <td className="p-2">{u.user?.email || "-"}</td>
+                <td className="p-2">
+                  {formatDateTime(u.createdAt || u.user?.createdAt)}
+                </td>
                 <td className="p-2">
                   {editingId === u._id ? (
                     <select
@@ -253,15 +433,36 @@ const UserManager = () => {
                 </td>
               </tr>
             ))}
-            {sortedUsers.length === 0 && (
+            {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-4 text-center text-gray-500">
+                <td colSpan={6} className="p-4 text-center text-gray-500">
                   ไม่พบข้อมูลผู้ใช้
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Controls ล่าง */}
+      <div className="mt-3 flex items-center gap-2 justify-end">
+        <button
+          className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page <= 1}
+        >
+          ก่อนหน้า
+        </button>
+        <span className="text-white/80 text-sm">
+          หน้า {page} / {totalPages}
+        </span>
+        <button
+          className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page >= totalPages}
+        >
+          ถัดไป
+        </button>
       </div>
     </div>
   );
