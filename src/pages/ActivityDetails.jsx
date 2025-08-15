@@ -69,6 +69,95 @@ const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
   </div>
 ));
 
+// Image Modal Component สำหรับแสดงรูปเต็มจอ
+const ImageModal = ({ isOpen, onClose, imageUrl, imageAlt }) => {
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  // Keyboard event handler สำหรับ ESC key
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscKey);
+      // ป้องกันการ scroll ของ body เมื่อ modal เปิด
+      document.body.style.overflow = 'hidden';
+      // รีเซ็ต loading state เมื่อเปิด modal ใหม่
+      setImageLoading(true);
+      setImageError(false);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+      // คืนค่า scroll ของ body เมื่อ modal ปิด
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center"
+      onClick={onClose}
+    >
+      {/* Backdrop ที่เบลอ */}
+      <div className="absolute inset-0 bg-black bg-opacity-50 image-modal-backdrop" />
+      
+      {/* Modal Content */}
+      <div className="relative z-10 max-w-[90vw] max-h-[90vh] flex items-center justify-center image-modal-content">
+        {/* ปุ่มปิด */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2 transition-all duration-200"
+        >
+          <IoClose size={24} />
+        </button>
+        
+        {/* Loading Indicator */}
+        {imageLoading && !imageError && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+          </div>
+        )}
+        
+        {/* Error Message */}
+        {imageError && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-white text-center">
+              <div className="text-2xl mb-2">⚠️</div>
+              <div className="text-lg">ไม่สามารถโหลดรูปภาพได้</div>
+              <div className="text-sm text-gray-300 mt-1">Image could not be loaded</div>
+            </div>
+          </div>
+        )}
+        
+        {/* รูปภาพ */}
+        <img
+          src={imageUrl}
+          alt={imageAlt}
+          className={`max-w-full max-h-full object-contain rounded-lg image-modal-image ${
+            imageLoading || imageError ? 'opacity-0' : 'opacity-100'
+          } transition-opacity duration-300`}
+          onClick={(e) => e.stopPropagation()}
+          onLoad={() => {
+            setImageLoading(false);
+            setImageError(false);
+          }}
+          onError={() => {
+            setImageLoading(false);
+            setImageError(true);
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
 const ActivityDetails = () => {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
@@ -92,7 +181,62 @@ const ActivityDetails = () => {
   const [filteredSchedules, setFilteredSchedules] = useState([]);
   const [affiliateDiscountInfo, setAffiliateDiscountInfo] = useState(null);
   const [showMobileBooking, setShowMobileBooking] = useState(false);
+  
+  // State สำหรับรูปเต็มจอ
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  
+  // Ref สำหรับ description container
+  const descriptionRef = useRef(null);
+  
   useSyncDayjsLocale();
+
+  // ฟังก์ชันสำหรับเปิดรูปเต็มจอ
+  const openImageModal = (imageUrl, imageAlt) => {
+    setSelectedImage({ url: imageUrl, alt: imageAlt });
+    setIsImageModalOpen(true);
+  };
+
+  // เพิ่มฟังก์ชันให้กับ window object เพื่อให้สามารถเรียกใช้ได้จาก HTML
+  useEffect(() => {
+    window.openImageModal = openImageModal;
+    
+    return () => {
+      delete window.openImageModal;
+    };
+  }, []);
+
+  // useEffect สำหรับจัดการกับรูปภาพใน description
+  useEffect(() => {
+    if (descriptionRef.current && (activity?.descriptionEN || activity?.descriptionTH)) {
+      const images = descriptionRef.current.querySelectorAll('img');
+      
+      images.forEach((img, index) => {
+        // เพิ่ม class สำหรับ styling
+        img.classList.add('cursor-pointer', 'hover:opacity-80', 'transition-opacity', 'duration-200');
+        
+        // เพิ่ม data attribute เพื่อเก็บข้อมูลรูปภาพ
+        img.setAttribute('data-image-index', index);
+        img.setAttribute('data-image-src', img.src);
+        img.setAttribute('data-image-alt', img.alt || `Image ${index + 1}`);
+        
+        // เพิ่ม event listener สำหรับการคลิก
+        img.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openImageModal(img.src, img.alt || `Image ${index + 1}`);
+        });
+      });
+    }
+  }, [activity?.descriptionEN, activity?.descriptionTH]);
+
+  // ฟังก์ชันสำหรับปิดรูปเต็มจอ
+  const closeImageModal = () => {
+    setIsImageModalOpen(false);
+    setSelectedImage(null);
+  };
+
+
 
   useEffect(() => {
     const affiliateRefData = JSON.parse(sessionStorage.getItem("affiliateRef"));
@@ -715,49 +859,71 @@ const ActivityDetails = () => {
   };
 
   // Desktop Image Grid
-  const DesktopImageGrid = () => (
-    <div className="grid grid-rows-2 grid-flow-col gap-1 pt-[32px] max-h-[500px]">
-      <div className="row-span-2">
-        <img
-          //src={activity?.image?.[0]?.fileName || ""}
-          src={`${activity?.image?.[0].fileName}`}
-          alt="images1"
-          className="w-full h-full object-cover rounded-l-[30px]"
-        />
-      </div>
+  const DesktopImageGrid = () => {
+    // ตรวจสอบว่ามีรูปภาพครบหรือไม่
+    if (!activity?.image || activity.image.length === 0) {
+      return null;
+    }
 
-      <>
-        <div className="row-span-2">
-          <img
-            src={`${activity?.image?.[1].fileName}`}
-            alt="images2"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div>
-          <img
-            src={`${activity?.image?.[2].fileName}`}
-            alt="images3"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div>
-          <img
-            src={`${activity?.image?.[3].fileName}`}
-            alt="images4"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="row-span-2">
-          <img
-            src={`${activity?.image[4].fileName}`}
-            alt="images5"
-            className="w-full h-full object-cover rounded-r-[30px]"
-          />
-        </div>
-      </>
-    </div>
-  );
+    return (
+      <div className="grid grid-rows-2 grid-flow-col gap-1 pt-[32px] max-h-[500px]">
+        {activity.image[0] && (
+          <div className="row-span-2">
+            <img
+              src={activity.image[0].fileName}
+              alt="images1"
+              className="w-full h-full object-cover rounded-l-[30px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
+              onClick={() => openImageModal(activity.image[0].fileName, "images1")}
+            />
+          </div>
+        )}
+
+        {activity.image[1] && (
+          <div className="row-span-2">
+            <img
+              src={activity.image[1].fileName}
+              alt="images2"
+              className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity duration-200"
+              onClick={() => openImageModal(activity.image[1].fileName, "images2")}
+            />
+          </div>
+        )}
+        
+        {activity.image[2] && (
+          <div>
+            <img
+              src={activity.image[2].fileName}
+              alt="images3"
+              className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity duration-200"
+              onClick={() => openImageModal(activity.image[2].fileName, "images3")}
+            />
+          </div>
+        )}
+        
+        {activity.image[3] && (
+          <div>
+            <img
+              src={activity.image[3].fileName}
+              alt="images4"
+              className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity duration-200"
+              onClick={() => openImageModal(activity.image[3].fileName, "images4")}
+            />
+          </div>
+        )}
+        
+        {activity.image[4] && (
+          <div className="row-span-2">
+            <img
+              src={activity.image[4].fileName}
+              alt="images5"
+              className="w-full h-full object-cover rounded-r-[30px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
+              onClick={() => openImageModal(activity.image[4].fileName, "images5")}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
   /* ฟังก์ชันลบ HTML tag */
   const stripHtmlTags = (html) => {
     const doc = new DOMParser().parseFromString(html, "text/html");
@@ -807,11 +973,12 @@ const ActivityDetails = () => {
           {activity ? (
             <div className="flex flex-col pt-2 ">
               {/* Mobile Layout */}
-              {isMobile && activity?.image && (
+              {isMobile && activity?.image && activity.image.length > 0 && (
                 <div className="flex flex-col m-3 bg-white shadow rounded-[30px] overflow-hidden">
                   <EmblaCarousel
                     slides={activity.image}
                     options={{ loop: true }}
+                    onImageClick={openImageModal}
                   />
                 </div>
               )}
@@ -824,13 +991,19 @@ const ActivityDetails = () => {
                     style={{ maxWidth: "600px", margin: "0 auto" }}
                   >
                     {/* Title */}
-                    <span className="text-[40px] font-extrabold leading-tight text-center">
-                      {i18n.language === "en"
-                        ? activity?.nameEn
-                        : activity?.nameTh}
-                    </span>
+                    {activity?.nameEn || activity?.nameTh ? (
+                      <span className="text-[40px] font-extrabold leading-tight text-center">
+                        {i18n.language === "en"
+                          ? activity?.nameEn
+                          : activity?.nameTh}
+                      </span>
+                    ) : null}
 
-                    {/* Minor name + Divider + Host in a row */}
+                                      {/* Minor name + Divider + Host in a row */}
+                  {((i18n.language === "en"
+                    ? activity?.minorNameEn?.trim()
+                    : activity?.minorNameTh?.trim()) ||
+                    (activity?.hostImage || activity?.hostNameEN || activity?.hostNameTH)) && (
                     <div className="flex items-center justify-center mt-2 gap-6 w-full">
                       {/* Minor name */}
                       {(i18n.language === "en"
@@ -843,36 +1016,45 @@ const ActivityDetails = () => {
                         </div>
                       )}
 
-                      {/* Divider */}
-                      <div className="h-6 w-px bg-gray-300" />
+                      {/* Divider - แสดงเฉพาะเมื่อมีทั้ง minor name และ host info */}
+                      {((i18n.language === "en"
+                        ? activity?.minorNameEn?.trim()
+                        : activity?.minorNameTh?.trim()) &&
+                        (activity?.hostImage || activity?.hostNameEN || activity?.hostNameTH)) && (
+                        <div className="h-6 w-px bg-gray-300" />
+                      )}
 
                       {/* Host info */}
-                      <div className="basis-1/3 flex items-center gap-3">
-                        {activity?.hostImage && (
-                          <img
-                            src={`/img/${activity.hostImage}`}
-                            alt="host"
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
-                        )}
-                        <div className="flex flex-col text-left">
-                          <div className="text-[15px] font-semibold text-gray-800">
-                            {i18n.language === "en"
-                              ? `Hosted by ${
-                                  capitalize(
-                                    stripHtmlTags(activity?.hostNameEN)
-                                  ) || "Petzz"
-                                }`
-                              : `โฮสต์โดย ${
-                                  stripHtmlTags(activity?.hostNameTH) || "เพชรร"
-                                }`}
+                      {(activity?.hostImage || activity?.hostNameEN || activity?.hostNameTH) && (
+                        <div className="basis-1/3 flex items-center gap-3">
+                          {activity?.hostImage && (
+                            <img
+                              src={`/img/${activity.hostImage}`}
+                              alt="host"
+                              className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                              onClick={() => openImageModal(`/img/${activity.hostImage}`, "Host Image")}
+                            />
+                          )}
+                          <div className="flex flex-col text-left">
+                            <div className="text-[15px] font-semibold text-gray-800">
+                              {i18n.language === "en"
+                                ? `Hosted by ${
+                                    capitalize(
+                                      stripHtmlTags(activity?.hostNameEN)
+                                    ) || "Petzz"
+                                  }`
+                                : `โฮสต์โดย ${
+                                    stripHtmlTags(activity?.hostNameTH) || "เพชรร"
+                                  }`}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                     </div>
+                  )}
                   </div>
 
-                  <DesktopImageGrid />
+                  {activity?.image && activity.image.length > 0 && <DesktopImageGrid />}
                 </div>
               )}
 
@@ -880,59 +1062,71 @@ const ActivityDetails = () => {
               {isMobile && (
                 <>
                   {/* บรรทัดหลัก: name */}
-                  <span
-                    className="text-[30px] font-bold mt-[20px] mb-[10px] px-[50px] text-center"
-                    style={{ lineHeight: "30px" }}
-                  >
-                    {i18n.language === "en"
-                      ? activity?.nameEn ?? ""
-                      : activity?.nameTh ?? ""}
-                  </span>
+                  {activity?.nameEn || activity?.nameTh ? (
+                    <span
+                      className="text-[30px] font-bold mt-[20px] mb-[10px] px-[50px] text-center"
+                      style={{ lineHeight: "30px" }}
+                    >
+                      {i18n.language === "en"
+                        ? activity?.nameEn ?? ""
+                        : activity?.nameTh ?? ""}
+                    </span>
+                  ) : null}
 
                   {/* บรรทัดรอง: minor name ถ้ามี */}
-                  <div className="px-10">
-                    {i18n.language === "en"
-                      ? activity?.minorNameEn?.trim() && (
-                          <span className="block text-[14px] font-semibold text-center text-gray-500 text-black leading-snug px-4 mt-1 mb-3">
-                            {activity.minorNameEn}
-                          </span>
-                        )
-                      : activity?.minorNameTh?.trim() && (
-                          <span className="block text-[16px] font-semibold text-center text-gray-500 text-black leading-snug px-4 mt-1 mb-3">
-                            {activity.minorNameTh}
-                          </span>
-                        )}
-                  </div>
-                  <hr className="mx-[35px] sm:mx-0 my-2 h-[1px] bg-gray-300 border-none" />
-                  <div className="mx-[50px] sm:mx-0 flex items-center gap-4 mx-4 ">
-                    {/* Host Image */}
-                    {activity?.hostImage && (
-                      <img
-                        src={`/img/${activity.hostImage}`}
-                        alt="host"
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                    )}
+                  {(i18n.language === "en"
+                    ? activity?.minorNameEn?.trim()
+                    : activity?.minorNameTh?.trim()) && (
+                    <div className="px-10">
+                      {i18n.language === "en" ? (
+                        <span className="block text-[14px] font-semibold text-center text-gray-500 text-black leading-snug px-4 mt-1 mb-3">
+                          {activity.minorNameEn}
+                        </span>
+                      ) : (
+                        <span className="block text-[16px] font-semibold text-center text-gray-500 text-black leading-snug px-4 mt-1 mb-3">
+                          {activity.minorNameTh}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* แสดงเส้นแบ่งเฉพาะเมื่อมี host info */}
+                  {(activity?.hostImage || activity?.hostNameEN || activity?.hostNameTH) && (
+                    <hr className="mx-[35px] sm:mx-0 my-2 h-[1px] bg-gray-300 border-none" />
+                  )}
+                  
+                  {(activity?.hostImage || activity?.hostNameEN || activity?.hostNameTH) && (
+                    <div className="mx-[50px] sm:mx-0 flex items-center gap-4 mx-4 ">
+                      {/* Host Image */}
+                      {activity?.hostImage && (
+                        <img
+                          src={`/img/${activity.hostImage}`}
+                          alt="host"
+                          className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                          onClick={() => openImageModal(`/img/${activity.hostImage}`, "Host Image")}
+                        />
+                      )}
 
-                    {/* Host Info */}
-                    <div className="flex flex-col ">
-                      <div className="text-[15px] font-semibold text-gray-800">
-                        {i18n.language === "en"
-                          ? `Hosted by ${
-                              capitalize(stripHtmlTags(activity?.hostNameEN)) ||
-                              "Petz"
-                            }`
-                          : `โฮสต์โดย ${
-                              stripHtmlTags(activity?.hostNameTH) || "เพชร"
-                            }`}
-                      </div>
-                      <div className="text-[13px] text-gray-500 leading-snug">
-                        {i18n.language === "en"
-                          ? "Nightlife expert who travel the world"
-                          : "ผู้เชี่ยวชาญเรื่องไนท์ไลฟ์ ที่เดินทางไปทั่วโลก"}
+                      {/* Host Info */}
+                      <div className="flex flex-col ">
+                        <div className="text-[15px] font-semibold text-gray-800">
+                          {i18n.language === "en"
+                            ? `Hosted by ${
+                                capitalize(stripHtmlTags(activity?.hostNameEN)) ||
+                                "Petz"
+                              }`
+                            : `โฮสต์โดย ${
+                                stripHtmlTags(activity?.hostNameTH) || "เพชร"
+                              }`}
+                        </div>
+                        <div className="text-[13px] text-gray-500 leading-snug">
+                          {i18n.language === "en"
+                            ? "Nightlife expert who travel the world"
+                            : "ผู้เชี่ยวชาญเรื่องไนท์ไลฟ์ ที่เดินทางไปทั่วโลก"}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </>
               )}
               <div
@@ -963,7 +1157,8 @@ const ActivityDetails = () => {
                       ? activity?.descriptionEN
                       : activity?.descriptionTH) && (
                       <div
-                        className="text-[14px] mt-2 sm:mt-[40px]  text-gray-700 "
+                        ref={descriptionRef}
+                        className="text-[14px] mt-2 sm:mt-[40px] text-gray-700 description-content"
                         dangerouslySetInnerHTML={{
                           __html:
                             i18n.language === "en"
@@ -974,19 +1169,19 @@ const ActivityDetails = () => {
                     )}
                   </div>
 
-                  <div
-                    className="py-[48px]"
-                    style={{ borderBottom: "solid 1px #dddddd" }}
-                  >
-                    <div className="  text-[22px] font-bold pb-[24px]">
-                      {i18n.language === "en"
-                        ? "⭐️ What's Included ⭐️"
-                        : "⭐️ สิ่งที่รวมอยู่ในกิจกรรม ⭐️"}
-                    </div>
+                  {activity?.included && activity.included.length > 0 && (
+                    <div
+                      className="py-[48px]"
+                      style={{ borderBottom: "solid 1px #dddddd" }}
+                    >
+                      <div className="  text-[22px] font-bold pb-[24px]">
+                        {i18n.language === "en"
+                          ? "⭐️ What's Included ⭐️"
+                          : "⭐️ สิ่งที่รวมอยู่ในกิจกรรม ⭐️"}
+                      </div>
 
-                    <div className="flex flex-wrap gap-4">
-                      {activity &&
-                        activity.included.map((item) => (
+                      <div className="flex flex-wrap gap-4">
+                        {activity.included.map((item) => (
                           <div
                             key={item.id}
                             className="py-[24px] px-[16px] flex flex-col rounded-[30px] shadow-lg"
@@ -996,11 +1191,15 @@ const ActivityDetails = () => {
                               boxSizing: "border-box",
                             }}
                           >
-                            <img
-                              src={`/img/icon/${item.icon}`}
-                              alt={item.headerEN}
-                              width="80"
-                            />
+                            {item.icon && (
+                              <img
+                                src={`/img/icon/${item.icon}`}
+                                alt={item.headerEN || item.headerTH || "Icon"}
+                                width="80"
+                                className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                                onClick={() => openImageModal(`/img/icon/${item.icon}`, item.headerEN || item.headerTH || "Icon")}
+                              />
+                            )}
                             <div className="  text-[18px] font-bold mb-2">
                               {i18n.language === "en"
                                 ? item.headerEN
@@ -1013,82 +1212,86 @@ const ActivityDetails = () => {
                             </div>
                           </div>
                         ))}
-                      <style jsx>{`
-                        @media (max-width: 768px) {
-                          .flex > div {
-                            flex: 1 1 100%;
+                        <style jsx>{`
+                          @media (max-width: 768px) {
+                            .flex > div {
+                              flex: 1 1 100%;
+                            }
                           }
-                        }
-                      `}</style>
-                    </div>
-                  </div>
-
-                  <div
-                    className="py-[60px]"
-                    style={{ borderBottom: "solid 1px #dddddd" }}
-                  >
-                    {/* 1 */}
-                    <div className="flex flex-row gap-4 mb-[24px]">
-                      {activity && activity.hostImage && (
-                        <img
-                          src={`/img/${activity.hostImage}`}
-                          alt="Profile picture"
-                          className="w-24 h-24 rounded-full"
-                        />
-                      )}
-                      <div className="flex flex-col">
-                        <div className="  text-[24px] font-bold">
-                          {i18n.language === "en" ? (
-                            <div
-                              className="  text-[22px]"
-                              dangerouslySetInnerHTML={{
-                                __html: activity?.aboutHostHeaderEN,
-                              }}
-                            />
-                          ) : (
-                            <div
-                              className="  text-[22px]"
-                              dangerouslySetInnerHTML={{
-                                __html: activity?.aboutHostHeaderTH,
-                              }}
-                            />
-                          )}
-                        </div>
+                        `}</style>
                       </div>
                     </div>
+                  )}
 
-                    <div className="flex flex-col">
-                      {activity &&
-                        activity.descriptionTH &&
-                        (i18n.language === "en" ? (
-                          <>
-                            <div
-                              className="  text-[16px]"
-                              dangerouslySetInnerHTML={{
-                                __html: activity?.aboutHostEN.join("<br/>"),
-                              }}
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <div
-                              className="  text-[16px]"
-                              dangerouslySetInnerHTML={{
-                                __html: activity?.aboutHostTH.join("<br/>"),
-                              }}
-                            />
-                          </>
-                        ))}
-                    </div>
-                    <a
-                      href="https://www.instagram.com/_u/nightlife.run/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full text-center text-sm mt-3 font-medium text-gray-800 bg-gray-100 px-6 py-2 rounded-xl hover:bg-gray-200 transition"
+                  {(activity?.aboutHostEN || activity?.aboutHostTH || activity?.hostImage) && (
+                    <div
+                      className="py-[60px]"
+                      style={{ borderBottom: "solid 1px #dddddd" }}
                     >
-                      Message Host
-                    </a>
-                  </div>
+                      {/* 1 */}
+                      <div className="flex flex-row gap-4 mb-[24px]">
+                        {activity?.hostImage && (
+                          <img
+                            src={`/img/${activity.hostImage}`}
+                            alt="Profile picture"
+                            className="w-24 h-24 rounded-full cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                            onClick={() => openImageModal(`/img/${activity.hostImage}`, "Host Profile Picture")}
+                          />
+                        )}
+                        <div className="flex flex-col">
+                          <div className="  text-[24px] font-bold">
+                            {i18n.language === "en" ? (
+                              <div
+                                className="  text-[22px]"
+                                dangerouslySetInnerHTML={{
+                                  __html: activity?.aboutHostHeaderEN,
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className="  text-[22px]"
+                                dangerouslySetInnerHTML={{
+                                  __html: activity?.aboutHostHeaderTH,
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col">
+                        {activity?.aboutHostEN && activity?.aboutHostTH && (
+                          i18n.language === "en" ? (
+                            <>
+                              <div
+                                className="  text-[16px]"
+                                dangerouslySetInnerHTML={{
+                                  __html: activity?.aboutHostEN.join("<br/>"),
+                                }}
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <div
+                                className="  text-[16px]"
+                                dangerouslySetInnerHTML={{
+                                  __html: activity?.aboutHostTH.join("<br/>"),
+                                }}
+                              />
+                            </>
+                          )
+                        )}
+                      </div>
+                      <a
+                        href="https://www.instagram.com/_u/nightlife.run/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full text-center text-sm mt-3 font-medium text-gray-800 bg-gray-100 px-6 py-2 rounded-xl hover:bg-gray-200 transition"
+                      >
+                        Message Host
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 {/* กล่องตารางกิจกรรม % */}
@@ -1373,6 +1576,14 @@ const ActivityDetails = () => {
           </div>
         </ReactModal>
       )}
+      {/* Image Modal สำหรับแสดงรูปเต็มจอ */}
+      <ImageModal
+        isOpen={isImageModalOpen}
+        onClose={closeImageModal}
+        imageUrl={selectedImage?.url}
+        imageAlt={selectedImage?.alt}
+      />
+
       <style jsx global>{`
         .datepicker-popper-center {
           position: fixed !important;

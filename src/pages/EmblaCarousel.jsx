@@ -7,7 +7,7 @@ import {
 } from "./EmblaCarouselArrowButtons";
 import { DotButton, useDotButton } from "./EmblaCarouselDotButton";
 
-const EmblaCarousel = ({ slides, options }) => {
+const EmblaCarousel = ({ slides, options, onImageClick }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, ...options });
 
   const { selectedIndex, scrollSnaps, onDotButtonClick } =
@@ -39,17 +39,20 @@ const EmblaCarousel = ({ slides, options }) => {
     <section className="embla">
       <div className="embla__viewport relative" ref={emblaRef}>
         <div className="embla__container">
-          {slides.map((slide, index) => (
+          {slides && slides.length > 0 && slides.map((slide, index) => (
             <div
               className="embla__slide h-[50vh]"
               key={index}
               style={{ position: "relative" }}
             >
-              <img
-                src={slide.fileName}
-                alt={`Slide ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
+              {slide && slide.fileName && (
+                <img
+                  src={slide.fileName}
+                  alt={`Slide ${index + 1}`}
+                  className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                  onClick={() => onImageClick && onImageClick(slide.fileName, `Slide ${index + 1}`)}
+                />
+              )}
             </div>
           ))}
         </div>
