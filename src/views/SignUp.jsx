@@ -1,3 +1,4 @@
+// src/pages/SignUp.jsx (ส่วน imports)
 import React, { useState, useEffect } from "react";
 import "../public/css/App.css";
 import "../public/css/FlipDiv.css";
@@ -6,17 +7,11 @@ import { useGlobalEvent } from "../context/GlobalEventContext";
 import axios from "axios";
 import Lottie from "lottie-web";
 import loadingAnimation1 from "../public/lottie/loading1.json";
-import succesAnimation1 from "../public/lottie/success1.json";
-import emailSentAnimation1 from "../public/lottie/email_sent1.json";
 import emailSentAnimation2 from "../public/lottie/email_sent2.json";
-import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import closeIcon from "../img/circle_close.png";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-//import { GoogleLogin } from "@react-oauth/google";
 import { useGoogleLogin } from "@react-oauth/google";
-//import { GoogleLogin, googleLogout, useGoogleLogin } from "@react-oauth/google";
-//import { GoogleLogin } from "react-google-login";
 import googleLogo from "../img/google-logo.svg";
 import { useTranslation } from "react-i18next";
 import { getDeviceFingerprint } from "../lib/fingerprint";
@@ -37,7 +32,6 @@ function SignUpForm() {
   const [forgotMessage, setForgotMessage] = useState("");
   const [isForgotSuccess, setIsForgotSuccess] = useState(false);
   const [showLoginContent, setShowLoginContent] = useState(true);
-
 
   //-------------------------------------------------------------------------------
 
@@ -61,46 +55,49 @@ function SignUpForm() {
   const [errors, setErrors] = useState({});
   const [flipped, setFlipped] = useState(false);
 
-  function GoogleLoginButton({ BASE_URL }) {
+  function GoogleLoginButton({
+    BASE_URL,
+    checkAuthStatus,
+    navigate,
+    setErrors,
+  }) {
     const googleLogin = useGoogleLogin({
+      flow: "implicit", // รับ access_token
       onSuccess: async (tokenResponse) => {
         try {
           const fp = await getDeviceFingerprint();
-          
-          const result = await fp.get();
-          // const fingerprint = result.visitorId;
-          
-          const res = await axios.post(
+
+          await axios.post(
             `${BASE_URL}/auth/google-web-login`,
-            { token: tokenResponse.access_token },
+            { token: tokenResponse.access_token, fingerprint: fp },
             {
               headers: {
                 "device-fingerprint": fp,
-                businessid: "1",
+                businessId: "1",
               },
               withCredentials: true,
             }
           );
 
-          const { data } = res.data;
-          if (data) {
-            //console.log(`data = ${JSON.stringify(data)}`);
-            await checkAuthStatus(); // เพิ่มการเรียก checkAuthStatus หลังจาก login
-            navigate("/");
-          } else {
-            console.log("No token received");
-          }
+          await checkAuthStatus();
+          // ล้าง error เดิมในฟอร์มอีเมล/พาส เผื่อค้างอยู่
+          setErrors((prev) => ({ ...prev, email: "", password: "" }));
+          navigate("/");
         } catch (err) {
           console.error("❌ Google login failed:", err);
         }
       },
       onError: (err) => console.error("Google Login Error", err),
-      flow: "implicit",
     });
 
     return (
       <button
-        onClick={() => googleLogin()}
+        type="button" // สำคัญ: ไม่ให้ submit ฟอร์ม
+        onClick={(e) => {
+          e.preventDefault(); // กัน HTML form behavior
+          e.stopPropagation(); // กัน event ไหลไปถึง form อื่น
+          googleLogin();
+        }}
         style={{
           display: "flex",
           alignItems: "center",
@@ -116,16 +113,11 @@ function SignUpForm() {
           width: "100%",
         }}
       >
-        <img
-          src={googleLogo}
-          alt="Google"
-          style={{ width: "20px", height: "20px" }}
-        />
+        <img src={googleLogo} alt="Google" style={{ width: 20, height: 20 }} />
         <span style={{ color: "#444" }}>Log in with Google</span>
       </button>
     );
   }
-
 
   // Oreq Dev
   const handleForgotPasswordSubmit = async (e) => {
@@ -148,8 +140,8 @@ function SignUpForm() {
   //---
   const handleClick = () => {
     if (flipped) {
-      setIsJustForgotPassword(false)
-      setIsJustSignup(false)
+      setIsJustForgotPassword(false);
+      setIsJustSignup(false);
     }
     setFlipped(!flipped);
   };
@@ -257,18 +249,14 @@ function SignUpForm() {
   };
 
   const loginUser = async () => {
-    const fp = await FingerprintJS.load();
-    const result = await fp.get();
-    const fingerprint = result.visitorId;
-
     try {
-       const fp = await getDeviceFingerprint();
+      const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/auth/login`,
         {
           email: loginFormData.loginEmail.toLowerCase().trim(),
           password: loginFormData.loginPassword.trim(),
-          fingerprint: fingerprint,
+          fingerprint: fp,
         },
         {
           headers: {
@@ -279,15 +267,18 @@ function SignUpForm() {
           withCredentials: true,
         }
       );
-      const { data } = response.data;
-      //alert(JSON.stringify(data));
-      //console.log(`data = ${JSON.stringify(data)}`);
-      if (data) {
-        // await login(data.data.user);
-        await checkAuthStatus(); // เพิ่มการเรียก checkAuthStatus หลังจาก login
+
+      // บาง backend ห่อ data ซ้อนกัน ลองรองรับทั้งสองแบบ
+      const payload = response.data?.data || response.data;
+      if (payload) {
+        // ถ้าต้องส่ง user ให้ context:
+        if (payload.user) {
+          await login(payload.user);
+        }
+        await checkAuthStatus();
         navigate("/");
       } else {
-        console.log("No token received");
+        console.log("No data received");
       }
     } catch (error) {
       console.log("Error catch:", error);
@@ -305,7 +296,6 @@ function SignUpForm() {
         } else if (error.response.status === 403) {
           setIsJustPasswordWrong(true);
         } else if (error.response.status === 404) {
-          // 404 Not Found
           setIsNotRegistered(true);
         }
       }
@@ -313,12 +303,6 @@ function SignUpForm() {
       setIsLoading(false);
     }
   };
-
-  async function getFingerprint() {
-    const fp = await FingerprintJS.load();
-    const result = await fp.get();
-    console.log(result.visitorId);
-  }
 
   useEffect(() => {
     if (
@@ -370,7 +354,6 @@ function SignUpForm() {
 
   // ---
 
-
   return (
     <>
       <div
@@ -393,6 +376,7 @@ function SignUpForm() {
         style={{ paddingTop: windowSize.width < 800 ? "100px" : "180px" }}
       >
         <div className={`flipper ${flipped ? "flip" : ""}`}>
+          {/* ******************* Back (Log in) ********************** */}
           <div
             className="back"
             style={{
@@ -402,6 +386,7 @@ function SignUpForm() {
               padding: "30px 30px 30px 30px",
             }}
           >
+            {/* แถบแจ้งเตือนหลังสมัคร */}
             <div
               style={{
                 position: "relative",
@@ -419,11 +404,9 @@ function SignUpForm() {
                   width: "40px",
                   height: "40px",
                 }}
-                onClick={() => {
-                  setIsJustSignup(false);
-                }}
+                onClick={() => setIsJustSignup(false)}
               >
-                <img src={closeIcon} />
+                <img src={closeIcon} alt="close" />
               </div>
               <div
                 style={{
@@ -437,8 +420,7 @@ function SignUpForm() {
                 <div
                   id="emailSentAnimationDIV"
                   style={{ flex: "1", minWidth: "150px", maxWidth: "150px" }}
-                ></div>
-
+                />
                 <div
                   style={{
                     flex: "1",
@@ -460,11 +442,11 @@ function SignUpForm() {
                     height: "8px",
                     margin: "10px 0px 10px 0px",
                   }}
-                ></div>
+                />
               </div>
             </div>
 
-            {/* Oreq Dev Popup */}
+            {/* Popup ลืมรหัสผ่าน */}
             <div
               style={{
                 position: "relative",
@@ -489,10 +471,12 @@ function SignUpForm() {
                   zIndex: 10,
                 }}
                 onClick={() => setIsJustForgotPassword(false)}
-
-
               >
-                <img src={closeIcon} alt="close" style={{ width: "20px", height: "20px" }} />
+                <img
+                  src={closeIcon}
+                  alt="close"
+                  style={{ width: 20, height: 20 }}
+                />
               </div>
 
               <div
@@ -564,86 +548,123 @@ function SignUpForm() {
             </div>
 
             {!isJustForgotPassword && showLoginContent && (
-            <form
-              key={"loginForm"}
-              onSubmit={handleLoginSubmit}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                color: "red",
-              }}
-            >
-              {showLoginContent && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <div
+              <>
+                <form
+                  noValidate
+                  key="loginForm"
+                  onSubmit={handleLoginSubmit}
                   style={{
                     display: "flex",
                     justifyContent: "center",
-                    fontSize: "30px",
-                    padding: "0px 0px 0px 0px",
-                    margin: "0px 0px 10px 0px",
-                    color: "Black",
+                    color: "red",
                   }}
                 >
-                  Log in
-                </div>
-                <TextField
-                  required
-                  onChange={handleLoginChange}
-                  type="email"
-                  name="loginEmail"
-                  label="Email"
-                  variant="outlined"
-                  InputProps={{ style: { borderRadius: "15px" } }}
-                />
-                <div style={styles.gapText}>{errors.email}</div>
-                <TextField
-                  required
-                  onChange={handleLoginChange}
-                  type="password"
-                  name="loginPassword"
-                  label="Password"
-                  variant="outlined"
-                  InputProps={{ style: { borderRadius: "15px" } }}
-                />
-                <div
-                  style={{ fontSize: "13.5px", color: "red", height: "24px" }}
-                  className="m-1 p-1"
-                >
-                  {isJustPasswordWrong &&
-                    "Incorrect email or password. Please try again."}
-                  {isNotRegistered &&
-                    "This email is not registered. Please sign up."}
-                </div>
-                {/* Oreq Dev */}
-                  <div style={{ textAlign: "right", marginTop: "8px", marginBottom: "20px" }}>
-                    <button
-                      type="button"
-                      onClick={() => setIsJustForgotPassword(true)}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      width: "100%",
+                    }}
+                  >
+                    <div
                       style={{
-                        background: "none",
-                        border: "none",
-                        color: "#1976d2",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        padding: 0,
-                        textDecoration: "underline",
+                        display: "flex",
+                        justifyContent: "center",
+                        fontSize: 30,
+                        margin: "0 0 10px 0",
+                        color: "Black",
                       }}
                     >
-                      {t("auth.forgotpassword")}
+                      Log in
+                    </div>
+
+                    <TextField
+                      required
+                      onChange={handleLoginChange}
+                      type="email"
+                      name="loginEmail"
+                      label="Email"
+                      variant="outlined"
+                      InputProps={{ style: { borderRadius: "15px" } }}
+                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        height: 20,
+                        fontSize: 12,
+                        color: "red",
+                      }}
+                    >
+                      {errors.email}
+                    </div>
+
+                    <TextField
+                      required
+                      onChange={handleLoginChange}
+                      type="password"
+                      name="loginPassword"
+                      label="Password"
+                      variant="outlined"
+                      InputProps={{ style: { borderRadius: "15px" } }}
+                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        height: 20,
+                        fontSize: 12,
+                        color: "red",
+                      }}
+                    >
+                      {errors.password}
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: "13.5px",
+                        color: "red",
+                        height: "24px",
+                      }}
+                      className="m-1 p-1"
+                    >
+                      {isJustPasswordWrong &&
+                        "Incorrect email or password. Please try again."}
+                      {isNotRegistered &&
+                        "This email is not registered. Please sign up."}
+                    </div>
+
+                    <div
+                      style={{
+                        textAlign: "right",
+                        marginTop: 8,
+                        marginBottom: 20,
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setIsJustForgotPassword(true)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#1976d2",
+                          cursor: "pointer",
+                          fontSize: 14,
+                          padding: 0,
+                          textDecoration: "underline",
+                        }}
+                      >
+                        {t("auth.forgotpassword")}
+                      </button>
+                    </div>
+
+                    <button className="button1" type="submit">
+                      Log in
                     </button>
                   </div>
+                </form>
 
-                <button className="button1" type="submit">
-                  Log in
-                </button>
+                {/* ตัวคั่นและปุ่ม Google ใต้ฟอร์ม */}
                 <div
                   style={{
                     display: "flex",
@@ -655,21 +676,25 @@ function SignUpForm() {
                   }}
                 >
                   <div
-                    style={{ flex: 1, height: "1px", backgroundColor: "#ccc" }}
+                    style={{ flex: 1, height: 1, backgroundColor: "#ccc" }}
                   />
                   <div style={{ padding: "0 10px", whiteSpace: "nowrap" }}>
-                    {t("auth.orLoginWith")}
+                    or log in with
                   </div>
                   <div
-                    style={{ flex: 1, height: "1px", backgroundColor: "#ccc" }}
+                    style={{ flex: 1, height: 1, backgroundColor: "#ccc" }}
                   />
                 </div>
 
-                <GoogleLoginButton BASE_URL={BASE_URL} />
-              </div>
-              )}
-            </form>
+                <GoogleLoginButton
+                  BASE_URL={BASE_URL}
+                  checkAuthStatus={checkAuthStatus}
+                  navigate={navigate}
+                  setErrors={setErrors}
+                />
+              </>
             )}
+
             <div
               style={{
                 display: "flex",
@@ -677,10 +702,9 @@ function SignUpForm() {
                 margin: "20px",
               }}
             >
-              Don’t have an account?{"  "}
+              Don’t have an account?{" "}
               <div onClick={handleClick} style={{ color: "blue" }}>
-                {" "}
-                &nbsp;Sign up.{" "}
+                &nbsp;Sign up.
               </div>
             </div>
           </div>
