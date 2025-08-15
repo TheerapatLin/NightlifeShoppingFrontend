@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
   const [formData, setFormData] = useState({
@@ -42,6 +43,7 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
 
   const handleSave = async () => {
     try {
+      const fp = await getDeviceFingerprint();
       await axios.patch(
         `${import.meta.env.VITE_BASE_API_URL_LOCAL}/activity-slot/${slot.id}`,
         {
@@ -52,7 +54,7 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
           endTime: formData.endTime.toISOString(),
         },
         {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         }
       );
@@ -99,10 +101,11 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
 
     if (result.isConfirmed) {
       try {
+        const fp = await getDeviceFingerprint();
         await axios.delete(
           `${import.meta.env.VITE_BASE_API_URL_LOCAL}/activity-slot/${slot.id}`,
           {
-            headers: { "device-fingerprint": "12345678" },
+            headers: { "device-fingerprint": fp },
             withCredentials: true,
           }
         );

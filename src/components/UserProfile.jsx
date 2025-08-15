@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { Pencil, Camera } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import imageCompression from "browser-image-compression";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 function UserProfile() {
   const { user } = useAuth();
@@ -21,8 +22,9 @@ function UserProfile() {
 
   const fetchProfile = async () => {
     try {
+      const fp = await getDeviceFingerprint();
       const res = await axios.get(`${BASE_URL}/accounts/me`, {
-        headers: { "device-fingerprint": "12345678" },
+        headers: { "device-fingerprint": fp },
         withCredentials: true,
       });
       const { data } = res.data;
@@ -56,7 +58,7 @@ function UserProfile() {
   const handleSave = async () => {
     try {
       setIsSaving(true); // ⏳ เริ่มเซฟ
-
+      const fp = await getDeviceFingerprint();
       if (selectedImageFile) {
         const compressedFile = await imageCompression(selectedImageFile, {
           maxSizeMB: 0.5,
@@ -73,7 +75,7 @@ function UserProfile() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              "device-fingerprint": "12345678",
+              "device-fingerprint": fp,
             },
             withCredentials: true,
           }
@@ -81,7 +83,7 @@ function UserProfile() {
       }
 
       await axios.put(`${BASE_URL}/accounts/update`, formData, {
-        headers: { "device-fingerprint": "12345678" },
+        headers: { "device-fingerprint": fp },
         withCredentials: true,
       });
 

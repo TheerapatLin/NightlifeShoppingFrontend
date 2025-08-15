@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { Pencil, Trash, Plus } from "lucide-react";
 import Modal from "react-modal";
 import { useTranslation } from "react-i18next";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 const DiscountCodeManager = () => {
   const { user } = useAuth();
@@ -42,9 +43,10 @@ const DiscountCodeManager = () => {
 
   const fetchCodes = async () => {
     try {
+      const fp = await getDeviceFingerprint();
       const res = await axios.get(`${BASE_URL}/discount-code`, {
         headers: {
-          "device-fingerprint": "12345678",
+          "device-fingerprint": fp,
         },
         withCredentials: true,
       });
@@ -56,9 +58,10 @@ const DiscountCodeManager = () => {
 
   const fetchActivities = async () => {
     try {
+      const fp = await getDeviceFingerprint();
       const res = await axios.get(`${BASE_URL}/activity`, {
         headers: {
-          "device-fingerprint": "12345678",
+          "device-fingerprint": fp,
         },
         withCredentials: true,
       });
@@ -132,10 +135,11 @@ const DiscountCodeManager = () => {
 
   const handleSave = async () => {
     try {
+      const fp = await getDeviceFingerprint();
       const config = {
         headers: {
           "Content-Type": "application/json",
-          "device-fingerprint": "12345678",
+          "device-fingerprint": fp,
         },
         withCredentials: true,
       };
@@ -173,9 +177,10 @@ const DiscountCodeManager = () => {
     const confirmed = confirm("Are you sure you want to delete this code?");
     if (!confirmed) return;
     try {
+      const fp = await getDeviceFingerprint();
       await axios.delete(`${BASE_URL}/discount-code/${id}`, {
         headers: {
-          "device-fingerprint": "12345678",
+          "device-fingerprint": fp,
         },
         withCredentials: true,
       });

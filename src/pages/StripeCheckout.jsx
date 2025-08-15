@@ -7,15 +7,15 @@ import {
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import { Checkbox } from "@stripe/ui-extension-sdk/ui";
-import { ContextView, Button } from "@stripe/ui-extension-sdk/ui";
+// import { loadStripe } from "@stripe/stripe-js";
+// import { Checkbox } from "@stripe/ui-extension-sdk/ui";
+// import { ContextView, Button } from "@stripe/ui-extension-sdk/ui";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import React, { useEffect, useState } from "react";
-import Swal from "sweetalert2";
+// import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
-import i18n from "../i18n";
+// import i18n from "../i18n";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 //import { useNavigate } from "react-router-dom";
 
 export const SecurityContext = createContext();
@@ -53,15 +54,16 @@ export const SecurityProvider = ({ children }) => {
 
   const logout = async (navigate) => {
     try {
+      const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/auth/logout-web`,
         {
-          fingerprint: "12345678",
+          fingerprint: fp,
         },
         {
           headers: {
             "Content-Type": "application/json",
-            "device-fingerprint": "12345678",
+            "device-fingerprint": fp,
             businessId: "1",
           },
           withCredentials: true,

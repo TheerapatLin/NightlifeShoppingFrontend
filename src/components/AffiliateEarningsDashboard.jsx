@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useTranslation } from "react-i18next";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 ReactModal.setAppElement("#root");
 
@@ -35,8 +36,9 @@ const AffiliateEarningsDashboard = () => {
     const fetchSummary = async () => {
       setLoading(true);
       try {
+        const fp = await getDeviceFingerprint();
         const res = await axios.get(`${BASE_URL}/accounts/affiliate-summary`, {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         });
         const fetched = res.data || {};
@@ -122,8 +124,9 @@ const AffiliateEarningsDashboard = () => {
 
     const fetchActivities = async () => {
       try {
+        const fp = await getDeviceFingerprint();
         const res = await axios.get(`${BASE_URL}/activity`, {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         });
         setActivities(res.data.data || []);

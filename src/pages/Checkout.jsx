@@ -1,17 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { ChevronLeft } from "lucide-react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import TextField from "@mui/material/TextField";
 import { useGlobalEvent } from "../context/GlobalEventContext";
 import "../public/css/SmallCalendar.css";
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import StripeContainer from "./StripeCheckout";
 import { useTranslation } from "react-i18next";
-import { loadStripe } from "@stripe/stripe-js";
-import i18n from "../i18n";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 const Checkout = (props) => {
   //const emailRef = useRef("");
@@ -223,11 +218,12 @@ const Checkout = (props) => {
     if (!enteredCode) return;
     setCheckingCode(true);
     try {
+      const fp = await getDeviceFingerprint(); 
       const res = await axios.post(
         `${BASE_URL}/discount-code/validate`,
         { code: enteredCode },
         {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         }
       );

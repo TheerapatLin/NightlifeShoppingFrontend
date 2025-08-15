@@ -185,10 +185,10 @@ function ActivitiesForm({
         requireRequestToJoin: true,
         notes: dataForm.description,
       };
-
+      const fp = await getDeviceFingerprint(); 
       await axios.post(`${BASE_URL}/activity-slot`, slotPayload, {
         headers: {
-          "device-fingerprint": "12345678",
+          "device-fingerprint": fp,
         },
         withCredentials: true,
       });

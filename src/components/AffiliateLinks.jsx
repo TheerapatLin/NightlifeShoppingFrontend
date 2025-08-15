@@ -3,6 +3,7 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 ReactModal.setAppElement("#root");
 
@@ -33,8 +34,9 @@ function AffiliateLinks() {
     const fetchAffiliateSummary = async () => {
       setLoadingSummary(true);
       try {
+        const fp = await getDeviceFingerprint();
         const res = await axios.get(`${BASE_URL}/accounts/affiliate-summary`, {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         });
         const fetched = res.data || {};
@@ -90,8 +92,9 @@ function AffiliateLinks() {
   useEffect(() => {
     const fetchAffiliateActivities = async () => {
       try {
+        const fp = await getDeviceFingerprint();
         const res = await axios.get(`${BASE_URL}/activity/affiliate-enabled`, {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp},
           withCredentials: true,
         });
         setActivities(res.data.data || []);
@@ -102,8 +105,9 @@ function AffiliateLinks() {
 
     const fetchAffiliateSettings = async () => {
       try {
+        const fp = await getDeviceFingerprint();
         const res = await axios.get(`${BASE_URL}/accounts/affiliate-settings`, {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         });
         setAffiliateSettings(res.data.data || []);
@@ -167,6 +171,7 @@ function AffiliateLinks() {
     if (!setting) return;
     setLoadingSave(activityId);
     try {
+      const fp = await getDeviceFingerprint();
       await axios.put(
         `${BASE_URL}/accounts/affiliate-setting`,
         {
@@ -177,7 +182,7 @@ function AffiliateLinks() {
           enabled: true,
         },
         {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         }
       );
@@ -231,8 +236,6 @@ function AffiliateLinks() {
           </div>
         )
       )}
-
-   
 
       {/* ลิงก์ Affiliate หลัก */}
       <div className="text-center mt-2 mb-4">

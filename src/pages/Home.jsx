@@ -16,6 +16,7 @@ import ElfsightWidget from "../views/ElfsightWidget";
 import DealCard from "./DealCard";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 function Home() {
   const { t, i18n } = useTranslation();
@@ -83,12 +84,13 @@ function Home() {
     setClaimErrorMessage("");
 
     try {
+      const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/user-deal/claim`,
         { dealId },
         {
           headers: {
-            "device-fingerprint": "12345678",
+            "device-fingerprint": fp,
           },
           withCredentials: true,
         }

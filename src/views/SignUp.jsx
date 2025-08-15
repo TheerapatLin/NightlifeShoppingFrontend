@@ -19,6 +19,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 //import { GoogleLogin } from "react-google-login";
 import googleLogo from "../img/google-logo.svg";
 import { useTranslation } from "react-i18next";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 function SignUpForm() {
   const { t, i18n } = useTranslation();
@@ -64,16 +65,17 @@ function SignUpForm() {
     const googleLogin = useGoogleLogin({
       onSuccess: async (tokenResponse) => {
         try {
-          const fp = await FingerprintJS.load();
+          const fp = await getDeviceFingerprint();
+          
           const result = await fp.get();
-          const fingerprint = result.visitorId;
-
+          // const fingerprint = result.visitorId;
+          
           const res = await axios.post(
             `${BASE_URL}/auth/google-web-login`,
             { token: tokenResponse.access_token },
             {
               headers: {
-                "device-fingerprint": "12345678",
+                "device-fingerprint": fp,
                 businessid: "1",
               },
               withCredentials: true,
@@ -260,6 +262,7 @@ function SignUpForm() {
     const fingerprint = result.visitorId;
 
     try {
+       const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/auth/login`,
         {
@@ -270,7 +273,7 @@ function SignUpForm() {
         {
           headers: {
             "Content-Type": "application/json",
-            "device-fingerprint": "12345678",
+            "device-fingerprint": fp,
             businessId: "1",
           },
           withCredentials: true,

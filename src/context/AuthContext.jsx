@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 const AuthContext = createContext();
 
@@ -14,13 +15,14 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/auth/refresh-web`,
-        { fingerprint: "12345678" },
+        { fingerprint: fp },
         {
           headers: {
             "Content-Type": "application/json",
-            "device-fingerprint": "12345678",
+            "device-fingerprint": fp,
             businessId: "1",
           },
           withCredentials: true,
@@ -53,15 +55,16 @@ export const AuthProvider = ({ children }) => {
       isRefreshingToken = true;
       // console.log(`try to refresh-token : ${BASE_URL}/auth/refresh-web`);
       try {
+        const fp = await getDeviceFingerprint();
         const response = await axios.post(
           `${BASE_URL}/auth/refresh-web`,
           {
-            fingerprint: "12345678",
+            fingerprint: fp,
           },
           {
             headers: {
               "Content-Type": "application/json",
-              "device-fingerprint": "12345678",
+              "device-fingerprint": fp,
               businessId: "1",
             },
             withCredentials: true,
@@ -93,16 +96,16 @@ export const AuthProvider = ({ children }) => {
       // await axios.post(`${BASE_URL}/auth/logout-web`, {
       //   withCredentials: true,
       // });
-
+      const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/auth/logout`,
         {
-          fingerprint: "12345678",
+          fingerprint: fp,
         },
         {
           headers: {
             "Content-Type": "application/json",
-            "device-fingerprint": "12345678",
+            "device-fingerprint": fp,
             businessId: "1",
           },
           withCredentials: true,

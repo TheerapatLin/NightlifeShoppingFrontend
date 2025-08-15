@@ -6,8 +6,8 @@ import { useGlobalEvent } from "../context/GlobalEventContext";
 import axios from "axios";
 import Lottie from "lottie-web";
 import loadingAnimation1 from "../public/lottie/loading1.json";
-import succesAnimation1 from "../public/lottie/success1.json";
-import emailSentAnimation1 from "../public/lottie/email_sent1.json";
+// import succesAnimation1 from "../public/lottie/success1.json";
+// import emailSentAnimation1 from "../public/lottie/email_sent1.json";
 import emailSentAnimation2 from "../public/lottie/email_sent2.json";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import closeIcon from "../img/circle_close.png";
@@ -173,22 +173,21 @@ function SignUpForm() {
   };
 
   const loginUser = async () => {
-    const fp = await FingerprintJS.load();
     const result = await fp.get();
-    const fingerprint = result.visitorId;
 
     try {
+      const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/auth/login`,
         {
           email: loginFormData.loginEmail.toLowerCase().trim(),
           password: loginFormData.loginPassword.trim(),
-          fingerprint: fingerprint,
+          fingerprint: fp,
         },
         {
           headers: {
             "Content-Type": "application/json",
-            "device-fingerprint": "12345678",
+            "device-fingerprint": fp,
             businessId: "1",
           },
           withCredentials: true,

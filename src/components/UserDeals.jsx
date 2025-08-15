@@ -5,6 +5,7 @@ import QRCode from "react-qr-code";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import "./UserDeals.css";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 function UserDeals() {
   const { t, i18n } = useTranslation();
@@ -20,8 +21,9 @@ function UserDeals() {
 
   const fetchUserDeals = async (userID) => {
     try {
+      const fp = await getDeviceFingerprint();
       const response = await axios.get(`${BASE_URL}/user-deal/${userID}`, {
-        headers: { "device-fingerprint": "12345678" },
+        headers: { "device-fingerprint": fp },
         withCredentials: true,
       });
 
@@ -79,11 +81,12 @@ function UserDeals() {
     // }
 
     try {
+      const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/user-deal/start-session`,
         { userDealId },
         {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         }
       );
@@ -106,7 +109,7 @@ function UserDeals() {
       const updatedDealRes = await axios.get(
         `${BASE_URL}/user-deal/${user.userId}`,
         {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         }
       );

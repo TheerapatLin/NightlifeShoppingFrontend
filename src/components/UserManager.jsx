@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Pencil, Save, X } from "lucide-react";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 const roles = [
   "user",
@@ -75,6 +76,7 @@ const UserManager = () => {
     setLoading(true);
     try {
       // สร้างพารามิเตอร์ roles
+      const fp = await getDeviceFingerprint();
       let rolesParam = "all";
       if (!roleChecks.all) {
         const picked = Object.entries(roleChecks)
@@ -94,7 +96,7 @@ const UserManager = () => {
             q: q || undefined,
             roles: rolesParam,
           },
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         }
       );
@@ -125,6 +127,7 @@ const UserManager = () => {
 
   const saveEdit = async (id) => {
     try {
+      const fp = await getDeviceFingerprint();
       setSavingId(id);
       const payload = {
         ...editedData,
@@ -136,7 +139,7 @@ const UserManager = () => {
       await axios.put(`${BASE_URL}/accounts/superadmin/update/${id}`, payload, {
         headers: {
           "Content-Type": "application/json",
-          "device-fingerprint": "12345678",
+          "device-fingerprint": fp,
         },
         withCredentials: true,
       });

@@ -18,8 +18,9 @@ function AffiliateLinksManager() {
   useEffect(() => {
     const fetchAffiliateActivities = async () => {
       try {
+        const fp = await getDeviceFingerprint();
         const res = await axios.get(`${BASE_URL}/activity/affiliate-enabled`, {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         });
         setActivities(res.data.data || []);
@@ -30,8 +31,9 @@ function AffiliateLinksManager() {
 
     const fetchAffiliateSettings = async () => {
       try {
+        const fp = await getDeviceFingerprint();
         const res = await axios.get(`${BASE_URL}/accounts/affiliate-settings`, {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         });
         setAffiliateSettings(res.data.data || []);
@@ -118,6 +120,7 @@ function AffiliateLinksManager() {
 
     setLoadingSave(activityId);
     try {
+      const fp = await getDeviceFingerprint();
       await axios.put(
         `${BASE_URL}/accounts/affiliate-setting`,
         {
@@ -129,7 +132,7 @@ function AffiliateLinksManager() {
           budgetApplyMode,
         },
         {
-          headers: { "device-fingerprint": "12345678" },
+          headers: { "device-fingerprint": fp },
           withCredentials: true,
         }
       );

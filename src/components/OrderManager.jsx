@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Pencil, Save, X } from "lucide-react";
 import { format } from "date-fns";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 const PAGE_SIZE = 30;
 
@@ -19,11 +20,12 @@ const OrderManager = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
+      const fp = await getDeviceFingerprint();
       const res = await axios.get(
         `${BASE_URL}/activity-order/superadmin?page=${page}&limit=${PAGE_SIZE}`,
         {
           headers: {
-            "device-fingerprint": "12345678",
+            "device-fingerprint": fp,
           },
           withCredentials: true,
         }
@@ -49,13 +51,14 @@ const OrderManager = () => {
 
   const saveEdit = async (id) => {
     try {
+      const fp = getDeviceFingerprint();
       setSavingId(id);
       await axios.put(
         `${BASE_URL}/activity-order/superadmin/${id}`,
         { adminNote: editedNote },
         {
           headers: {
-            "device-fingerprint": "12345678",
+            "device-fingerprint": fp ,
             "Content-Type": "application/json",
           },
           withCredentials: true,

@@ -3,6 +3,7 @@ import ReactModal from "react-modal";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext"; // 👈 ใช้สำหรับอ่าน user.email
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 ReactModal.setAppElement("#root");
 
@@ -45,10 +46,11 @@ const AffiliateBankInfo = () => {
   useEffect(() => {
     const fetchBankInfo = async () => {
       try {
+        const fp = await getDeviceFingerprint();
         const res = await axios.get(
           `${BASE_URL}/accounts/affiliate-bank-info`,
           {
-            headers: { "device-fingerprint": "12345678" },
+            headers: { "device-fingerprint": fp },
             withCredentials: true,
           }
         );
@@ -92,8 +94,9 @@ const AffiliateBankInfo = () => {
     };
 
     try {
+      const fp = await getDeviceFingerprint();
       await axios.put(`${BASE_URL}/accounts/affiliate-bank-info`, payload, {
-        headers: { "device-fingerprint": "12345678" },
+        headers: { "device-fingerprint": fp },
         withCredentials: true,
       });
 

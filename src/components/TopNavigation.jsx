@@ -15,6 +15,7 @@ import axios from "axios";
 import { FaUser } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   const [isCartVisible, setCartIsVisible] = useState(false);
@@ -103,25 +104,38 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   }, [hasUserDeals, isLoggedIn, isAtThePageThatShowsDeal]);
 
   useEffect(() => {
-    const fetchUserDeals = async () => {
-      if (!isLoggedIn || !user?.userId) return;
+    let cancelled = false;
+
+    (async () => {
       try {
-        const response = await axios.get(
-          `${BASE_URL}/user-deal/${user?.userId}`,
-          {
-            headers: { "device-fingerprint": "12345678" },
-            withCredentials: true,
-          }
-        );
-        if (Array.isArray(response.data) && response.data.length > 0) {
-          setHasUserDeals(true);
+        // ดึง user id จาก context ในสโคปนี้ (ไม่พึ่งตัวแปรชื่อ userId ภายนอก)
+        const uid = user?.userId || user?._id || user?.user?._id;
+        if (!isLoggedIn || !uid) {
+          if (!cancelled) setHasUserDeals(false);
+          return;
+        }
+
+        // ถ้ายังไม่ได้ทำ interceptor ให้ใส่ header เอง
+        const fp = await getDeviceFingerprint();
+
+        const res = await api.get(`/user-deal/${uid}`, {
+          headers: { "device-fingerprint": fp },
+          withCredentials: true,
+        });
+
+        if (!cancelled) {
+          setHasUserDeals(Array.isArray(res.data) && res.data.length > 0);
         }
       } catch (err) {
-        console.error("Error checking user deals:", err);
+        if (!cancelled) setHasUserDeals(false);
+        console.error("Error checking user deals:", err?.response?.data || err);
       }
+    })();
+
+    return () => {
+      cancelled = true;
     };
-    fetchUserDeals();
-  }, [isLoggedIn, user]);
+  }, [isLoggedIn, user]); // ✅ ผูกกับ user แทน userId ที่หายไป
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
