@@ -11,21 +11,16 @@ import axios from "axios";
 function CalendarSchedule({ onDateSelect, events, onEventClick }) {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
-  //วันที่เอาเมาส์ไปคลิก
   const handleDateClick = (info) => {
-    //เอาแค่วันที่
     const { dateStr } = info;
-    //ส่งวันที่ผ่านpropsไปที่ไฟล์Profile
     onDateSelect(dateStr);
   };
 
-  // เมื่อคลิกที่กิจกรรม
   const handleEventClick = async (info) => {
     const event = info.event;
     const eventId = event.id;
 
     try {
-      // เรียก API เพื่อตรวจสอบกิจกรรมด้วย eventId
       const response = await axios.get(`${BASE_URL}/activity-slot/${eventId}`, {
         withCredentials: true,
       });
@@ -33,7 +28,6 @@ function CalendarSchedule({ onDateSelect, events, onEventClick }) {
       const fetchedEvent = response.data;
 
       if (fetchedEvent) {
-        // ส่งข้อมูลที่ดึงมาไปยังฟังก์ชัน onEventClick ผ่าน props
         onEventClick({
           id: fetchedEvent._id,
           title:
@@ -61,7 +55,6 @@ function CalendarSchedule({ onDateSelect, events, onEventClick }) {
     }
   };
 
-  // การปรับการแสดงผลของกิจกรรม
   const renderEventContent = (eventInfo) => {
     const view = eventInfo.view.type;
     const maxTitleLength = 15; // กำหนดความยาวสูงสุดของชื่อกิจกรรม

@@ -118,7 +118,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
         // ถ้ายังไม่ได้ทำ interceptor ให้ใส่ header เอง
         const fp = await getDeviceFingerprint();
 
-        const res = await api.get(`/user-deal/${uid}`, {
+        const res = await axios.get(`${BASE_URL}/user-deal/${uid}`, {
           headers: { "device-fingerprint": fp },
           withCredentials: true,
         });
