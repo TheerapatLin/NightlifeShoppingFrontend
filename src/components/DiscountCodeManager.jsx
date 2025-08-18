@@ -130,7 +130,15 @@ const DiscountCodeManager = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // สำหรับช่อง discountValue ให้รับเฉพาะตัวเลข
+    if (name === 'discountValue') {
+      // ลบทุกอย่างที่ไม่ใช่ตัวเลข
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSave = async () => {
@@ -293,11 +301,18 @@ const DiscountCodeManager = () => {
           <div>
             <label className="block font-medium mb-1">Value</label>
             <input
-              type="number"
+              type="text"
               name="discountValue"
               value={formData.discountValue}
               onChange={handleChange}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              style={{ 
+                MozAppearance: 'textfield',
+                WebkitAppearance: 'textfield'
+              }}
               className="w-full border px-3 py-2"
+              onWheel={(e) => e.preventDefault()}
             />
           </div>
 
