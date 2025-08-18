@@ -34,7 +34,15 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // สำหรับช่องราคาและจำนวนคน ให้รับเฉพาะตัวเลข
+    if (name === 'cost' || name === 'participantLimit') {
+      // ลบทุกอย่างที่ไม่ใช่ตัวเลข
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleTimeChange = (name, newValue) => {
@@ -176,18 +184,44 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
         <TextField
           label="ราคา"
           name="cost"
-          type="number"
+          type="text"
           value={formData.cost}
           onChange={handleChange}
+          inputProps={{
+            inputMode: 'numeric',
+            pattern: '[0-9]*',
+            style: { MozAppearance: 'textfield' }
+          }}
+          sx={{
+            '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+              display: 'none',
+            },
+            '& input[type=number]': {
+              MozAppearance: 'textfield',
+            },
+          }}
           fullWidth
         />
 
         <TextField
           label="จำนวนคนสูงสุด"
           name="participantLimit"
-          type="number"
+          type="text"
           value={formData.participantLimit}
           onChange={handleChange}
+          inputProps={{
+            inputMode: 'numeric',
+            pattern: '[0-9]*',
+            style: { MozAppearance: 'textfield' }
+          }}
+          sx={{
+            '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+              display: 'none',
+            },
+            '& input[type=number]': {
+              MozAppearance: 'textfield',
+            },
+          }}
           fullWidth
         />
 
