@@ -20,6 +20,7 @@ import { useAuth } from "../context/AuthContext";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone"; // นำเข้า timezone plugin ที่ถูกต้อง
 import utc from "dayjs/plugin/utc"; // นำเข้า utc plugin เพื่อใช้ร่วมกับ timezone
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -185,7 +186,7 @@ function ActivitiesForm({
         requireRequestToJoin: true,
         notes: dataForm.description,
       };
-      const fp = await getDeviceFingerprint(); 
+      const fp = await getDeviceFingerprint();
       await axios.post(`${BASE_URL}/activity-slot`, slotPayload, {
         headers: {
           "device-fingerprint": fp,
