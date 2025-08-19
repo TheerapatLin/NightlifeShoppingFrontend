@@ -454,8 +454,8 @@ const Checkout = (props) => {
         </div>
         <div className="  text-[14px] font-normal">
           {i18n.language === "th"
-            ? "ไม่มีนโยบายให้ยกการจอง โดยเงินที่ชำระมาจะนำไปบริจาคช่วยเหลือสถานที่ที่ไปร่วมกิจกรรมแทน"
-            : "There is no cancellation policy. The paid amount will be donated to support the venue of the activity."}
+            ? "นโยบายการยกเลิก: ไม่สามารถขอคืนเงินได้ไม่ว่ากรณีใดๆ"
+            : "Our cancellation policy is no refunds under any circumstances."}
         </div>
       </div>
     </>

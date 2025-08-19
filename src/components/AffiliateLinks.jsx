@@ -127,11 +127,14 @@ function AffiliateLinks() {
   };
 
   const handleInputChange = (activityId, field, value) => {
+    // รับเฉพาะตัวเลข
+    const numericValue = value.replace(/[^0-9]/g, '');
+    
     setSettings((prev) => {
       const activity = prev[activityId] || {};
       const activityData = activities.find((a) => a._id === activityId);
       const totalValue = activityData?.affiliate?.totalValue || 0;
-      let newValue = parseInt(value) || 0;
+      let newValue = parseInt(numericValue) || 0;
 
       if (newValue < 0) {
         alert(t("affiliate.no_negative_value"));
@@ -315,7 +318,7 @@ function AffiliateLinks() {
                     {t("affiliate.customer_discount")}
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     value={setting.customerDiscount}
                     onChange={(e) =>
                       handleInputChange(
@@ -324,6 +327,13 @@ function AffiliateLinks() {
                         e.target.value
                       )
                     }
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    style={{ 
+                      MozAppearance: 'textfield',
+                      WebkitAppearance: 'textfield'
+                    }}
+                    onWheel={(e) => e.preventDefault()}
                     className="w-full px-2 py-1 rounded text-black text-sm"
                   />
                 </div>
@@ -332,7 +342,7 @@ function AffiliateLinks() {
                     {t("affiliate.your_earning")}
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     value={setting.affiliatorReward}
                     onChange={(e) =>
                       handleInputChange(
@@ -341,6 +351,13 @@ function AffiliateLinks() {
                         e.target.value
                       )
                     }
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    style={{ 
+                      MozAppearance: 'textfield',
+                      WebkitAppearance: 'textfield'
+                    }}
+                    onWheel={(e) => e.preventDefault()}
                     className="w-full px-2 py-1 rounded text-black text-sm"
                   />
                 </div>

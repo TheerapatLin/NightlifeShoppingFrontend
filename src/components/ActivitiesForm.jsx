@@ -110,10 +110,21 @@ function ActivitiesForm({
   //เก็บค่าเปลี่ยนแปลงของใน input แล้วเก็บค่า
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setDataForm((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    
+    // สำหรับช่อง repeatCount ให้รับเฉพาะตัวเลข
+    if (name === 'repeatCount') {
+      // ลบทุกอย่างที่ไม่ใช่ตัวเลข
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setDataForm((prevData) => ({
+        ...prevData,
+        [name]: numericValue,
+      }));
+    } else {
+      setDataForm((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleTimeChange = (name, newValue) => {
@@ -693,17 +704,28 @@ function ActivitiesForm({
             <div className="flex items-center space-x-2 ml-5">
               <span className="font-sans font-normal">ซ้ำ</span>
               <TextField
-                type="number"
+                type="text"
                 variant="outlined"
                 size="small"
                 name="repeatCount"
                 value={dataForm.repeatCount}
                 onChange={handleChange} // เก็บค่าจำนวนวันที่ซ้ำ
                 inputProps={{
-                  min: 1, // ตั้งค่า min เป็น 1
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*',
+                  style: { MozAppearance: 'textfield' },
+                  onWheel: (e) => e.preventDefault()
                 }}
                 InputProps={{
-                  sx: { width: "100px" },
+                  sx: { 
+                    width: "100px",
+                    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                      display: 'none',
+                    },
+                    '& input[type=number]': {
+                      MozAppearance: 'textfield',
+                    },
+                  },
                 }}
               />
               <span className="font-sans font-normal">วัน</span>
@@ -714,17 +736,28 @@ function ActivitiesForm({
             <div className="flex items-center space-x-2 ml-5">
               <span className="font-sans font-normal">ซ้ำ</span>
               <TextField
-                type="number"
+                type="text"
                 variant="outlined"
                 size="small"
                 name="repeatCount"
                 value={dataForm.repeatCount}
                 onChange={handleChange}
                 inputProps={{
-                  min: 1, // ตั้งค่า min เป็น 1
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*',
+                  style: { MozAppearance: 'textfield' },
+                  onWheel: (e) => e.preventDefault()
                 }}
                 InputProps={{
-                  sx: { width: "100px" },
+                  sx: { 
+                    width: "100px",
+                    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                      display: 'none',
+                    },
+                    '& input[type=number]': {
+                      MozAppearance: 'textfield',
+                    },
+                  },
                 }}
               />
               <span className="font-sans font-normal">สัปดาห์</span>

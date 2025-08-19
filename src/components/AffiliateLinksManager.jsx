@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 function AffiliateLinksManager() {
   const { t, i18n } = useTranslation();
@@ -18,7 +19,7 @@ function AffiliateLinksManager() {
   useEffect(() => {
     const fetchAffiliateActivities = async () => {
       try {
-        const fp = await getDeviceFingerprint();
+        const fp = await getDeviceFingerprint()
         const res = await axios.get(`${BASE_URL}/activity/affiliate-enabled`, {
           headers: { "device-fingerprint": fp },
           withCredentials: true,
@@ -47,11 +48,14 @@ function AffiliateLinksManager() {
   }, []);
 
   const handleInputChange = (activityId, field, value) => {
+    // รับเฉพาะตัวเลข
+    const numericValue = value.replace(/[^0-9]/g, '');
+    
     setSettings((prev) => {
       const activity = prev[activityId] || {};
       const activityData = activities.find((a) => a._id === activityId);
       const totalValue = activityData?.affiliate?.totalValue || 0;
-      let newValue = parseInt(value) || 0;
+      let newValue = parseInt(numericValue) || 0;
 
       if (newValue < 0) {
         alert(t("affiliate.no_negative_value"));
@@ -246,7 +250,7 @@ function AffiliateLinksManager() {
                   </label>
 
                   <input
-                    type="number"
+                    type="text"
                     value={setting.customerDiscount}
                     onChange={(e) =>
                       handleInputChange(
@@ -255,6 +259,13 @@ function AffiliateLinksManager() {
                         e.target.value
                       )
                     }
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    style={{ 
+                      MozAppearance: 'textfield',
+                      WebkitAppearance: 'textfield'
+                    }}
+                    onWheel={(e) => e.preventDefault()}
                     className="w-full h-9 rounded bg-white/20 backdrop-blur-[50px] border border-white/30 text-white placeholder-white/80 text-center text-sm"
                     placeholder={t("affiliate.customer_discount")}
                   />
@@ -265,7 +276,7 @@ function AffiliateLinksManager() {
                     {t("affiliate.your_earning")}
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     value={setting.affiliatorReward}
                     onChange={(e) =>
                       handleInputChange(
@@ -274,6 +285,13 @@ function AffiliateLinksManager() {
                         e.target.value
                       )
                     }
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    style={{ 
+                      MozAppearance: 'textfield',
+                      WebkitAppearance: 'textfield'
+                    }}
+                    onWheel={(e) => e.preventDefault()}
                     className="w-full h-9 rounded bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/80 text-center text-sm"
                     placeholder={t("affiliate.your_earning")}
                   />
