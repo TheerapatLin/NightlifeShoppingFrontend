@@ -53,6 +53,8 @@ function Profile() {
           creator: slot.creator,
           activityId: slot.activityId?._id,
           slotId: slot._id,
+          // ✅ เพิ่ม subscription pricing
+          subscriptionPricing: slot.subscriptionPricing,
         },
       }));
 

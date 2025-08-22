@@ -47,6 +47,10 @@ function ActivitiesForm({
     participantLimit: "",
     repeat: "none",
     repeatCount: 1,
+    // ✅ เพิ่มราคาสำหรับ subscription tiers
+    premiumPrice: "",
+    platinumPrice: "",
+    enableSubscriptionPricing: false,
   });
   const [allActivities, setAllActivities] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
@@ -109,10 +113,14 @@ function ActivitiesForm({
 
   //เก็บค่าเปลี่ยนแปลงของใน input แล้วเก็บค่า
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     
-    // สำหรับช่อง repeatCount ให้รับเฉพาะตัวเลข
-    if (name === 'repeatCount') {
+    // สำหรับ checkbox
+    if (type === 'checkbox') {
+      setDataForm((prevData) => ({ ...prevData, [name]: checked }));
+    }
+    // สำหรับช่องตัวเลข ให้รับเฉพาะตัวเลข
+    else if (name === 'repeatCount' || name === 'expenses' || name === 'participantLimit' || name === 'premiumPrice' || name === 'platinumPrice') {
       // ลบทุกอย่างที่ไม่ใช่ตัวเลข
       const numericValue = value.replace(/[^0-9]/g, '');
       setDataForm((prevData) => ({
@@ -193,6 +201,13 @@ function ActivitiesForm({
         endTime: endDateTime.toISOString(),
         location: selectedActivity.location, // หรือ location จากฟอร์มเพิ่มเติมได้
         cost: parseInt(dataForm.expenses) || 0,
+        // ✅ เพิ่ม subscription pricing
+        subscriptionPricing: {
+          regular: parseInt(dataForm.expenses) || 0,
+          premium: parseInt(dataForm.premiumPrice) || 0,
+          platinum: parseInt(dataForm.platinumPrice) || 0,
+          enabled: dataForm.enableSubscriptionPricing,
+        },
         participantLimit: parseInt(dataForm.participantLimit) || 10,
         requireRequestToJoin: true,
         notes: dataForm.description,
@@ -623,36 +638,101 @@ function ActivitiesForm({
           />
 
           <TextField
-            label="ค่าใช้จ่าย(บาท)"
+            label="ค่าใช้จ่าย(บาท) - Regular"
             variant="outlined"
-            type="number"
+            type="text"
             fullWidth
             name="expenses"
             value={dataForm.expenses}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (Number(value) >= 0 || value === "") {
-                handleChange(e);
-              }
+            onChange={handleChange}
+            inputProps={{
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
+              style: { MozAppearance: 'textfield' },
+              onWheel: (e) => e.preventDefault()
             }}
-            InputProps={{
-              inputProps: { min: 0 },
-              onWheel: (e) => e.target.blur(),
-              sx: {
-                // ซ่อน spinner บน Chrome/Safari/Edge
-                "input::-webkit-outer-spin-button": {
-                  WebkitAppearance: "none",
-                  margin: 0,
-                },
-                "input::-webkit-inner-spin-button": {
-                  WebkitAppearance: "none",
-                  margin: 0,
-                },
-                // ซ่อน spinner บน Firefox
-                "input[type=number]": { MozAppearance: "textfield" },
+            sx={{
+              '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                display: 'none',
+              },
+              '& input[type=number]': {
+                MozAppearance: 'textfield',
               },
             }}
           />
+
+          {/* ✅ Subscription Pricing Section */}
+          <div className="space-y-3 p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="enableSubscriptionPricing"
+                name="enableSubscriptionPricing"
+                checked={dataForm.enableSubscriptionPricing}
+                onChange={handleChange}
+                className="w-4 h-4 text-blue-600"
+              />
+              <label htmlFor="enableSubscriptionPricing" className="text-sm font-medium text-gray-700">
+                🎯 เปิดใช้ราคาพิเศษสำหรับสมาชิก Premium/Platinum
+              </label>
+            </div>
+            
+            {dataForm.enableSubscriptionPricing && (
+              <div className="grid grid-cols-2 gap-3">
+                <TextField
+                  label="💎 Premium Price (บาท)"
+                  variant="outlined"
+                  type="text"
+                  name="premiumPrice"
+                  value={dataForm.premiumPrice}
+                  onChange={handleChange}
+                  placeholder="เช่น 150"
+                  inputProps={{
+                    inputMode: 'numeric',
+                    pattern: '[0-9]*',
+                    style: { MozAppearance: 'textfield' },
+                    onWheel: (e) => e.preventDefault()
+                  }}
+                  sx={{
+                    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                      display: 'none',
+                    },
+                    '& input[type=number]': {
+                      MozAppearance: 'textfield',
+                    },
+                  }}
+                />
+                
+                <TextField
+                  label="👑 Platinum Price (บาท)"
+                  variant="outlined"
+                  type="text"
+                  name="platinumPrice"
+                  value={dataForm.platinumPrice}
+                  onChange={handleChange}
+                  placeholder="เช่น 150"
+                  inputProps={{
+                    inputMode: 'numeric',
+                    pattern: '[0-9]*',
+                    style: { MozAppearance: 'textfield' },
+                    onWheel: (e) => e.preventDefault()
+                  }}
+                  sx={{
+                    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                      display: 'none',
+                    },
+                    '& input[type=number]': {
+                      MozAppearance: 'textfield',
+                    },
+                  }}
+                />
+              </div>
+            )}
+            
+            <div className="text-xs text-gray-500">
+              💡 ราคาพิเศษจะแสดงให้สมาชิก Premium และ Platinum เมื่อพวกเขาดูกิจกรรมนี้
+            </div>
+          </div>
 
           <TextField
             label="จำนวนคนที่เข้าร่วม"

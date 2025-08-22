@@ -1,8 +1,9 @@
 // components/UserManager.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Pencil, Save, X } from "lucide-react";
+import { Pencil, Save, X, Eye, Crown } from "lucide-react";
 import { getDeviceFingerprint } from "../lib/fingerprint";
+import SubscriptionModal from "./SubscriptionModal";
 
 const roles = [
   "user",
@@ -33,6 +34,13 @@ const UserManager = () => {
 
   const [editingId, setEditingId] = useState(null);
   const [editedData, setEditedData] = useState({ role: "", affiliateCode: "" });
+  
+  // Subscription modal state
+  const [subscriptionModal, setSubscriptionModal] = useState({
+    isOpen: false,
+    userId: null,
+    userName: null
+  });
 
   // ✅ ให้การเรียงทำที่ backend (default: ใหม่→เก่า)
   const [sortKey, setSortKey] = useState("createdAt"); // name | email | role | createdAt
@@ -123,6 +131,29 @@ const UserManager = () => {
   const cancelEdit = () => {
     setEditingId(null);
     setEditedData({ role: "", affiliateCode: "" });
+  };
+
+  // Open subscription modal
+  const openSubscriptionModal = (userId, userName) => {
+    setSubscriptionModal({
+      isOpen: true,
+      userId,
+      userName
+    });
+  };
+
+  // Close subscription modal
+  const closeSubscriptionModal = () => {
+    setSubscriptionModal({
+      isOpen: false,
+      userId: null,
+      userName: null
+    });
+  };
+
+  // Handle subscription changes
+  const handleSubscriptionChange = () => {
+    fetchUsers(); // Refresh user list to show updated levels
   };
 
   const saveEdit = async (id) => {
@@ -361,6 +392,7 @@ const UserManager = () => {
               <SortableTh label="อีเมล" columnKey="email" />
               <SortableTh label="วันเวลาสมัคร" columnKey="createdAt" />
               <SortableTh label="Role" columnKey="role" />
+              <th className="p-2">ระดับปัจจุบัน</th>
               <th className="p-2">Affiliate Code</th>
               <th className="p-2">Action</th>
             </tr>
@@ -380,7 +412,7 @@ const UserManager = () => {
                       onChange={(e) =>
                         setEditedData({ ...editedData, role: e.target.value })
                       }
-                      className="border rounded px-2 py-1"
+                      className="border rounded px-3 py-1"
                     >
                       {roles.map((r) => (
                         <option key={r} value={r}>
@@ -391,6 +423,20 @@ const UserManager = () => {
                   ) : (
                     u.role
                   )}
+                </td>
+                <td className="p-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">
+                      {u.currentLevel?.level === 'premium' ? '💎 Premium' : 
+                       u.currentLevel?.level === 'platinum' ? '👑 Platinum' : 
+                       '👤 Regular'}
+                    </span>
+                    {u.currentLevel?.source === 'subscription' && (
+                      <span className="text-xs text-gray-500">
+                        หมด: {new Date(u.currentLevel.expiresAt).toLocaleDateString('th-TH')}
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="p-2">
                   {editingId === u._id ? (
@@ -429,16 +475,29 @@ const UserManager = () => {
                       </button>
                     </div>
                   ) : (
-                    <button onClick={() => startEdit(u)}>
-                      <Pencil size={18} />
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => startEdit(u)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        title="แก้ไขข้อมูล"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button 
+                        onClick={() => openSubscriptionModal(u._id, u.user?.name || 'Unknown')}
+                        className="p-1 hover:bg-gray-100 rounded text-blue-600"
+                        title="จัดการ Subscription"
+                      >
+                        <Crown size={16} />
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-4 text-center text-gray-500">
+                <td colSpan={7} className="p-4 text-center text-gray-500">
                   ไม่พบข้อมูลผู้ใช้
                 </td>
               </tr>
@@ -467,6 +526,15 @@ const UserManager = () => {
           ถัดไป
         </button>
       </div>
+
+      {/* Subscription Modal */}
+      <SubscriptionModal
+        isOpen={subscriptionModal.isOpen}
+        onClose={closeSubscriptionModal}
+        userId={subscriptionModal.userId}
+        userName={subscriptionModal.userName}
+        onSubscriptionChange={handleSubscriptionChange}
+      />
     </div>
   );
 };

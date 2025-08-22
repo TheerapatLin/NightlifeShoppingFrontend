@@ -20,6 +20,10 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
     notes: slot.extendedProps.description || "",
     startTime: dayjs(slot.start),
     endTime: dayjs(slot.end),
+    // ✅ เพิ่มราคา subscription
+    premiumPrice: slot.extendedProps.subscriptionPricing?.premium || 0,
+    platinumPrice: slot.extendedProps.subscriptionPricing?.platinum || 0,
+    enableSubscriptionPricing: slot.extendedProps.subscriptionPricing?.enabled || false,
   });
 
   useEffect(() => {
@@ -29,14 +33,22 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
       notes: slot.extendedProps.description || "",
       startTime: dayjs(slot.start),
       endTime: dayjs(slot.end),
+      // ✅ เพิ่มราคา subscription
+      premiumPrice: slot.extendedProps.subscriptionPricing?.premium || 0,
+      platinumPrice: slot.extendedProps.subscriptionPricing?.platinum || 0,
+      enableSubscriptionPricing: slot.extendedProps.subscriptionPricing?.enabled || false,
     });
   }, [slot]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     
+    // สำหรับ checkbox
+    if (type === 'checkbox') {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    }
     // สำหรับช่องราคาและจำนวนคน ให้รับเฉพาะตัวเลข
-    if (name === 'cost' || name === 'participantLimit') {
+    else if (name === 'cost' || name === 'participantLimit' || name === 'premiumPrice' || name === 'platinumPrice') {
       // ลบทุกอย่างที่ไม่ใช่ตัวเลข
       const numericValue = value.replace(/[^0-9]/g, '');
       setFormData((prev) => ({ ...prev, [name]: numericValue }));
@@ -60,6 +72,13 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
           notes: formData.notes,
           startTime: formData.startTime.toISOString(),
           endTime: formData.endTime.toISOString(),
+          // ✅ เพิ่ม subscription pricing
+          subscriptionPricing: {
+            regular: parseInt(formData.cost) || 0,
+            premium: parseInt(formData.premiumPrice) || 0,
+            platinum: parseInt(formData.platinumPrice) || 0,
+            enabled: formData.enableSubscriptionPricing,
+          },
         },
         {
           headers: { "device-fingerprint": fp },
@@ -182,7 +201,7 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
         </LocalizationProvider>
 
         <TextField
-          label="ราคา"
+          label="ราคา - Regular"
           name="cost"
           type="text"
           value={formData.cost}
@@ -190,7 +209,8 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
           inputProps={{
             inputMode: 'numeric',
             pattern: '[0-9]*',
-            style: { MozAppearance: 'textfield' }
+            style: { MozAppearance: 'textfield' },
+            onWheel: (e) => e.preventDefault()
           }}
           sx={{
             '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
@@ -202,6 +222,77 @@ function SlotDetailModal({ open, onClose, slot, refreshSlots }) {
           }}
           fullWidth
         />
+
+        {/* ✅ Subscription Pricing Section */}
+        <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid', borderColor: 'grey.300' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <input
+              type="checkbox"
+              id="enableSubscriptionPricing"
+              name="enableSubscriptionPricing"
+              checked={formData.enableSubscriptionPricing}
+              onChange={handleChange}
+              style={{ marginRight: 8 }}
+            />
+            <label htmlFor="enableSubscriptionPricing" style={{ fontSize: 14, fontWeight: 500, color: '#374151' }}>
+              🎯 เปิดใช้ราคาพิเศษสำหรับสมาชิก
+            </label>
+          </Box>
+          
+          {formData.enableSubscriptionPricing && (
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <TextField
+                label="💎 Premium Price"
+                name="premiumPrice"
+                type="text"
+                value={formData.premiumPrice}
+                onChange={handleChange}
+                size="small"
+                inputProps={{
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*',
+                  style: { MozAppearance: 'textfield' },
+                  onWheel: (e) => e.preventDefault()
+                }}
+                sx={{
+                  '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                    display: 'none',
+                  },
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
+                  },
+                }}
+              />
+              
+              <TextField
+                label="👑 Platinum Price"
+                name="platinumPrice"
+                type="text"
+                value={formData.platinumPrice}
+                onChange={handleChange}
+                size="small"
+                inputProps={{
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*',
+                  style: { MozAppearance: 'textfield' },
+                  onWheel: (e) => e.preventDefault()
+                }}
+                sx={{
+                  '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                    display: 'none',
+                  },
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
+                  },
+                }}
+              />
+            </Box>
+          )}
+          
+          <Box sx={{ mt: 1, fontSize: 12, color: 'grey.600' }}>
+            💡 ราคาพิเศษจะแสดงให้สมาชิก Premium และ Platinum
+          </Box>
+        </Box>
 
         <TextField
           label="จำนวนคนสูงสุด"

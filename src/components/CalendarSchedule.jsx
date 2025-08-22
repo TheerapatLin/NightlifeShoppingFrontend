@@ -45,6 +45,8 @@ function CalendarSchedule({ onDateSelect, events, onEventClick }) {
             creator: fetchedEvent.creator,
             activityId: fetchedEvent.activityId?._id,
             slotId: fetchedEvent._id,
+            // ✅ เพิ่ม subscription pricing
+            subscriptionPricing: fetchedEvent.subscriptionPricing,
           },
         });
       } else {
