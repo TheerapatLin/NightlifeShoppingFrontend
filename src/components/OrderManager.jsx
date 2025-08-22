@@ -172,7 +172,12 @@ const OrderManager = () => {
                   {o.originalPrice?.toLocaleString("th-TH") || "-"}
                 </td>
                 <td className="p-2">
-                  {o.discountCodeAmount?.toLocaleString("th-TH") || 0}
+                  {(() => {
+                    const originalPrice = o.originalPrice || 0;
+                    const paidAmount = o.paidAmount || 0;
+                    const difference = originalPrice - paidAmount;
+                    return difference.toLocaleString("th-TH");
+                  })()}
                 </td>
                 <td className="p-2">{o.discountCodeUsed || "-"}</td>
                 <td className="p-2">
