@@ -33,13 +33,14 @@ const SubscriptionModal = ({ isOpen, onClose, userId, userName, onSubscriptionCh
         headers: { "device-fingerprint": fp },
         withCredentials: true
       });
-      // ถ้าไม่มีข้อมูล ให้แสดงข้อมูลตัวอย่าง
+      // แสดงข้อมูล subscription ของ user คนนี้
       const subs = response.data.data?.subscriptions || [];
       if (subs.length === 0) {
-        // สร้างข้อมูลตัวอย่างสำหรับ demo
+        // สร้างข้อมูลตัวอย่างสำหรับ user คนนี้
         setSubscriptions([
           {
             _id: 'demo-1',
+            userId: userId,
             subscriptionType: 'premium',
             billingCycle: 'monthly',
             status: 'active',
