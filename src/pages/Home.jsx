@@ -224,6 +224,25 @@ function Home() {
         )}
       </div>
 
+      <div style={{ textAlign: "center", margin: "20px 0" }}>
+        <button
+          onClick={() => navigate("/shopping-stripe")}
+          style={{
+            padding: "12px 32px",
+            fontSize: "18px",
+            background: "#635bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            boxShadow: "0 2px 8px rgba(99,91,255,0.15)"
+          }}
+        >
+          ทดสอบจ่ายเงิน Shopping
+        </button>
+      </div>
+
       {/***************** Deal Cards *****************/}
       <>
         <style>{`

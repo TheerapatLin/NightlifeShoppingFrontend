@@ -38,6 +38,7 @@ import React from "react";
 import { Elements } from "@stripe/react-stripe-js";
 import Videotextnightlife from "../src/components/Videotextnightlife";
 import VideotextnightlifeMobile from "../src/components/VideotextnightlifeMobile";
+import ShoppingCheckout from "./pages/ShoppingCheckout";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 import { loadStripe } from "@stripe/stripe-js";
@@ -175,6 +176,14 @@ function RouteContainer() {
             element={
               <MotionPage>
                 <Home />
+              </MotionPage>
+            }
+          />
+          <Route
+            path="/shopping-stripe"
+            element={
+              <MotionPage>
+                <ShoppingCheckout />
               </MotionPage>
             }
           />
