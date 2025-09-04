@@ -2,6 +2,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import ShoppingStripeContainer from "./ShoppingStripeContainer";
 import React, { useEffect, useState, useRef } from "react";
+import LoaderStyleOne from "../Helpers/Loaders/LoaderStyleOne";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
@@ -18,7 +19,7 @@ const ShoppingCheckout = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            userId: "686b96c95c75bb3f6bf32801"
+            userId: "68b32ba0e93ffe9574f07431"
           })
         })
         if (!response.ok) {
@@ -48,7 +49,9 @@ const ShoppingCheckout = () => {
   return (
     <>
       {!clientSecret ? (
-        <div>Loading payment...</div> // หรือใส่ spinner ก็ได้
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh", width: "100%" }}>
+          <LoaderStyleOne />
+        </div>
       ) : (
         <Elements stripe={stripePromise} options={{ clientSecret }}>
           <ShoppingStripeContainer clientSecret={clientSecret} />

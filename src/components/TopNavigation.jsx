@@ -16,6 +16,7 @@ import { FaUser } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import { getDeviceFingerprint } from "../lib/fingerprint";
+import BasketPopup from "./BasketPopup";
 
 const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   const [isCartVisible, setCartIsVisible] = useState(false);
@@ -37,6 +38,9 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
     location.pathname === "/profile" ||
     location.pathname.startsWith("/activityDetails");
   const [isProfileHover, setIsProfileHover] = useState(false);
+  const [productData, setProductData] = useState([]);
+  const [basketData, setBasketData] = useState(null);
+  const [isBasketOpen, setIsBasketOpen] = useState(false);
 
   const styles = {
     menuItem: {
@@ -102,6 +106,38 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
       return () => clearTimeout(timer);
     }
   }, [hasUserDeals, isLoggedIn, isAtThePageThatShowsDeal]);
+
+  // Fetch products for resolving variant images in basket popup
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/shopping/product`);
+        setProductData(res.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProduct();
+  }, []);
+
+  // Fetch basket for logged-in user
+  useEffect(() => {
+    const fetchBasket = async () => {
+      if (!user || !user.userId) return;
+      try {
+        const fp = await getDeviceFingerprint();
+        const res = await axios.get(`${BASE_URL}/shopping/basket/${user.userId}`,
+          { headers: { "device-fingerprint": fp }, withCredentials: true }
+        );
+        setBasketData(res.data);
+      } catch (error) {
+        console.error("Error fetching baskets:", error);
+      }
+    };
+    fetchBasket();
+  }, [BASE_URL, user?.userId]);
+
+  const totalItemsInBasket = basketData?.items?.reduce((sum, it) => sum + (it.quantity || 0), 0) || 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -195,9 +231,8 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
 
               <div style={{ height: "50px" }}>
                 <nav
-                  className={`menu-bar ${
-                    isScrolled ? "scrolled" : "not-scrolled"
-                  }`}
+                  className={`menu-bar ${isScrolled ? "scrolled" : "not-scrolled"
+                    }`}
                 >
                   <div
                     className="group"
@@ -230,12 +265,19 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                   </div> */}
                     <Link
                       to="/"
-                      className={`item02 ${
-                        currentPage.name === "" ? "active" : ""
-                      }`}
+                      className={`item02 ${currentPage.name === "" ? "active" : ""
+                        }`}
                       style={styles.menuItem}
                     >
                       Home
+                    </Link>
+                    <Link
+                      to="/shopping"
+                      className={`item02 ${currentPage.name === "" ? "active" : ""
+                        }`}
+                      style={styles.menuItem}
+                    >
+                      Shopping
                     </Link>
                     {/* <Link
                     to="/Activity"
@@ -257,6 +299,22 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                         Certificate
                       </Link>
                     )} */}
+
+
+                    <Link
+                      to="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsBasketOpen(true);
+                      }}
+                      className={`item02 ${currentPage.name === "" ? "active" : ""
+                        }`}
+                      style={styles.menuItem}
+                    >
+                      Basket{totalItemsInBasket ? ` (${totalItemsInBasket})` : ""}
+                    </Link>
+
+
                     <div className="ml-auto" />
                     <div
                       style={{
@@ -279,9 +337,8 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                               transition:
                                 "color 0.2s ease, text-decoration 0.2s ease",
                             }}
-                            className={`item02 ${
-                              currentPage.name === "profile" ? "active" : ""
-                            }`}
+                            className={`item02 ${currentPage.name === "profile" ? "active" : ""
+                              }`}
                           >
                             <FaUser
                               className="text-lg"
@@ -432,6 +489,12 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
             >
               <span style={{ fontSize: "18px" }}>Home</span>
             </Link>
+            {/* <Link
+              to="/shopping"
+              className={`item02_m ${currentPage.name === "" ? "active" : ""}`}
+            >
+              <span style={{ fontSize: "18px" }}>Shopping</span>
+            </Link> */}
 
             {/* <Link
             to="/Activity"
@@ -446,9 +509,8 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
               <div className="flex flex-col justify-center items-center">
                 <Link
                   to={"/profile"}
-                  className={`${
-                    currentPage.name === "profile" ? "active" : ""
-                  }`}
+                  className={`${currentPage.name === "profile" ? "active" : ""
+                    }`}
                   style={{
                     ...styles.menuItem,
                     margin: "10px",
@@ -481,6 +543,12 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
           </div>
         )}
       </div>
+      <BasketPopup
+        isOpen={isBasketOpen}
+        onClose={() => setIsBasketOpen(false)}
+        basketData={basketData}
+        productData={productData}
+      />
       {windowSize.width <= 768 && isDealPromptVisible && (
         <div
           onClick={() => {
@@ -496,13 +564,12 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
             bottom: "20px",
             right: 0,
             transform: `
-    ${
-      hasUserDeals && isLoggedIn && !isAtThePageThatShowsDeal
-        ? isPromptExpanded
-          ? "translateX(0%) scaleX(1)"
-          : "translateX(75%) scaleX(1)"
-        : "translateX(120%) scaleX(1)"
-    }
+    ${hasUserDeals && isLoggedIn && !isAtThePageThatShowsDeal
+                ? isPromptExpanded
+                  ? "translateX(0%) scaleX(1)"
+                  : "translateX(75%) scaleX(1)"
+                : "translateX(120%) scaleX(1)"
+              }
   `,
             transformOrigin: "right center", // 🔥 หดจากด้านขวา
             transition: "transform 0.4s ease",

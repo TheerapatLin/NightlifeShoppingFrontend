@@ -10,7 +10,11 @@ import "./public/css/Animation.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import TopNavigation from "./components/TopNavigation";
 import Footer from "./components/Footer";
+
 import Home from "./pages/Home";
+import Shopping from "./pages/Shopping"
+import ProductDetail from "./pages/ProductDetail";
+
 import Profile from "./pages/Profile";
 import ActivityDetails from "./pages/ActivityDetails";
 import Payment from "./pages/Payment";
@@ -176,6 +180,22 @@ function RouteContainer() {
             element={
               <MotionPage>
                 <Home />
+              </MotionPage>
+            }
+          />
+          <Route
+            path="/shopping"
+            element={
+              <MotionPage>
+                <Shopping />
+              </MotionPage>
+            }
+          />
+          <Route
+            path="/shopping/product/:productId"
+            element={
+              <MotionPage>
+                <ProductDetail />
               </MotionPage>
             }
           />
