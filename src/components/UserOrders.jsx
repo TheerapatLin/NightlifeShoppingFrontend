@@ -1,0 +1,86 @@
+import React, { useState } from "react";
+import dayjs from "dayjs";
+import OrderDetailModal from "./OrderDetailModal";
+
+function UserOrders({ orders }) {
+  const [open, setOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  const handleRowClick = (orderId) => {
+    setSelectedOrderId(orderId);
+    setOpen(true);
+  };
+
+  return (
+    <div className="w-full p-4">
+      <div className="text-xl  text-white text-center flex justify-center">
+        Orders
+      </div>
+
+      <div className="overflow-x-auto mt-4">
+        {!orders || orders.length === 0 ? (
+          <div className="text-white text-center text-sm italic opacity-20">
+            ( No orders found )
+          </div>
+        ) : (
+          <table className="min-w-full table-auto text-sm">
+            <thead className="bg-gray-200 text-black">
+              <tr>
+                <th className="px-4 py-2 text-left">Paid At</th>
+                <th className="px-4 py-2 text-left">Total Price</th>
+                <th className="px-4 py-2 text-left">Payment Type</th>
+                <th className="px-4 py-2 text-left">Payment Status</th>
+                <th className="px-4 py-2 text-left">Update At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr
+                  key={order._id}
+                  onClick={() => handleRowClick(order._id)}
+                  className="cursor-pointer text-white shadow-[inset_0px_-1px_0px_rgba(255,255,255,0.3)] hover:bg-white/10 transition-all duration-200"
+                >
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    {order?.createdAt || order?.createAt
+                      ? dayjs(order.createdAt || order.createAt).format(
+                          "YYYY-MM-DD HH:mm"
+                        )
+                      : "-"}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    {typeof order?.originalPrice === "number"
+                      ? order.originalPrice.toFixed(2)
+                      : order?.originalPrice ?? "-"}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    {order?.paymentMetadata?.brand ?? "-"}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    {order?.status ?? "-"}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    {order?.updatedAt || order?.updateAt
+                      ? dayjs(order.updatedAt || order.updateAt).format(
+                          "YYYY-MM-DD HH:mm"
+                        )
+                      : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <OrderDetailModal
+        open={open}
+        orderId={selectedOrderId}
+        onClose={() => setOpen(false)}
+      />
+    </div>
+  );
+}
+
+export default UserOrders;
+
+

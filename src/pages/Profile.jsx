@@ -3,11 +3,12 @@ import CalendarSchedule from "../components/CalendarSchedule";
 import ActivitiesForm from "../components/ActivitiesForm";
 import UserDeals from "../components/UserDeals";
 import UserEvents from "../components/UserEvents";
+import UserOrders from "../components/UserOrders";
 import UserProfile from "../components/UserProfile";
 import UserSuperAdmin from "../components/UserSuperAdmin";
 import AffiliateDashboard from "../components/AffiliateDashboard";
 import AffiliateLinks from "../components/AffiliateLinks";
-import { useNavigate } from "react-router-dom";
+import { useAsyncError, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import SlotDetailModal from "../components/SlotDetailModal";
@@ -15,6 +16,7 @@ import { FaCrown } from "react-icons/fa";
 // import axios from "axios";
 import axios from "axios";
 import dayjs from "dayjs";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 function Profile() {
   const { t, i18n } = useTranslation();
@@ -32,6 +34,25 @@ function Profile() {
   const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
 
   const [hasWelcomed, setHasWelcomed] = useState(false);
+
+  const [orders, setOrders] = useState([])
+
+  // get orders from api
+  const fetchOrders = async () => {
+    try{
+      const fp = await getDeviceFingerprint();
+      const res = await axios.get(`${BASE_URL}/shopping/order/${user.userId}`,
+        {
+          headers: { "device-fingerprint": fp },
+          withCredentials: true,
+        }
+      )
+      setOrders(res.data)
+    }
+    catch(error) {
+      console.error("Error fetching orders:", error);
+    }
+  }
 
   // Profile.jsx
   const fetchActivitySlots = async () => {
@@ -67,6 +88,12 @@ function Profile() {
   useEffect(() => {
     fetchActivitySlots();
   }, []);
+
+  useEffect(() => {
+    if (user?.userId) {
+      fetchOrders();
+    }
+  }, [user?.userId]);
 
   useEffect(() => {
     const check = async () => {
@@ -166,6 +193,18 @@ function Profile() {
             >
               Events
             </button>
+            <button
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
+                selectedTab === "order"
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+              onClick={() => {
+                setSelectedTab("order");
+              }}
+            >
+              Order
+            </button>
             {(user?.role == "admin" ||
               user?.role == "superadmin" ||
               user?.role == "host" ||
@@ -254,6 +293,8 @@ function Profile() {
             )}
 
           {selectedTab === "superadmin" && <UserSuperAdmin />}
+
+          {selectedTab === "order" && <UserOrders orders={orders} />}
         </div>
       </div>
     </>

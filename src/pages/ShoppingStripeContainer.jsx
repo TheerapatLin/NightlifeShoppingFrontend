@@ -107,15 +107,15 @@ const ShoppingStripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef
         const emailExists = await checkEmailExists(email);
         if (emailExists && !user) {
             result = await confirmPayment();
-          } else {
+        } else {
             result = await confirmPayment();
-          }
-        
-          if (result.error) {
+        }
+
+        if (result.error) {
             console.error("❌ Payment failed:", result.error.message);
-          } else if (result.paymentIntent) {
+        } else if (result.paymentIntent) {
             console.log("✅ Payment succeeded:", result.paymentIntent);
-          }
+        }
     }
 
     const confirmPayment = async () => {
@@ -287,14 +287,16 @@ const ShoppingStripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef
                                         className="w-full p-2 border border-gray-300 rounded"
                                     />
                                 </div>
-                                <PaymentElement
-                                    id="payment-element"
-                                    options={paymentElementOptions}
-                                ></PaymentElement>
+
                             </div>
+                            <PaymentElement
+                                id="payment-element"
+                                options={paymentElementOptions}
+                            ></PaymentElement>
                             <button
                                 className="flex w-48 bg-green-600 hover:bg-green-800 focus:outline-none rounded-lg text-white text-[20px] py-2 px-4 shadow-lg transition duration-300"
                                 style={{
+                                    marginTop: "24px",
                                     minWidth: "100%",
                                     justifyContent: "center",
                                     alignItems: "center",
