@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 // import i18n from "../i18n";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { getDeviceFingerprint } from "../lib/fingerprint";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
@@ -46,6 +47,8 @@ const ShoppingStripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef
     const elements = useElements();
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState(null);
+    const [productData, setProductData] = useState([]);
+    const [basketData, setBasketData] = useState(null);
 
     const handleBack = () => {
         navigate(`/`, {});
@@ -61,6 +64,37 @@ const ShoppingStripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef
             return false;
         }
     }
+
+    // Fetch product list for resolving images and variant prices
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await axios.get(`${BASE_URL}/shopping/product`);
+                setProductData(res.data || []);
+            } catch (err) {
+                setProductData([]);
+            }
+        };
+        fetchProducts();
+    }, []);
+
+    // Fetch user's basket
+    useEffect(() => {
+        const fetchBasket = async () => {
+            if (!user?.userId) return;
+            try {
+                const fp = await getDeviceFingerprint();
+                const res = await axios.get(`${BASE_URL}/shopping/basket/${user.userId}`, {
+                    headers: { "device-fingerprint": fp },
+                    withCredentials: true,
+                });
+                setBasketData(res.data || null);
+            } catch (err) {
+                setBasketData(null);
+            }
+        };
+        fetchBasket();
+    }, [user?.userId]);
 
     const handleSubmit = async (e) => {
 
@@ -132,6 +166,83 @@ const ShoppingStripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef
                                 </button>
                                 <label>Shopping</label>
                                 <div className="block md:hidden w-6"></div>
+                            </div>
+                            {/* Basket summary */}
+                            <div style={{ marginBottom: "16px" }}>
+                                <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Order Summary</div>
+                                {basketData?.items?.length ? (
+                                    <div
+                                        style={{
+                                            display: "grid",
+                                            gridTemplateColumns: "1fr auto auto auto",
+                                            gap: 12,
+                                            alignItems: "center",
+                                        }}
+                                    >
+                                        <div style={{ fontWeight: 600, color: "#374151" }}>Product</div>
+                                        <div style={{ fontWeight: 600, color: "#374151", textAlign: "right" }}>SKU</div>
+                                        <div style={{ fontWeight: 600, color: "#374151", textAlign: "right" }}>Qty</div>
+                                        <div style={{ fontWeight: 600, color: "#374151", textAlign: "right" }}>Total</div>
+                                        {basketData.items.map((item) => {
+                                            const product = productData.find((p) => String(p._id) === String(item.productId));
+                                            const variant = product?.variants?.find((v) => v.sku === item.variant?.sku);
+                                            const imgSrc = variant?.images?.[0]?.fileName || product?.image?.[0]?.fileName || null;
+                                            const unitPrice = (item.totalPrice && item.quantity) ? (item.totalPrice / item.quantity) : (variant?.price ?? product?.originalPrice ?? 0);
+                                            return (
+                                                <React.Fragment key={`${item.productId}-${item.variant?.sku}`}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                                        {imgSrc ? (
+                                                            <img
+                                                                src={imgSrc}
+                                                                alt={item.variant?.sku || "product"}
+                                                                style={{
+                                                                    width: 64,
+                                                                    height: 64,
+                                                                    objectFit: "cover",
+                                                                    borderRadius: 8,
+                                                                    background: "#f3f4f6",
+                                                                    border: "1px solid #eee",
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <div
+                                                                style={{
+                                                                    width: 64,
+                                                                    height: 64,
+                                                                    borderRadius: 8,
+                                                                    background: "#f3f4f6",
+                                                                    border: "1px solid #eee",
+                                                                    display: "flex",
+                                                                    alignItems: "center",
+                                                                    justifyContent: "center",
+                                                                    color: "#9CA3AF",
+                                                                    fontSize: 12,
+                                                                }}
+                                                            >
+                                                                No image
+                                                            </div>
+                                                        )}
+                                                        <div style={{ color: "#6B7280" }}>
+                                                            {new Intl.NumberFormat(i18n.language || "en-US", { style: "currency", currency: "THB", maximumFractionDigits: 0 }).format(unitPrice)}
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ color: "#6B7280", textAlign: "right" }}>{item.variant?.sku || "-"}</div>
+                                                    <div style={{ color: "#111827", textAlign: "right" }}>{item.quantity || 0}</div>
+                                                    <div style={{ color: "#111827", textAlign: "right" }}>
+                                                        {new Intl.NumberFormat(i18n.language || "en-US", { style: "currency", currency: "THB", maximumFractionDigits: 0 }).format(item.totalPrice || 0)}
+                                                    </div>
+                                                </React.Fragment>
+                                            );
+                                        })}
+                                        {/* grand total */}
+                                        <div style={{ gridColumn: "1 / -2", textAlign: "right", fontWeight: 700 }}>Total</div>
+                                        <div style={{ textAlign: "right", fontWeight: 700 }}>
+                                            {new Intl.NumberFormat(i18n.language || "en-US", { style: "currency", currency: "THB", maximumFractionDigits: 0 }).format(basketData?.totalPrice || 0)}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ color: "#6B7280" }}>Your basket is empty.</div>
+                                )}
                             </div>
                             <div style={{ marginBottom: "16px" }}>
                                 <label>Full Name</label>

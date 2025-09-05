@@ -1,5 +1,5 @@
 // BasketPopup.jsx
-import React from "react";
+import React,{useState} from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -12,6 +12,8 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData }) => {
     const { isLoggedIn } = useAuth();
     const { user } = useAuth();
     const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
+
+    const [showWarning, setShowWarning] = useState(false);
 
     if (!isOpen) return null;
 
@@ -60,6 +62,7 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData }) => {
                     withCredentials: true,
                 })
             console.log(res.data.message)
+            navigate("/shopping");
             window.location.reload();
         }
         catch (error) {
@@ -68,6 +71,7 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData }) => {
     }
 
     return (
+        <>
         <div
             onClick={onClose}
             style={{
@@ -207,7 +211,6 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData }) => {
                 </div>
                 <button
                     onClick={handleClearBasket}
-                    // handleClearBasket
                     style={{
                         padding: "12px 20px",
                         fontSize: "18px",
@@ -226,7 +229,14 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData }) => {
                     Clear Basket
                 </button>
                 <button
-                    onClick={() => { onClose(); navigate("/shopping-stripe"); }}
+                    onClick={() => {
+                        if (!basketData?.items?.length) {
+                            setShowWarning(true);
+                            return;
+                        }
+                        onClose();
+                        navigate("/shopping-stripe");
+                    }}
                     style={{
                         padding: "12px 20px",
                         fontSize: "18px",
@@ -246,6 +256,51 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData }) => {
                 </button>
             </div>
         </div>
+        {showWarning && (
+            <div
+                onClick={() => setShowWarning(false)}
+                style={{
+                    position: "fixed",
+                    inset: 0,
+                    background: "rgba(0,0,0,0.5)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1100,
+                }}
+            >
+                <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                        background: "#fff",
+                        borderRadius: 12,
+                        width: "min(420px, 92vw)",
+                        padding: 20,
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+                        textAlign: "center",
+                    }}
+                >
+                    <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>แจ้งเตือน</div>
+                    <div style={{ color: "#374151", marginBottom: 16 }}>คุณยังไม่มีสินค้าในตะกร้า</div>
+                    <button
+                        onClick={() => setShowWarning(false)}
+                        style={{
+                            padding: "10px 16px",
+                            background: "#635bff",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            boxShadow: "0 2px 8px rgba(99,91,255,0.15)",
+                        }}
+                    >
+                        ตกลง
+                    </button>
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 
