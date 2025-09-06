@@ -41,6 +41,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   const [productData, setProductData] = useState([]);
   const [basketData, setBasketData] = useState(null);
   const [isBasketOpen, setIsBasketOpen] = useState(false);
+  const [addressData, setAddressData] = useState(null);
 
   const styles = {
     menuItem: {
@@ -548,6 +549,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
         onClose={() => setIsBasketOpen(false)}
         basketData={basketData}
         productData={productData}
+        onAddressData={setAddressData}
       />
       {windowSize.width <= 768 && isDealPromptVisible && (
         <div

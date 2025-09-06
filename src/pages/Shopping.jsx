@@ -11,7 +11,6 @@ import VideotextnightlifeMobile from "../components/VideotextnightlifeMobile";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { getDeviceFingerprint } from "../lib/fingerprint";
-import BasketPopup from "../components/BasketPopup";
 
 function Shopping() {
     const { t, i18n } = useTranslation();
@@ -39,7 +38,6 @@ function Shopping() {
             }
         }
         fetchProduct()
-
     }, [])
 
     // ดึงข้อมูล basket จาก backend (ใช้ API จริง)

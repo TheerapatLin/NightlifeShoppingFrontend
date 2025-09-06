@@ -27,7 +27,7 @@ const paymentElementOptions = {
     paymentMethodOrder: ["card", "promptpay"],
 };
 
-const ShoppingStripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef }) => {
+const ShoppingStripeContainer = ({ clientSecret, userEmailRef, onAddressChange }) => {
     const { t, i18n } = useTranslation();
     const paymentElementOptions = {
         fields: {
@@ -128,7 +128,7 @@ const ShoppingStripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef
                 payment_method_data: {
                     billing_details: {
                         name: fullName,
-                        email,
+                        email
                     },
                 },
             },
@@ -150,8 +150,6 @@ const ShoppingStripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef
         }
 
         setIsLoading(false);
-
-        return paymentIntent
     };
 
     return (
@@ -287,8 +285,8 @@ const ShoppingStripeContainer = ({ clientSecret, clearDiscountCode, userEmailRef
                                         className="w-full p-2 border border-gray-300 rounded"
                                     />
                                 </div>
-
                             </div>
+
                             <PaymentElement
                                 id="payment-element"
                                 options={paymentElementOptions}

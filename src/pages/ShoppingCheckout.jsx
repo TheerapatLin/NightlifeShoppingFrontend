@@ -3,6 +3,9 @@ import { loadStripe } from "@stripe/stripe-js";
 import ShoppingStripeContainer from "./ShoppingStripeContainer";
 import React, { useEffect, useState, useRef } from "react";
 import LoaderStyleOne from "../Helpers/Loaders/LoaderStyleOne";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+import { useLocation } from 'react-router-dom';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
@@ -11,22 +14,24 @@ const ShoppingCheckout = () => {
   const [clientSecret, setClientSecret] = useState("");
   const isIntentLoading = useRef(false);
   const [elementsKey, setElementsKey] = useState(0);
+  const location = useLocation();
+  const addressData = location.state?.addressData;
+  const { user } = useAuth();
+  console.log(`addressDataShoppingCheckout => ${JSON.stringify(addressData)}`)
 
   useEffect(() => {
     const createShoppingPaymetIntent = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/shopping/create-payment-intent`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: "68b32ba0e93ffe9574f07431"
-          })
-        })
-        if (!response.ok) {
-          throw new Error("Failed to create payment intent");
-        }
-        
-        const data = await response.json();
+        const { data } = await axios.post(`${BASE_URL}/shopping/create-payment-intent`,
+          {
+            userId: user.userId,
+            newAddress: [addressData],
+          },
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        )
+
         if (data.paymentIntentId) {
           localStorage.setItem("paymentIntentId", data.paymentIntentId);
         }
@@ -44,7 +49,8 @@ const ShoppingCheckout = () => {
       isIntentLoading.current = true;
       createShoppingPaymetIntent();
     }
-  })
+    console.log(`addressData => ${JSON.stringify(addressData)}`)
+  }, [addressData])
 
   return (
     <>
@@ -53,8 +59,10 @@ const ShoppingCheckout = () => {
           <LoaderStyleOne />
         </div>
       ) : (
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <ShoppingStripeContainer clientSecret={clientSecret} />
+        <Elements stripe={stripePromise} options={{ clientSecret }} key={elementsKey}>
+          <ShoppingStripeContainer
+            clientSecret={clientSecret}
+          />
         </Elements>
       )}
     </>

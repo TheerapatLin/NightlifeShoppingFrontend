@@ -1,12 +1,13 @@
 // BasketPopup.jsx
-import React,{useState} from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import axios from "axios";
+import AddressPopup from "./AddressPopup";
 
-const BasketPopup = ({ isOpen, onClose, basketData, productData }) => {
+const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }) => {
     const { i18n } = useTranslation();
     const navigate = useNavigate();
     const { isLoggedIn } = useAuth();
@@ -14,6 +15,31 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData }) => {
     const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
     const [showWarning, setShowWarning] = useState(false);
+    const [showWarningAddress, setShowWarningAddress] = useState(false);
+    const [addressData, setAddressData] = useState(null);
+
+    const fetchAddressUser = async () => {
+        try {
+            const userId = user.userId
+            const res = await axios.get(`${BASE_URL}/accounts/address/${userId}`)
+
+            // console.log(`address => ${JSON.stringify(res.data.Address.length)}`)
+
+            if (res.data.Address.length > 0) {
+                // console.log(`address => ${JSON.stringify(res.data.Address[0])}`)
+                // setAddressData(res.data.Address[0])
+            }
+
+            // console.log(`address => ${JSON.stringify(res.data.Address[0].address)}`)
+        }
+        catch (error) {
+            console.error("Error fetching products:", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchAddressUser()
+    })
 
     if (!isOpen) return null;
 
@@ -70,236 +96,283 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData }) => {
         }
     }
 
+    const handleAddressConfirm = (address) => {
+        setAddressData(address);
+        if (onAddressData) {
+            onAddressData(address);
+        }
+        setShowWarningAddress(false);
+    };
+
+    const handleAddressSave = (address) => {
+        setAddressData(address);
+        if (onAddressData) {
+            onAddressData(address);
+        }
+        setShowWarningAddress(false);
+    };
+
+    const handleCheckout = () => {
+        if (!basketData?.items?.length) {
+            setShowWarning(true);
+            return;
+        }
+
+        // Check if address is required and not available
+        if (!addressData) {
+            setShowWarningAddress(true);
+            return;
+        }
+        
+        console.log(`addressDataBasketPopup => ${JSON.stringify(addressData)}`)
+        onClose();
+        navigate("/shopping-stripe", { 
+            state: { addressData } 
+        });
+    };
+
     return (
         <>
-        <div
-            onClick={onClose}
-            style={{
-                position: "fixed",
-                inset: 0,
-                background: "rgba(0,0,0,0.45)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 1000,
-            }}
-        >
             <div
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                    width: "min(720px, 92vw)",
-                    maxHeight: "80vh",
-                    background: "#fff",
-                    borderRadius: 12,
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                    overflow: "hidden",
-                    display: "flex",
-                    flexDirection: "column",
-                }}
-            >
-                <div
-                    style={{
-                        padding: "14px 18px",
-                        borderBottom: "1px solid #eee",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <div style={{ fontSize: 18, fontWeight: 700 }}>Basket</div>
-                    <button
-                        onClick={onClose}
-                        style={{
-                            background: "transparent",
-                            border: "none",
-                            fontSize: 20,
-                            cursor: "pointer",
-                        }}
-                    >
-                        ×
-                    </button>
-                </div>
-                <div style={{ padding: 16, overflow: "auto" }}>
-                    {basketData?.items?.length ? (
-                        <div
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns: "1fr auto auto auto",
-                                gap: 12,
-                                alignItems: "center",
-                            }}
-                        >
-                            <div style={{ fontWeight: 600, color: "#374151" }}>Product</div>
-                            <div style={{ fontWeight: 600, color: "#374151", textAlign: "right" }}>SKU</div>
-                            <div style={{ fontWeight: 600, color: "#374151", textAlign: "right" }}>Qty</div>
-                            <div style={{ fontWeight: 600, color: "#374151", textAlign: "right" }}>Total</div>
-                            {basketData.items.map((item) => {
-                                const product = productData.find((p) => String(p._id) === String(item.productId));
-                                const variant = product?.variants?.find((v) => v.sku === item.variant?.sku);
-                                const imgSrc = variant?.images?.[0]?.fileName || product?.image?.[0]?.fileName || null;
-                                return (
-                                    <React.Fragment key={`${item.productId}-${item.variant?.sku}`}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                            {imgSrc ? (
-                                                <img
-                                                    src={imgSrc}
-                                                    alt={item.variant?.sku || "product"}
-                                                    style={{
-                                                        width: 64,
-                                                        height: 64,
-                                                        objectFit: "cover",
-                                                        borderRadius: 8,
-                                                        background: "#f3f4f6",
-                                                        border: "1px solid #eee",
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div
-                                                    style={{
-                                                        width: 64,
-                                                        height: 64,
-                                                        borderRadius: 8,
-                                                        background: "#f3f4f6",
-                                                        border: "1px solid #eee",
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        justifyContent: "center",
-                                                        color: "#9CA3AF",
-                                                        fontSize: 12,
-                                                    }}
-                                                >
-                                                    No image
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div style={{ color: "#6B7280", textAlign: "right" }}>{item.variant?.sku || "-"}</div>
-                                        <div style={{ color: "#111827", textAlign: "right" }}>{item.quantity || 0}</div>
-                                        <div style={{ color: "#111827", textAlign: "right" }}>
-                                            {new Intl.NumberFormat(i18n.language || "en-US", {
-                                                style: "currency",
-                                                currency: "THB",
-                                                maximumFractionDigits: 0,
-                                            }).format(item.totalPrice || 0)}
-                                        </div>
-                                    </React.Fragment>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div style={{ color: "#6B7280", textAlign: "center", padding: "24px 0" }}>
-                            Your basket is empty.
-                        </div>
-                    )}
-                </div>
-                <div
-                    style={{
-                        padding: "12px 18px",
-                        borderTop: "1px solid #eee",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <div style={{ fontWeight: 600 }}>Total</div>
-                    <div style={{ fontWeight: 700 }}>
-                        {new Intl.NumberFormat(i18n.language || "en-US", {
-                            style: "currency",
-                            currency: "THB",
-                            maximumFractionDigits: 0,
-                        }).format(basketData?.totalPrice || 0)}
-                    </div>
-                </div>
-                <button
-                    onClick={handleClearBasket}
-                    style={{
-                        padding: "12px 20px",
-                        fontSize: "18px",
-                        background: "#635bff",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        boxShadow: "0 2px 8px rgba(99,91,255,0.15)",
-                        alignSelf: "flex-end",
-                        width: "fit-content",
-                        margin: "18px"
-                    }}
-                >
-                    Clear Basket
-                </button>
-                <button
-                    onClick={() => {
-                        if (!basketData?.items?.length) {
-                            setShowWarning(true);
-                            return;
-                        }
-                        onClose();
-                        navigate("/shopping-stripe");
-                    }}
-                    style={{
-                        padding: "12px 20px",
-                        fontSize: "18px",
-                        background: "#635bff",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        boxShadow: "0 2px 8px rgba(99,91,255,0.15)",
-                        alignSelf: "flex-end",
-                        width: "fit-content",
-                        margin: "18px"
-                    }}
-                >
-                    Confirm And Pay
-                </button>
-            </div>
-        </div>
-        {showWarning && (
-            <div
-                onClick={() => setShowWarning(false)}
+                onClick={onClose}
                 style={{
                     position: "fixed",
                     inset: 0,
-                    background: "rgba(0,0,0,0.5)",
+                    background: "rgba(0,0,0,0.45)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    zIndex: 1100,
+                    zIndex: 1000,
                 }}
             >
                 <div
                     onClick={(e) => e.stopPropagation()}
                     style={{
+                        width: "min(720px, 92vw)",
+                        maxHeight: "80vh",
                         background: "#fff",
                         borderRadius: 12,
-                        width: "min(420px, 92vw)",
-                        padding: 20,
                         boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                        textAlign: "center",
+                        overflow: "hidden",
+                        display: "flex",
+                        flexDirection: "column",
                     }}
                 >
-                    <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>แจ้งเตือน</div>
-                    <div style={{ color: "#374151", marginBottom: 16 }}>คุณยังไม่มีสินค้าในตะกร้า</div>
-                    <button
-                        onClick={() => setShowWarning(false)}
+                    <div
                         style={{
-                            padding: "10px 16px",
-                            background: "#635bff",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 8,
-                            cursor: "pointer",
-                            fontWeight: "bold",
-                            boxShadow: "0 2px 8px rgba(99,91,255,0.15)",
+                            padding: "14px 18px",
+                            borderBottom: "1px solid #eee",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
                         }}
                     >
-                        ตกลง
-                    </button>
+                        <div style={{ fontSize: 18, fontWeight: 700 }}>Basket</div>
+                        <button
+                            onClick={onClose}
+                            style={{
+                                background: "transparent",
+                                border: "none",
+                                fontSize: 20,
+                                cursor: "pointer",
+                            }}
+                        >
+                            ×
+                        </button>
+                    </div>
+                    <div style={{ padding: 16, overflow: "auto" }}>
+                        {basketData?.items?.length ? (
+                            <div
+                                style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "1fr auto auto auto",
+                                    gap: 12,
+                                    alignItems: "center",
+                                }}
+                            >
+                                <div style={{ fontWeight: 600, color: "#374151" }}>Product</div>
+                                <div style={{ fontWeight: 600, color: "#374151", textAlign: "right" }}>SKU</div>
+                                <div style={{ fontWeight: 600, color: "#374151", textAlign: "right" }}>Qty</div>
+                                <div style={{ fontWeight: 600, color: "#374151", textAlign: "right" }}>Total</div>
+                                {basketData.items.map((item) => {
+                                    const product = productData.find((p) => String(p._id) === String(item.productId));
+                                    const variant = product?.variants?.find((v) => v.sku === item.variant?.sku);
+                                    const imgSrc = variant?.images?.[0]?.fileName || product?.image?.[0]?.fileName || null;
+                                    return (
+                                        <React.Fragment key={`${item.productId}-${item.variant?.sku}`}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                                {imgSrc ? (
+                                                    <img
+                                                        src={imgSrc}
+                                                        alt={item.variant?.sku || "product"}
+                                                        style={{
+                                                            width: 64,
+                                                            height: 64,
+                                                            objectFit: "cover",
+                                                            borderRadius: 8,
+                                                            background: "#f3f4f6",
+                                                            border: "1px solid #eee",
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: 64,
+                                                            height: 64,
+                                                            borderRadius: 8,
+                                                            background: "#f3f4f6",
+                                                            border: "1px solid #eee",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
+                                                            color: "#9CA3AF",
+                                                            fontSize: 12,
+                                                        }}
+                                                    >
+                                                        No image
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div style={{ color: "#6B7280", textAlign: "right" }}>{item.variant?.sku || "-"}</div>
+                                            <div style={{ color: "#111827", textAlign: "right" }}>{item.quantity || 0}</div>
+                                            <div style={{ color: "#111827", textAlign: "right" }}>
+                                                {new Intl.NumberFormat(i18n.language || "en-US", {
+                                                    style: "currency",
+                                                    currency: "THB",
+                                                    maximumFractionDigits: 0,
+                                                }).format(item.totalPrice || 0)}
+                                            </div>
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div style={{ color: "#6B7280", textAlign: "center", padding: "24px 0" }}>
+                                Your basket is empty.
+                            </div>
+                        )}
+                    </div>
+                    <div
+                        style={{
+                            padding: "12px 18px",
+                            borderTop: "1px solid #eee",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                        }}
+                    >
+                        <div style={{ fontWeight: 600 }}>Total</div>
+                        <div style={{ fontWeight: 700 }}>
+                            {new Intl.NumberFormat(i18n.language || "en-US", {
+                                style: "currency",
+                                currency: "THB",
+                                maximumFractionDigits: 0,
+                            }).format(basketData?.totalPrice || 0)}
+                        </div>
+                    </div>
+                    <div style={{ 
+                        display: "flex", 
+                        justifyContent: "space-between", 
+                        alignItems: "center",
+                        padding: "0 18px",
+                        marginBottom: "8px"
+                    }}>
+                        {addressData && (
+                            <div style={{
+                                color: "#28a745",
+                                fontWeight: "600",
+                                fontSize: "14px"
+                            }}>
+                                เลือกที่อยู่แล้ว
+                            </div>
+                        )}
+                        <div style={{ display: "flex", gap: "12px" }}>
+                            <button
+                                onClick={handleClearBasket}
+                                style={{
+                                    padding: "12px 20px",
+                                    fontSize: "18px",
+                                    background: "#635bff",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                    boxShadow: "0 2px 8px rgba(99,91,255,0.15)",
+                                }}
+                            >
+                                Clear Basket
+                            </button>
+                            <button
+                                onClick={handleCheckout}
+                                style={{
+                                    padding: "12px 20px",
+                                    fontSize: "18px",
+                                    background: "#635bff",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                    boxShadow: "0 2px 8px rgba(99,91,255,0.15)",
+                                }}
+                            >
+                                Confirm And Pay
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        )}
+            {showWarning && (
+                <div
+                    onClick={() => setShowWarning(false)}
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1100,
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: "#fff",
+                            borderRadius: 12,
+                            width: "min(420px, 92vw)",
+                            padding: 20,
+                            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+                            textAlign: "center",
+                        }}
+                    >
+                        <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>แจ้งเตือน</div>
+                        <div style={{ color: "#374151", marginBottom: 16 }}>คุณยังไม่มีสินค้าในตะกร้า</div>
+                        <button
+                            onClick={() => setShowWarning(false)}
+                            style={{
+                                padding: "10px 16px",
+                                background: "#635bff",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: 8,
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                boxShadow: "0 2px 8px rgba(99,91,255,0.15)",
+                            }}
+                        >
+                            ตกลง
+                        </button>
+                    </div>
+                </div>
+            )}
+            <AddressPopup
+                isOpen={showWarningAddress}
+                onClose={() => setShowWarningAddress(false)}
+                onAddressConfirm={handleAddressConfirm}
+                onAddressSave={handleAddressSave}
+            />
         </>
     );
 };
