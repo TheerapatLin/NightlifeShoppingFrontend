@@ -18,6 +18,7 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
         province: "",
         description: ""
     });
+    const [showConfirmPopup, setShowConfirmPopup] = useState(false);
 
     // Fetch existing address when popup opens
     useEffect(() => {
@@ -65,18 +66,40 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+        setShowConfirmPopup(true);
+    };
+
+    const handleConfirmSave = async () => {
         setIsLoading(true);
+        setShowConfirmPopup(false);
 
         try {
+            const fp = await getDeviceFingerprint();
+            const response = await axios.patch(
+                `${BASE_URL}/accounts/address/${user.userId}`,
+                {
+                    newAddress: [formData]
+                },
+                {
+                    headers: { "device-fingerprint": fp },
+                    withCredentials: true,
+                }
+            );
+
+            console.log("Address saved successfully:", response.data);
             onClose();
-            setShowForm(false)
-            onAddressSave(formData)
+            setShowForm(false);
+            onAddressSave(formData);
         } catch (error) {
             console.error("Error saving address:", error);
             alert("เกิดข้อผิดพลาดในการบันทึกที่อยู่");
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleCancelSave = () => {
+        setShowConfirmPopup(false);
     };
 
     const handleInputChange = (e) => {
@@ -122,7 +145,7 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                     // Condition 1: User has existing address
                     <div>
                         <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: "center" }}>
-                            ยืนยันที่อยู่
+                            ระบุที่อยู่จัดส่ง
                         </div>
                         <div style={{ marginBottom: 16 }}>
                             <div style={{ fontWeight: 600, marginBottom: 8 }}>พบข้อมูลที่อยู่ปัจจุบัน:</div>
@@ -295,6 +318,71 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                     </div>
                 )}
             </div>
+
+            {/* Confirmation Popup */}
+            {showConfirmPopup && (
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1200,
+                    }}
+                    onClick={handleCancelSave}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: "#fff",
+                            borderRadius: 12,
+                            width: "min(400px, 90vw)",
+                            padding: 24,
+                            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+                        }}
+                    >
+                        <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: "center" }}>
+                            ต้องการบันทึกที่อยู่นี้ในข้อมูลส่วนตัวของคุณมั้ย
+                        </div>
+                        <div style={{ marginBottom: 20, textAlign: "center", color: "#666" }}>
+                            ข้อมูลที่อยู่จะถูกบันทึกและสามารถใช้ในการสั่งซื้อครั้งต่อไปได้
+                        </div>
+                        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                            <button
+                                onClick={handleCancelSave}
+                                style={{
+                                    padding: "10px 20px",
+                                    background: "#6c757d",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: 8,
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                ไม่
+                            </button>
+                            <button
+                                onClick={handleConfirmSave}
+                                disabled={isLoading}
+                                style={{
+                                    padding: "10px 20px",
+                                    background: isLoading ? "#ccc" : "#28a745",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: 8,
+                                    cursor: isLoading ? "not-allowed" : "pointer",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                {isLoading ? "กำลังบันทึก..." : "ใช่"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
