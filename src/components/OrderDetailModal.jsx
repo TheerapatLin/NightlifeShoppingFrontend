@@ -138,6 +138,48 @@ function OrderDetailModal({ open, orderId, onClose }) {
                                 </div>
                             )}
 
+                            {order.ShippingAddress && (
+                                <div>
+                                    <div className="text-sm font-semibold mb-1">Shipping Address</div>
+                                    <div className="bg-gray-50 rounded-lg p-3 text-sm">
+                                        <div className="mb-2">
+                                            <div className="text-xs text-gray-500">Address Name</div>
+                                            <div className="font-medium">{order.ShippingAddress.addressName || '-'}</div>
+                                        </div>
+                                        <div className="mb-2">
+                                            <div className="text-xs text-gray-500">Status</div>
+                                            <div className="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                                {order.ShippingAddress.addressStatus || '-'}
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <div className="text-xs text-gray-500">Address Details</div>
+                                            <div className="text-sm">
+                                                {order.ShippingAddress.address?.address && (
+                                                    <div>{order.ShippingAddress.address.address}</div>
+                                                )}
+                                                <div className="flex gap-2">
+                                                    {order.ShippingAddress.address?.city && (
+                                                        <span>{order.ShippingAddress.address.city}</span>
+                                                    )}
+                                                    {order.ShippingAddress.address?.province && (
+                                                        <span>{order.ShippingAddress.address.province}</span>
+                                                    )}
+                                                    {order.ShippingAddress.address?.country && (
+                                                        <span>{order.ShippingAddress.address.country}</span>
+                                                    )}
+                                                </div>
+                                                {order.ShippingAddress.address?.description && (
+                                                    <div className="text-xs text-gray-600 mt-1">
+                                                        {order.ShippingAddress.address.description}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {Array.isArray(order.items) && order.items.length > 0 && (
                                 <div>
                                     <div className="text-sm font-semibold mb-1">Items</div>
