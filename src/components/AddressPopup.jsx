@@ -12,59 +12,66 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
     const [existingAddress, setExistingAddress] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showForm, setShowForm] = useState(false);
-    const [formData, setFormData] = useState({
-        address: "",
-        city: "",
-        province: "",
-        description: ""
-    });
+    const [formData, setFormData] = useState({ address: "", city: "", province: "", description: "" });
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
 
-    // Fetch existing address when popup opens
+    // style reuse
+    const btnStyle = base => ({
+        padding: "10px 20px",
+        border: "none",
+        borderRadius: 8,
+        fontWeight: "bold",
+        ...base
+    });
+    const inputStyle = {
+        width: "100%",
+        padding: "8px 12px",
+        border: "1px solid #ddd",
+        borderRadius: 6,
+        fontSize: 14
+    };
+    const labelStyle = {
+        display: "block",
+        marginBottom: 4,
+        fontWeight: 600
+    };
+
+    const handleConfirmNotSave = async () => {
+        setShowConfirmPopup(false)
+        setShowForm(false)
+        onAddressSave?.(formData);
+    }
+
     useEffect(() => {
-        if (isOpen && user?.userId) {
-            fetchExistingAddress();
-        }
+        if (isOpen && user?.userId) fetchExistingAddress();
+        // eslint-disable-next-line
     }, [isOpen, user?.userId]);
 
     const fetchExistingAddress = async () => {
         setIsLoading(true);
         try {
             const fp = await getDeviceFingerprint();
-            const response = await axios.get(`${BASE_URL}/accounts/address/${user.userId}`, {
-                headers: { "device-fingerprint": fp },
-                withCredentials: true,
-            });
-
-            // ดึงข้อมูลที่อยู่จาก index แรกเท่านั้น
-            const firstAddress = response.data.Address[0].address ?? null;
-
-            // ตรวจสอบว่าข้อมูลที่อยู่มีข้อมูลที่จำเป็น
-            if (firstAddress && (firstAddress.address || firstAddress.city || firstAddress.province)) {
-                setExistingAddress(firstAddress);
-            } else {
-                setExistingAddress(null);
-            }
-        } catch (error) {
-            console.error("Error fetching address:", error);
+            const res = await axios.get(`${BASE_URL}/accounts/address/${user.userId}`,
+                {
+                    headers: { "device-fingerprint": fp },
+                    withCredentials: true
+                }
+            );
+            const firstAddress = res.data.Address[0]?.address ?? null;
+            setExistingAddress(firstAddress && (firstAddress.address || firstAddress.city || firstAddress.province) ? firstAddress : null);
+        } catch (e) {
             setExistingAddress(null);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleConfirmExistingAddress = () => {
-        if (existingAddress) {
-            onAddressConfirm(existingAddress);
-            onClose();
-        }
+    const handleAddress = (address) => {
+        onAddressConfirm?.(address);
+        onClose();
     };
 
-    const handleCreateNewAddress = () => {
-        setShowForm(true);
-    };
-
-    const handleFormSubmit = async (e) => {
+    const handleFormSubmit = e => {
         e.preventDefault();
         setShowConfirmPopup(true);
     };
@@ -72,42 +79,26 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
     const handleConfirmSave = async () => {
         setIsLoading(true);
         setShowConfirmPopup(false);
-
         try {
             const fp = await getDeviceFingerprint();
-            const response = await axios.patch(
+            await axios.patch(
                 `${BASE_URL}/accounts/address/${user.userId}`,
                 {
                     newAddress: [formData]
                 },
                 {
                     headers: { "device-fingerprint": fp },
-                    withCredentials: true,
+                    withCredentials: true
                 }
             );
-
-            console.log("Address saved successfully:", response.data);
             onClose();
             setShowForm(false);
-            onAddressSave(formData);
-        } catch (error) {
-            console.error("Error saving address:", error);
+            onAddressSave?.(formData);
+        } catch (e) {
             alert("เกิดข้อผิดพลาดในการบันทึกที่อยู่");
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const handleCancelSave = () => {
-        setShowConfirmPopup(false);
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
     };
 
     if (!isOpen) return null;
@@ -121,12 +112,12 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                zIndex: 1100,
+                zIndex: 1100
             }}
             onClick={onClose}
         >
             <div
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
                 style={{
                     background: "#fff",
                     borderRadius: 12,
@@ -134,183 +125,189 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                     maxHeight: "80vh",
                     padding: 20,
                     boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                    overflow: "auto",
-                }}
-            >
+                    overflow: "auto"
+                }}                >
                 {isLoading ? (
-                    <div style={{ textAlign: "center", padding: "20px" }}>
-                        <div>กำลังโหลด...</div>
+                    <div
+                        style={{
+                            textAlign: "center",
+                            padding: 20
+                        }}>
+                        กำลังโหลด...
                     </div>
                 ) : existingAddress && !showForm ? (
-                    // Condition 1: User has existing address
                     <div>
-                        <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: "center" }}>
+                        <div
+                            style={{
+                                fontSize: 18,
+                                fontWeight: 700,
+                                marginBottom: 16,
+                                textAlign: "center"
+                            }}>
                             ระบุที่อยู่จัดส่ง
                         </div>
-                        <div style={{ marginBottom: 16 }}>
-                            <div style={{ fontWeight: 600, marginBottom: 8 }}>พบข้อมูลที่อยู่ปัจจุบัน:</div>
-                            <div style={{
-                                padding: 12,
-                                background: "#f8f9fa",
-                                borderRadius: 8,
-                                border: "1px solid #e9ecef",
-                                marginBottom: 8
+                        <div
+                            style={{
+                                marginBottom: 16
                             }}>
-                                <div><strong>ที่อยู่:</strong> {existingAddress.address}</div>
-                                <div><strong>เมือง:</strong> {existingAddress.city}</div>
-                                <div><strong>จังหวัด:</strong> {existingAddress.province}</div>
-                                {existingAddress.description && (
-                                    <div><strong>รายละเอียด:</strong> {existingAddress.description}</div>
-                                )}
+                            <div
+                                style={{
+                                    fontWeight: 600,
+                                    marginBottom: 8
+                                }}>
+                                พบข้อมูลที่อยู่ปัจจุบัน:
+                            </div>
+                            <div
+                                style={{
+                                    padding: 12,
+                                    background: "#f8f9fa",
+                                    borderRadius: 8,
+                                    border: "1px solid #e9ecef",
+                                    marginBottom: 8
+                                }}>
+                                <div>
+                                    <strong>
+                                        ที่อยู่:
+                                    </strong>
+                                    {existingAddress.address}
+                                </div>
+                                <div>
+                                    <strong>
+                                        เมือง:
+                                    </strong>
+                                    {existingAddress.city}
+                                </div>
+                                <div>
+                                    <strong>
+                                        จังหวัด:
+                                    </strong>
+                                    {existingAddress.province}
+                                </div>
+                                {existingAddress.description && <div>
+                                    <strong>
+                                        รายละเอียด:
+                                    </strong>
+                                    {existingAddress.description}
+                                </div>}
                             </div>
                         </div>
-                        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                        <div
+                            style={{
+                                display: "flex",
+                                gap: 12,
+                                justifyContent: "center"
+                            }}>
                             <button
-                                onClick={handleConfirmExistingAddress}
-                                style={{
-                                    padding: "10px 20px",
+                                onClick={() => handleAddress(existingAddress)}
+                                style={btnStyle({
                                     background: "#28a745",
                                     color: "#fff",
-                                    border: "none",
-                                    borderRadius: 8,
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-                                }}
-                            >
+                                    cursor: "pointer"
+                                })}>
                                 ใช่ ใช้ที่อยู่นี้
                             </button>
-                            <button
-                                onClick={handleCreateNewAddress}
-                                style={{
-                                    padding: "10px 20px",
+                            <button onClick={() => setShowForm(true)}
+                                style={btnStyle({
                                     background: "#6c757d",
                                     color: "#fff",
-                                    border: "none",
-                                    borderRadius: 8,
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-                                }}
-                            >
+                                    cursor: "pointer"
+                                })}>
                                 ไม่ ใช้ที่อยู่อื่น
                             </button>
                         </div>
                     </div>
                 ) : (
-                    // Condition 2: User has no address or wants to create new one
                     <div>
-                        <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: "center" }}>
+                        <div
+                            style={{
+                                fontSize: 18,
+                                fontWeight: 700,
+                                marginBottom: 16,
+                                textAlign: "center"
+                            }}>
                             {existingAddress ? "ใช้ที่อยู่อื่น" : "กรอกข้อมูลที่อยู่"}
                         </div>
                         <form onSubmit={handleFormSubmit}>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={{ display: "block", marginBottom: 4, fontWeight: 600 }}>
-                                    ที่อยู่ *
-                                </label>
-                                <input
-                                    type="text"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleInputChange}
-                                    required
-                                    style={{
-                                        width: "100%",
-                                        padding: "8px 12px",
-                                        border: "1px solid #ddd",
-                                        borderRadius: 6,
-                                        fontSize: 14,
-                                    }}
-                                    placeholder="กรอกที่อยู่"
-                                />
-                            </div>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={{ display: "block", marginBottom: 4, fontWeight: 600 }}>
-                                    เมือง *
-                                </label>
-                                <input
-                                    type="text"
-                                    name="city"
-                                    value={formData.city}
-                                    onChange={handleInputChange}
-                                    required
-                                    style={{
-                                        width: "100%",
-                                        padding: "8px 12px",
-                                        border: "1px solid #ddd",
-                                        borderRadius: 6,
-                                        fontSize: 14,
-                                    }}
-                                    placeholder="กรอกชื่อเมือง"
-                                />
-                            </div>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={{ display: "block", marginBottom: 4, fontWeight: 600 }}>
-                                    จังหวัด *
-                                </label>
-                                <input
-                                    type="text"
-                                    name="province"
-                                    value={formData.province}
-                                    onChange={handleInputChange}
-                                    required
-                                    style={{
-                                        width: "100%",
-                                        padding: "8px 12px",
-                                        border: "1px solid #ddd",
-                                        borderRadius: 6,
-                                        fontSize: 14,
-                                    }}
-                                    placeholder="กรอกชื่อจังหวัด"
-                                />
-                            </div>
+                            {[{
+                                label: "ที่อยู่ *",
+                                name: "address",
+                                type: "text",
+                                placeholder: "กรอกที่อยู่",
+                                required: true
+                            },
+                            {
+                                label: "เมือง *",
+                                name: "city",
+                                type: "text",
+                                placeholder: "กรอกชื่อเมือง",
+                                required: true
+                            },
+                            {
+                                label: "จังหวัด *",
+                                name: "province",
+                                type: "text",
+                                placeholder: "กรอกชื่อจังหวัด",
+                                required: true
+                            }].map(f => (
+                                <div key={f.name} style={{ marginBottom: 16 }}>
+                                    <label style={labelStyle}>
+                                        {f.label}
+                                    </label>
+                                    <input
+                                        type={f.type}
+                                        name={f.name}
+                                        value={formData[f.name]}
+                                        onChange={e => setFormData(prev => ({
+                                            ...prev, [f.name]: e.target.value
+                                        }))
+                                        }
+                                        required={f.required}
+                                        style={inputStyle}
+                                        placeholder={f.placeholder} />
+                                </div>
+                            ))}
                             <div style={{ marginBottom: 20 }}>
-                                <label style={{ display: "block", marginBottom: 4, fontWeight: 600 }}>
+                                <label style={labelStyle}>
                                     รายละเอียดเพิ่มเติม
                                 </label>
                                 <textarea
                                     name="description"
                                     value={formData.description}
-                                    onChange={handleInputChange}
+                                    onChange={e => setFormData(prev => ({
+                                        ...prev, description: e.target.value
+                                    }))
+                                    }
                                     style={{
-                                        width: "100%",
-                                        padding: "8px 12px",
-                                        border: "1px solid #ddd",
-                                        borderRadius: 6,
-                                        fontSize: 14,
+                                        ...inputStyle,
                                         minHeight: 60,
-                                        resize: "vertical",
+                                        resize: "vertical"
                                     }}
-                                    placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"
-                                />
+                                    placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)" />
                             </div>
-                            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    gap: 12,
+                                    justifyContent: "center"
+                                }}>
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    style={{
-                                        padding: "10px 20px",
+                                    style={btnStyle({
                                         background: "#6c757d",
                                         color: "#fff",
-                                        border: "none",
-                                        borderRadius: 8,
-                                        cursor: "pointer",
-                                        fontWeight: "bold",
-                                    }}
-                                >
+                                        cursor: "pointer"
+                                    })}>
                                     ยกเลิก
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    style={{
-                                        padding: "10px 20px",
+                                    style={btnStyle({
                                         background: isLoading ? "#ccc" : "#28a745",
                                         color: "#fff",
-                                        border: "none",
-                                        borderRadius: 8,
-                                        cursor: isLoading ? "not-allowed" : "pointer",
-                                        fontWeight: "bold",
-                                    }}
-                                >
+                                        cursor: isLoading ? "not-allowed" : "pointer"
+                                    })}>
                                     {isLoading ? "กำลังบันทึก..." : "บันทึกที่อยู่"}
                                 </button>
                             </div>
@@ -318,8 +315,6 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                     </div>
                 )}
             </div>
-
-            {/* Confirmation Popup */}
             {showConfirmPopup && (
                 <div
                     style={{
@@ -329,54 +324,62 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        zIndex: 1200,
+                        zIndex: 1200
                     }}
-                    onClick={handleCancelSave}
+                    onClick={() => setShowConfirmPopup(false)}
                 >
                     <div
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={e => e.stopPropagation()}
                         style={{
                             background: "#fff",
                             borderRadius: 12,
                             width: "min(400px, 90vw)",
                             padding: 24,
-                            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                        }}
-                    >
-                        <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: "center" }}>
+                            boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
+                        }}>
+                        <div
+                            style={{
+                                fontSize: 18,
+                                fontWeight: 700,
+                                marginBottom: 16,
+                                textAlign: "center"
+                            }}>
                             ต้องการบันทึกที่อยู่นี้ในข้อมูลส่วนตัวของคุณมั้ย
                         </div>
-                        <div style={{ marginBottom: 20, textAlign: "center", color: "#666" }}>
+                        <div
+                            style={{
+                                marginBottom: 20,
+                                textAlign: "center",
+                                color: "#666"
+                            }}>
                             ข้อมูลที่อยู่จะถูกบันทึกและสามารถใช้ในการสั่งซื้อครั้งต่อไปได้
                         </div>
-                        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-                            <button
-                                onClick={handleCancelSave}
-                                style={{
-                                    padding: "10px 20px",
+                        <div
+                            style={{
+                                display: "flex",
+                                gap: 12,
+                                justifyContent: "center"
+                            }}>
+                            <button onClick={() => {
+
+                                handleConfirmNotSave()
+                                onClose()
+                            }}
+                                style={btnStyle({
                                     background: "#6c757d",
                                     color: "#fff",
-                                    border: "none",
-                                    borderRadius: 8,
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-                                }}
-                            >
+                                    cursor: "pointer"
+                                })}>
                                 ไม่
                             </button>
                             <button
                                 onClick={handleConfirmSave}
                                 disabled={isLoading}
-                                style={{
-                                    padding: "10px 20px",
+                                style={btnStyle({
                                     background: isLoading ? "#ccc" : "#28a745",
                                     color: "#fff",
-                                    border: "none",
-                                    borderRadius: 8,
-                                    cursor: isLoading ? "not-allowed" : "pointer",
-                                    fontWeight: "bold",
-                                }}
-                            >
+                                    cursor: isLoading ? "not-allowed" : "pointer"
+                                })}>
                                 {isLoading ? "กำลังบันทึก..." : "ใช่"}
                             </button>
                         </div>
