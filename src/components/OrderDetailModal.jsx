@@ -140,7 +140,7 @@ function OrderDetailModal({ open, orderId, onClose }) {
 
                             {order.ShippingAddress && (
                                 <div>
-                                    <div className="text-sm font-semibold mb-1">Shipping Address</div>
+                                    <div className="text-sm font-semibold mb-1">Address</div>
                                     <div className="bg-gray-50 rounded-lg p-3 text-sm">
                                         <div className="mb-2">
                                             <div className="text-xs text-gray-500">Address Name</div>

@@ -292,6 +292,9 @@ function VideotextNLShopping() {
                                     backdropFilter: "blur(25px)",
                                     WebkitBackdropFilter: "blur(25px)",
                                     borderRadius: "25px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
                                 }}
                             >
                                 <div
@@ -301,9 +304,7 @@ function VideotextNLShopping() {
                                             "0px 0px 3.5px rgb(39, 0, 35), 0px 0px 8px rgb(255, 0, 106), 0px 0px 25px rgb(255, 1, 81), 0px 0px 50px rgb(255, 5, 88)",
                                     }}
                                 >
-                                    <br />
-                                    Shopping with us.
-                                    <br />
+                                    SHOPPING WITH US
                                 </div>
                             </div>
                         </div>

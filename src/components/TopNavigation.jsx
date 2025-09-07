@@ -280,6 +280,16 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                     >
                       Shopping
                     </Link>
+                    {(user?.role === "admin" || user?.role === "superadmin") && (
+                      <Link
+                        to="/shopping/store"
+                        className={`item02 ${currentPage.name === "" ? "active" : ""
+                          }`}
+                        style={styles.menuItem}
+                      >
+                        Store
+                      </Link>
+                    )}
                     {/* <Link
                     to="/Activity"
                     className={`item02 ${
