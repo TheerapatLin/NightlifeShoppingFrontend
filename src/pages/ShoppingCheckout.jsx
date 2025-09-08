@@ -17,7 +17,6 @@ const ShoppingCheckout = () => {
   const location = useLocation();
   const addressData = location.state?.addressData;
   const { user } = useAuth();
-  console.log(`addressDataShoppingCheckout => ${JSON.stringify(addressData)}`)
 
   useEffect(() => {
     const createShoppingPaymetIntent = async () => {

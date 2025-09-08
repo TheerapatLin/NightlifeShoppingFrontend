@@ -4,6 +4,7 @@ const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 import axios from "axios";
 import CreateNewProductModal from './CreateNewProductModal';
 import { getDeviceFingerprint } from "../lib/fingerprint";
+import AddVariantModal from "./AddVariantModal";
 
 const successPopupStyle = {
     position: "fixed",
@@ -19,6 +20,13 @@ const successPopupStyle = {
     animation: "slideUp 0.3s ease-out"
 };
 
+const btnStyle = base => ({
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: 8,
+    fontWeight: "bold", ...base
+});
+
 function ProductsConfigShopping() {
     const { user } = useAuth();
     const [products, setProducts] = useState([]);
@@ -33,6 +41,10 @@ function ProductsConfigShopping() {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [successPopup, setSuccessPopup] = useState({ show: false, message: "" });
     const [confirmDelete, setConfirmDelete] = useState({ open: false, productId: null });
+    const [showVariantModal, setShowVariantModal] = useState(false);
+    // const [submitting, setSubmitting] = useState(false);
+
+    const [confirmDeleteVariant, setConfirmDeleteVariant] = useState({ open: false, productId: null, sku: null });
 
     const getSortedVariantImages = (variant) => {
         if (!variant || !Array.isArray(variant.images)) return [];
@@ -151,7 +163,6 @@ function ProductsConfigShopping() {
     };
 
     const handleDeleteProduct = async (productId) => {
-        console.log(`productId => ${productId}`)
         try {
             const fp = await getDeviceFingerprint();
             const response = await axios.delete(`${BASE_URL}/shopping/product/${productId}`,
@@ -160,6 +171,28 @@ function ProductsConfigShopping() {
                     withCredentials: true
                 }
             );
+            setIsModalOpen(false)
+            setSuccessPopup({ show: true, message: "Remove Complete" });
+            reloadProducts()
+            setTimeout(() => setSuccessPopup({ show: false, message: "" }), 3000);
+        }
+        catch (error) {
+            console.error("Error remove product:", error.response?.data || error);
+        }
+    }
+
+    const handleDeleteVariant = async (productId, sku) => {
+        try {
+            console.log(`productId =>${productId}`)
+            console.log(`sku => ${sku}`)
+            const fp = await getDeviceFingerprint();
+            const response = await axios.delete(`${BASE_URL}/shopping/product/variant/delete/${productId}`, {
+                data: { skuVariant: sku },  // 👈 ใส่ body ตรงนี้
+                headers: { "device-fingerprint": fp },
+                withCredentials: true
+            }
+            );
+            setIsVariantModalOpen(false)
             setIsModalOpen(false)
             setSuccessPopup({ show: true, message: "Remove Complete" });
             reloadProducts()
@@ -194,6 +227,14 @@ function ProductsConfigShopping() {
                     type="button"
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                     onClick={() => setIsCreateOpen(true)}
+                    style={{
+                        ...btnStyle({
+                            background: "#635bff",
+                            color: "#fff",
+                            fontSize: 18,
+                            boxShadow: "0 2px 8px rgba(99,91,255,0.15)"
+                        })
+                    }}
                 >
                     Create New Product
                 </button>
@@ -416,7 +457,15 @@ function ProductsConfigShopping() {
 
 
                         <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
-                            <button className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700" onClick={closeModal}>Close</button>
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                                onClick={() => setShowVariantModal(true)}
+                            // disabled={submitting}
+                            >
+                                Add Variant
+                            </button>
+
                             <button
                                 onClick={() => {
                                     setConfirmDelete({ open: true, productId: selectedProduct._id });
@@ -448,7 +497,11 @@ function ProductsConfigShopping() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={closeVariantModal}>
                     <div className="bg-white w-full max-w-xl rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[70vh]" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-6 py-4 border-b">
-                            <h3 className="text-lg font-semibold">Variant Details</h3>
+                            <h3
+                                className="text-lg font-semibold"
+                            >
+                                Variant Details
+                            </h3>
                             <button className="text-gray-500 hover:text-gray-700" onClick={closeVariantModal}>✕</button>
                         </div>
 
@@ -520,7 +573,28 @@ function ProductsConfigShopping() {
                         </div>
 
                         <div className="px-6 py-4 border-t bg-gray-50 flex justify-end">
-                            <button className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700" onClick={closeVariantModal}>Close</button>
+                            <button
+                                onClick={() => {
+                                    setConfirmDeleteVariant({ open: true, productId: selectedProduct._id, sku: selectedVariant.sku });
+                                }}
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 "
+                                title="Delete Product"
+                            >
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                </svg>
+                            </button>
+
                         </div>
                     </div>
                 </div>
@@ -562,6 +636,41 @@ function ProductsConfigShopping() {
                     </div>
                 </div>
             )}
+            {confirmDeleteVariant.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setConfirmDeleteVariant({ open: false, productId: null, sku: null })}>
+                    <div className="bg-white w-full max-w-md rounded-lg shadow-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                        <div className="px-6 py-4 border-b">
+                            <h3 className="text-lg font-semibold">Confirm Deletion</h3>
+                        </div>
+                        <div className="p-6 space-y-3">
+                            <p className="text-gray-700">คุณต้องการลบ variant นี้ใช่หรือไม่?</p>
+                            {selectedVariant.sku ? (
+                                <p className="text-sm text-gray-500">{selectedVariant.sku}</p>
+                            ) : null}
+                            <p className="text-sm text-red-600">การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+                        </div>
+                        <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                                onClick={() => setConfirmDeleteVariant({ open: false, productId: null, sku: null })}
+                            >
+                                ยกเลิก
+                            </button>
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                                onClick={() => {
+                                    handleDeleteVariant(confirmDeleteVariant.productId, confirmDeleteVariant.sku);
+                                    setConfirmDeleteVariant({ open: false, productId: null, sku: null });
+                                }}
+                            >
+                                ลบ variant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {successPopup.show && (
                 <div
                     style={successPopupStyle}
@@ -569,6 +678,11 @@ function ProductsConfigShopping() {
                     {successPopup.message}
                 </div>
             )}
+            <AddVariantModal
+                isOpen={showVariantModal}
+                onClose={() => setShowVariantModal(false)}
+                productId={selectedProduct?._id}
+            />
         </div>
     );
 }

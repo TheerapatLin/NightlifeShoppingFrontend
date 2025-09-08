@@ -11,7 +11,7 @@ import ProductsConfigShopping from "../components/ProductsConfigShopping"
 function Store() {
     const { t, i18n } = useTranslation();
     const [selectedTab, setSelectedTab] = useState(() => {
-        return "category";
+        return "product";
     });
 
     const { user, checkAuthStatus } = useAuth();
