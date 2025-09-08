@@ -501,13 +501,6 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
               <span style={{ fontSize: "18px" }}>Home</span>
             </Link>
             {/* <Link
-              to="/shopping"
-              className={`item02_m ${currentPage.name === "" ? "active" : ""}`}
-            >
-              <span style={{ fontSize: "18px" }}>Shopping</span>
-            </Link> */}
-
-            {/* <Link
             to="/Activity"
             className={`item02_m ${
               currentPage.name === "Activity" ? "active" : ""

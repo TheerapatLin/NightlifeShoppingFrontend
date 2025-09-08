@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import CategoryConfig from "../components/CategoryConfig"
+import ProductsConfigShopping from "../components/ProductsConfigShopping"
 
 function Store() {
     const { t, i18n } = useTranslation();
@@ -56,8 +57,8 @@ function Store() {
                     <div className="mt-2 flex items-center bg-gray-800 p-2 overflow-x-auto rounded-full space-x-2">
                         <button
                             className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "category"
-                                    ? "bg-blue-500 text-white"
-                                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                                 }`}
                             onClick={() => {
                                 setSelectedTab("category");
@@ -67,8 +68,8 @@ function Store() {
                         </button>
                         <button
                             className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "product"
-                                    ? "bg-blue-500 text-white"
-                                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                                 }`}
                             onClick={() => {
                                 setSelectedTab("product");
@@ -78,8 +79,8 @@ function Store() {
                         </button>
                         <button
                             className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "your-order"
-                                    ? "bg-blue-500 text-white"
-                                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                                 }`}
                             onClick={() => {
                                 setSelectedTab("your-order");
@@ -94,9 +95,9 @@ function Store() {
                 <div>
                     {selectedTab === "category" && <CategoryConfig />}
 
-                    {/* {selectedTab === "product" && <UserEvents />}
+                    {selectedTab === "product" && <ProductsConfigShopping />}
 
-          {selectedTab === "your-order" && <UserProfile />}
+                    {/*   {selectedTab === "your-order" && <UserProfile />}
 
           {selectedTab === "affiliate" && <AffiliateDashboard />}  */}
                 </div>
