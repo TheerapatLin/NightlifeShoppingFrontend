@@ -24,7 +24,6 @@ function Shopping() {
 
     const [productData, setProductData] = useState([])
     const [basketData, setBasketData] = useState(null)
-    const [isBasketOpen, setIsBasketOpen] = useState(false)
 
     // ดึงข้อมูล product จาก backend (ใช้ API จริง)
     useEffect(() => {

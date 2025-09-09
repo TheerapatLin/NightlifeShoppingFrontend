@@ -32,7 +32,7 @@ function ProductsConfigShopping() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [categoryNamesById, setCategoryNamesById] = useState({});
+   
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedVariant, setSelectedVariant] = useState(null);
@@ -45,6 +45,8 @@ function ProductsConfigShopping() {
     // const [submitting, setSubmitting] = useState(false);
 
     const [confirmDeleteVariant, setConfirmDeleteVariant] = useState({ open: false, productId: null, sku: null });
+    const [showImageLargerModal, setShowImageLargerModal] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
 
     const getSortedVariantImages = (variant) => {
         if (!variant || !Array.isArray(variant.images)) return [];
@@ -96,49 +98,7 @@ function ProductsConfigShopping() {
         return `${price} ${currency || 'THB'}`;
     };
 
-    // Fetch category names for unique categoryIds and cache them
-    useEffect(() => {
-        const loadCategoryNames = async () => {
-            if (!products || products.length === 0) return;
-
-            const uniqueIds = Array.from(
-                new Set(
-                    products
-                        .map(p => p?.categoryId)
-                        .filter(Boolean)
-                )
-            ).filter(id => !(id in categoryNamesById));
-
-            if (uniqueIds.length === 0) return;
-
-            try {
-                const results = await Promise.all(
-                    uniqueIds.map(async (id) => {
-                        try {
-                            const res = await axios.get(`${BASE_URL}/shopping/category/${id}`);
-                            const cat = res.data;
-                            const name = cat?.name?.en || cat?.name?.th || '-';
-                            return [id, name];
-                        } catch (err) {
-                            console.error('Failed to fetch category', id, err);
-                            return [id, '-'];
-                        }
-                    })
-                );
-
-                const mapUpdate = results.reduce((acc, [id, name]) => {
-                    acc[id] = name;
-                    return acc;
-                }, {});
-
-                setCategoryNamesById(prev => ({ ...prev, ...mapUpdate }));
-            } catch (err) {
-                console.log(`loadCategoryNames Error: ${err}`)
-            }
-        };
-
-        loadCategoryNames();
-    }, [products]);
+    
 
     const openModal = (product) => {
         setSelectedProduct(product);
@@ -266,11 +226,12 @@ function ProductsConfigShopping() {
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Price
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Category
-                                </th>
+                               
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Status
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Tags
                                 </th>
                             </tr>
                         </thead>
@@ -308,9 +269,7 @@ function ProductsConfigShopping() {
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {formatPrice(product.originalPrice, product.currency)}
                                     </td>
-                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {categoryNamesById[product.categoryId] || product.categoryId || '-'}
-                                    </td>
+                                    
                                     <td className="px-4 py-4 whitespace-nowrap">
                                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.status === 'active'
                                             ? 'bg-green-100 text-green-800'
@@ -320,6 +279,26 @@ function ProductsConfigShopping() {
                                             }`}>
                                             {product.status || 'unknown'}
                                         </span>
+                                    </td>
+                                    <td className="px-4 py-4 whitespace-nowrap">
+                                        <div className="flex flex-wrap gap-1">
+                                            {Array.isArray(product.tags) && product.tags.length > 0 ? (
+                                                <>
+                                                    {product.tags.slice(0, 3).map((tag, idx) => (
+                                                        <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                    {product.tags.length > 3 && (
+                                                        <span className="px-2 py-1 bg-gray-200 text-gray-500 rounded text-xs">
+                                                            ...
+                                                        </span>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <span className="text-gray-400 text-xs">No tags</span>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -332,7 +311,12 @@ function ProductsConfigShopping() {
                 isOpen={isCreateOpen}
                 onClose={() => setIsCreateOpen(false)}
                 creatorId={user?.userId}
-                onCreated={() => reloadProducts()}
+                onCreated={() => {
+                    reloadProducts()
+                    setSuccessPopup({ show: true, message: "Create Complete" });
+                    reloadProducts()
+                    setTimeout(() => setSuccessPopup({ show: false, message: "" }), 3000);
+                }}
             />
 
             {isModalOpen && selectedProduct && (
@@ -350,7 +334,16 @@ function ProductsConfigShopping() {
                                 <div className="flex gap-3 flex-wrap">
                                     {Array.isArray(selectedProduct.image) && selectedProduct.image.length > 0 ? (
                                         selectedProduct.image.map((img, idx) => (
-                                            <img key={idx} src={img.fileName} alt={`image-${idx}`} className="h-20 w-20 object-cover rounded" />
+                                            <img 
+                                                key={idx} 
+                                                src={img.fileName} 
+                                                alt={`image-${idx}`} 
+                                                className="h-20 w-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity" 
+                                                onClick={() => {
+                                                    setSelectedImage(img.fileName);
+                                                    setShowImageLargerModal(true);
+                                                }}
+                                            />
                                         ))
                                     ) : (
                                         <div className="text-gray-400">No images</div>
@@ -378,16 +371,12 @@ function ProductsConfigShopping() {
                                 </div>
                             </div>
 
-                            {/* Pricing & Category */}
+                        
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">Price</div>
                                     <div className="text-gray-900">{formatPrice(selectedProduct.originalPrice, selectedProduct.currency)}</div>
-                                </div>
-                                <div>
-                                    <div className="text-sm font-medium text-gray-500">Category</div>
-                                    <div className="text-gray-900">{categoryNamesById[selectedProduct.categoryId] || selectedProduct.categoryId || '-'}</div>
-                                </div>
+                                </div>                               
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">Status</div>
                                     <div className="text-gray-900 capitalize">{selectedProduct.status || '-'}</div>
@@ -400,10 +389,7 @@ function ProductsConfigShopping() {
                                     <div className="text-sm font-medium text-gray-500">isLimited</div>
                                     <div className="text-gray-900">{String(selectedProduct.isLimited ?? '-')}</div>
                                 </div>
-                                <div>
-                                    <div className="text-sm font-medium text-gray-500">Category ID</div>
-                                    <div className="text-gray-900">{selectedProduct.categoryId || '-'}</div>
-                                </div>
+                               
                             </div>
 
                             {/* Dates */}
@@ -489,6 +475,27 @@ function ProductsConfigShopping() {
                             </button>
                         </div>
 
+                    </div>
+                </div>
+            )}
+
+            {/* Image Larger Modal */}
+            {showImageLargerModal && selectedImage && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setShowImageLargerModal(false)}>
+                    <div className="relative max-w-2xl max-h-[80vh] p-4" onClick={(e) => e.stopPropagation()}>
+                        <button 
+                            className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 rounded-full p-2 shadow-lg transition-colors"
+                            onClick={() => setShowImageLargerModal(false)}
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <img 
+                            src={selectedImage} 
+                            alt="Large view" 
+                            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                        />
                     </div>
                 </div>
             )}
