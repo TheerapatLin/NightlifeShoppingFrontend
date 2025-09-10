@@ -160,26 +160,26 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">title.en</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Title (EN)</label>
                                 <input name="titleEn" value={form.titleEn} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Title in English" required />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">title.th</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Title (TH)</label>
                                 <input name="titleTh" value={form.titleTh} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Title in Thai" required />
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-600 mb-1">description.en</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Description (EN)</label>
                                 <textarea name="descEn" value={form.descEn} onChange={handleChange} className="w-full border rounded px-3 py-2" rows={3} placeholder="Description in English" />
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-600 mb-1">description.th</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Description (TH)</label>
                                 <textarea name="descTh" value={form.descTh} onChange={handleChange} className="w-full border rounded px-3 py-2" rows={3} placeholder="Description in Thai" />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">originalPrice</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Price</label>
                                 <input name="originalPrice" value={form.originalPrice} onChange={handleChange} className="w-full border rounded px-3 py-2" type="number" min="0" step="0.01" placeholder="0.00" required />
                             </div>
 
@@ -187,11 +187,11 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">tags</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Tags</label>
                                 <input name="tags" value={form.tags} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="comma,separated,tags" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">status</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
                                 <select name="status" value={form.status} onChange={handleChange} className="w-full border rounded px-3 py-2">
                                     <option value="active">active</option>
                                     <option value="inactive">inactive</option>

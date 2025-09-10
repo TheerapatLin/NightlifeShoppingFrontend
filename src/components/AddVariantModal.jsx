@@ -70,7 +70,7 @@ function AddVariantModal({ isOpen, onClose, productId, onCompleted }) {
                         attributes: form.attributes,
                         price: parseInt(form.price, 10),
                         quantity: parseInt(form.quantity, 10),
-                        soldQuantity: parseInt(form.soldQuantity, 10)
+                        soldQuantity: parseInt(form.soldQuantity || 0, 10)
                     }
                 ]
             }, {
@@ -156,8 +156,8 @@ function AddVariantModal({ isOpen, onClose, productId, onCompleted }) {
 
                     <div className="w-full flex justify-center">
                         <div className="grid grid-cols-3 gap-2 w-64">
-                            {imagePreviews.map((src, idx) => (                                
-                                <div key={idx} className="relative w-full h-20 bg-gray-100 overflow-hidden rounded">                                    
+                            {imagePreviews.map((src, idx) => (
+                                <div key={idx} className="relative w-full h-20 bg-gray-100 overflow-hidden rounded">
                                     <img src={src} alt={`preview-${idx}`} className="w-full h-full object-cover" />
                                     <button
                                         type="button"

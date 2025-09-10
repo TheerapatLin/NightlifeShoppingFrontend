@@ -6,6 +6,7 @@ import CreateNewProductModal from './CreateNewProductModal';
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import AddVariantModal from "./AddVariantModal";
 import EditProductModal from "./EditProductModal";
+import EditVariantProductModal from "./EditVariantProductModal";
 
 const successPopupStyle = {
     position: "fixed",
@@ -44,6 +45,7 @@ function ProductsConfigShopping() {
     const [confirmDelete, setConfirmDelete] = useState({ open: false, productId: null });
     const [showVariantModal, setShowVariantModal] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isEditVariantOpen, setIsEditVariantOpen] = useState(false);
     // const [submitting, setSubmitting] = useState(false);
 
     const [confirmDeleteVariant, setConfirmDeleteVariant] = useState({ open: false, productId: null, sku: null });
@@ -552,7 +554,11 @@ function ProductsConfigShopping() {
                         <div className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="md:col-span-2">
-                                    <div className="text-sm font-medium text-gray-500 mb-2">Images</div>
+                                    <div
+                                        className="text-sm font-medium text-gray-500 mb-2"
+                                    >
+                                        Images
+                                    </div>
                                     {(() => {
                                         const images = getSortedVariantImages(selectedVariant);
                                         if (!images.length) {
@@ -630,6 +636,28 @@ function ProductsConfigShopping() {
                         </div>
 
                         <div className="px-6 py-4 border-t bg-gray-50 flex justify-end">
+                            <button
+                                onClick={() => {
+                                    setIsEditVariantOpen(true);
+                                }}
+                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
+                                title="Edit Variant"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M11 4h2M4 20h16M4 20l1.5-5.5L16.5 3.5a2.121 2.121 0 013 3L8.5 17.5 4 20z"
+                                    />
+                                </svg>
+                            </button>
                             <button
                                 onClick={() => {
                                     setConfirmDeleteVariant({ open: true, productId: selectedProduct._id, sku: selectedVariant.sku });
@@ -745,6 +773,20 @@ function ProductsConfigShopping() {
                     setIsModalOpen(false)
                     setSuccessPopup({ show: true, message: "Add New Variant Complete" });
                     setTimeout(() => setSuccessPopup({ show: false, message: "" }), 3000);
+                    setTimeout(() => reloadProducts(), 250);
+                }}
+            />
+
+            <EditVariantProductModal
+                isOpen={isEditVariantOpen}
+                onClose={() => setIsEditVariantOpen(false)}
+                productId={selectedProduct?._id}
+                variant={selectedVariant}
+                onUpdated={() => {
+                    setSuccessPopup({ show: true, message: "Update Variant Complete" });
+                    setTimeout(() => setSuccessPopup({ show: false, message: "" }), 3000);
+                    setIsVariantModalOpen(false);
+                    setIsModalOpen(false);
                     setTimeout(() => reloadProducts(), 250);
                 }}
             />
