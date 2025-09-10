@@ -83,6 +83,7 @@ function EditProductModal({ isOpen, onClose, product, onUpdated }) {
                     th: form.descTh.trim()
                 },
                 originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
+                tags: form.tags,
                 status: form.status || 'inactive',
             };
 
@@ -94,17 +95,6 @@ function EditProductModal({ isOpen, onClose, product, onUpdated }) {
                     withCredentials: true,
                 }
             );
-            console.log(`form.tags => ${JSON.stringify(form.tags, null, 2)}`)
-
-            await axios.patch(`${BASE_URL}/shopping/product/edit-tag/${product._id}`,
-                {
-                    userId: user.userId,
-                    tags: form.tags
-                }, {
-                headers: { 'device-fingerprint': fp },
-                withCredentials: true,
-            }
-            )
 
             if (typeof onUpdated === 'function') onUpdated();
             if (typeof onClose === 'function') onClose();
