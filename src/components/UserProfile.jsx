@@ -258,11 +258,10 @@ function UserProfile() {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className={`px-4 py-2 rounded text-base transition-all ${
-                isSaving
+              className={`px-4 py-2 rounded text-base transition-all ${isSaving
                   ? "bg-gray-400 text-white cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
-              }`}
+                }`}
             >
               {isSaving ? t("profile.saving") : t("profile.saveChanges")}
             </button>

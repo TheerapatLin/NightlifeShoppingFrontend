@@ -5,6 +5,7 @@ import axios from "axios";
 import CreateNewProductModal from './CreateNewProductModal';
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import AddVariantModal from "./AddVariantModal";
+import EditProductModal from "./EditProductModal";
 
 const successPopupStyle = {
     position: "fixed",
@@ -32,7 +33,7 @@ function ProductsConfigShopping() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-   
+
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedVariant, setSelectedVariant] = useState(null);
@@ -42,6 +43,7 @@ function ProductsConfigShopping() {
     const [successPopup, setSuccessPopup] = useState({ show: false, message: "" });
     const [confirmDelete, setConfirmDelete] = useState({ open: false, productId: null });
     const [showVariantModal, setShowVariantModal] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
     // const [submitting, setSubmitting] = useState(false);
 
     const [confirmDeleteVariant, setConfirmDeleteVariant] = useState({ open: false, productId: null, sku: null });
@@ -98,7 +100,7 @@ function ProductsConfigShopping() {
         return `${price} ${currency || 'THB'}`;
     };
 
-    
+
 
     const openModal = (product) => {
         setSelectedProduct(product);
@@ -133,7 +135,7 @@ function ProductsConfigShopping() {
             );
             setIsModalOpen(false)
             setSuccessPopup({ show: true, message: "Remove Complete" });
-            reloadProducts()
+            setTimeout(() => reloadProducts(), 250);
             setTimeout(() => setSuccessPopup({ show: false, message: "" }), 3000);
         }
         catch (error) {
@@ -226,7 +228,7 @@ function ProductsConfigShopping() {
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Price
                                 </th>
-                               
+
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Status
                                 </th>
@@ -269,7 +271,7 @@ function ProductsConfigShopping() {
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {formatPrice(product.originalPrice, product.currency)}
                                     </td>
-                                    
+
                                     <td className="px-4 py-4 whitespace-nowrap">
                                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.status === 'active'
                                             ? 'bg-green-100 text-green-800'
@@ -334,11 +336,11 @@ function ProductsConfigShopping() {
                                 <div className="flex gap-3 flex-wrap">
                                     {Array.isArray(selectedProduct.image) && selectedProduct.image.length > 0 ? (
                                         selectedProduct.image.map((img, idx) => (
-                                            <img 
-                                                key={idx} 
-                                                src={img.fileName} 
-                                                alt={`image-${idx}`} 
-                                                className="h-20 w-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity" 
+                                            <img
+                                                key={idx}
+                                                src={img.fileName}
+                                                alt={`image-${idx}`}
+                                                className="h-20 w-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
                                                 onClick={() => {
                                                     setSelectedImage(img.fileName);
                                                     setShowImageLargerModal(true);
@@ -371,12 +373,12 @@ function ProductsConfigShopping() {
                                 </div>
                             </div>
 
-                        
+
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">Price</div>
                                     <div className="text-gray-900">{formatPrice(selectedProduct.originalPrice, selectedProduct.currency)}</div>
-                                </div>                               
+                                </div>
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">Status</div>
                                     <div className="text-gray-900 capitalize">{selectedProduct.status || '-'}</div>
@@ -389,7 +391,7 @@ function ProductsConfigShopping() {
                                     <div className="text-sm font-medium text-gray-500">isLimited</div>
                                     <div className="text-gray-900">{String(selectedProduct.isLimited ?? '-')}</div>
                                 </div>
-                               
+
                             </div>
 
                             {/* Dates */}
@@ -444,10 +446,33 @@ function ProductsConfigShopping() {
 
                         <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
                             <button
+                                onClick={() => {
+                                    setIsEditOpen(true);
+                                }}
+                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                title="Edit Product"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M11 4h2M4 20h16M4 20l1.5-5.5L16.5 3.5a2.121 2.121 0 013 3L8.5 17.5 4 20z"
+                                    />
+                                </svg>
+                            </button>
+
+
+                            <button
                                 type="button"
                                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                                 onClick={() => setShowVariantModal(true)}
-                            // disabled={submitting}
                             >
                                 Add Variant
                             </button>
@@ -479,11 +504,23 @@ function ProductsConfigShopping() {
                 </div>
             )}
 
+            <EditProductModal
+                isOpen={isEditOpen}
+                onClose={() => setIsEditOpen(false)}
+                product={selectedProduct}
+                onUpdated={() => {
+                    setSuccessPopup({ show: true, message: "Update Complete" });
+                    setTimeout(() => setSuccessPopup({ show: false, message: "" }), 3000);
+                    setTimeout(() => reloadProducts(), 250);
+                    setIsModalOpen(false)
+                }}
+            />
+
             {/* Image Larger Modal */}
             {showImageLargerModal && selectedImage && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setShowImageLargerModal(false)}>
                     <div className="relative max-w-2xl max-h-[80vh] p-4" onClick={(e) => e.stopPropagation()}>
-                        <button 
+                        <button
                             className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 rounded-full p-2 shadow-lg transition-colors"
                             onClick={() => setShowImageLargerModal(false)}
                         >
@@ -491,9 +528,9 @@ function ProductsConfigShopping() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
-                        <img 
-                            src={selectedImage} 
-                            alt="Large view" 
+                        <img
+                            src={selectedImage}
+                            alt="Large view"
                             className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                         />
                     </div>
@@ -527,16 +564,29 @@ function ProductsConfigShopping() {
                                         return (
                                             <div>
                                                 <div className="flex items-center justify-center gap-3">
-                                                    <button type="button" className="px-2 py-1 border rounded text-xs bg-black hover:bg-white" onClick={showPrevImage}>
-
+                                                    <button
+                                                        type="button"
+                                                        className="px-2 py-1 border rounded text-xs bg-white text-black hover:bg-gray-100"
+                                                        onClick={showPrevImage}
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                                            <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
+                                                        </svg>
                                                     </button>
                                                     <img
                                                         src={current.fileName}
                                                         alt={`${selectedVariant.sku || 'variant'}-${variantImageIndex + 1}`}
                                                         className="h-40 w-40 object-cover rounded"
                                                     />
-                                                    <button type="button" className="px-2 py-1 border rounded text-xs bg-black hover:bg-white" onClick={showNextImage}>
-
+                                                    <button
+                                                        type="button"
+                                                        className="px-2 py-1 border rounded text-xs bg-white text-black hover:bg-gray-100"
+                                                        onClick={showNextImage}
+                                                        aria-label="Next"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 0 0 .708L10.293 8l-5.647 5.646a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708l-6-6a.5.5 0 0 0-.708 0z" />
+                                                        </svg>
                                                     </button>
                                                 </div>
                                                 <div className="text-center text-xs text-gray-500 mt-1">
@@ -687,8 +737,16 @@ function ProductsConfigShopping() {
             )}
             <AddVariantModal
                 isOpen={showVariantModal}
-                onClose={() => setShowVariantModal(false)}
+                onClose={() => {
+                    setShowVariantModal(false)
+                }}
                 productId={selectedProduct?._id}
+                onCompleted={() => {
+                    setIsModalOpen(false)
+                    setSuccessPopup({ show: true, message: "Add New Variant Complete" });
+                    setTimeout(() => setSuccessPopup({ show: false, message: "" }), 3000);
+                    setTimeout(() => reloadProducts(), 250);
+                }}
             />
         </div>
     );

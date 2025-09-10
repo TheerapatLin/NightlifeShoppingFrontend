@@ -100,7 +100,7 @@ function Shopping() {
                         gap: "16px",
                     }}
                 >
-                    {productData.map((product) => {
+                    {productData.filter((p) => p.status === "active").map((product) => {
                         const cover = product.image && product.image.length > 0 ? product.image[0].fileName : null;
                         const name = (i18n.language === "th" ? product.title?.th : product.title?.en) || product.title?.en || "Untitled";
                         const price = product.originalPrice;

@@ -160,7 +160,7 @@ function ProductDetail() {
                       setCurrentImageIndex(0);
                       setIsVariantModalOpen(true);
                     }}
-                    style={{ border: "1px solid #eee", borderRadius: 8, padding: 12, cursor: "pointer" }}
+                    style={{ border: "1px solid #eee", borderRadius: 8, padding: 12, cursor: "pointer", background: "#fff" }}
                   >
                     <div style={{ fontWeight: 600 }}>{v.sku}</div>
                     <div style={{ color: "#666", fontSize: 13 }}>

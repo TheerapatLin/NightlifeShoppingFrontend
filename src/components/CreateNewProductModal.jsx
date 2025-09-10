@@ -1,23 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from "axios";
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import { useAuth } from "../context/AuthContext";
+import { Camera } from "lucide-react";
+import imageCompression from "browser-image-compression";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
-
-const successPopupStyle = {
-    position: "fixed",
-    bottom: 20, left: 20,
-    background: "#28a745",
-    color: "#fff",
-    padding: "12px 20px",
-    borderRadius: 8,
-    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-    zIndex: 1200,
-    fontSize: 16,
-    fontWeight: 600,
-    animation: "slideUp 0.3s ease-out"
-};
 
 function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
     const [form, setForm] = useState({
@@ -32,6 +20,22 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const { user } = useAuth();
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
+    const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        return () => {
+            if (imagePreview) URL.revokeObjectURL(imagePreview);
+        };
+    }, [imagePreview]);
+
+    useEffect(() => {
+        if (isOpen) {
+            setImagePreview(null);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    }, [isOpen]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -48,7 +52,7 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
             setSubmitting(true);
             setError(null);
             const fp = await getDeviceFingerprint();
-            await axios.post(`${BASE_URL}/shopping/product`,
+            const response = await axios.post(`${BASE_URL}/shopping/product`,
                 {
                     creatorId: user.userId,
                     title: { en: form.titleEn.trim(), th: form.titleTh.trim() },
@@ -63,6 +67,30 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
                 withCredentials: true
             });
 
+
+            if (imageFile) {
+                const compressedFile = await imageCompression(imageFile, {
+                    maxSizeMB: 0.5,
+                    maxWidthOrHeight: 512,
+                    useWebWorker: true,
+                });
+                const formData = new FormData();
+                formData.append('image', compressedFile);      // ต้องเป็น File/Blob
+                formData.append('userId', user.userId);
+                const newproductId = response.data.newProduct._id
+                const resImage = await axios.patch(`${BASE_URL}/shopping/product/add-image/${newproductId}`,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                            "device-fingerprint": fp,
+                        },
+                        withCredentials: true,
+                    })
+                setImagePreview(null)
+                setImageFile(null)
+            }
+
             if (typeof onClose === 'function') onClose();
             if (typeof onCreated === 'function') onCreated();
         } catch (err) {
@@ -76,18 +104,61 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
 
     return (
         <>
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+            <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                onClick={() => {
+                    onClose()
+                }}
+            >
                 <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-between px-6 py-4 border-b">
                         <h3 className="text-lg font-semibold">Create New Product</h3>
-                        <button className="text-gray-500 hover:text-gray-700" onClick={onClose}>✕</button>
+                        <button
+                            className="text-gray-500 hover:text-gray-700"
+                            onClick={() => { setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; onClose(); }}>✕</button>
                     </div>
                     <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
                         {error && (
                             <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</div>
                         )}
+                        <p className="text-sm text-gray-600 mb-2">รูปภาพแสดงสินค้า</p>
+                        <div className="w-full flex justify-center">
+                            <label
+                                htmlFor="profile-upload"
+                                className={`flex items-center justify-center w-32 h-32 ${imagePreview ? '' : 'bg-black'} text-white rounded-md cursor-pointer hover:opacity-90 transition overflow-hidden`}
+                                aria-label="Upload image"
+                            >
+                                {imagePreview ? (
+                                    <img src={imagePreview} alt="preview" className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-xl">+</span>
+                                )}
+                            </label>
+                            <input
+                                id="profile-upload"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                ref={fileInputRef}
+                                onChange={(e) => {
+                                    const file = e.target.files && e.target.files[0];
+                                    if (file) {
+                                        setImageFile(file);
+                                        const url = URL.createObjectURL(file);
+                                        setImagePreview((prev) => {
+                                            if (prev) URL.revokeObjectURL(prev);
+                                            return url;
+                                        });
+                                    } else {
+                                        setImageFile(null);
+                                        setImagePreview(null);
+                                    }
+                                }}
+                            />
+                        </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-600 mb-1">title.en</label>
                                 <input name="titleEn" value={form.titleEn} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Title in English" required />
