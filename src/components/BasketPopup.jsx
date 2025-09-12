@@ -14,9 +14,11 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
     const { isLoggedIn, user } = useAuth();
     const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const [showWarning, setShowWarning] = useState(false);
     const [showWarningAddress, setShowWarningAddress] = useState(false);
     const [addressData, setAddressData] = useState(null);
+    const [confirmDelete, setConfirmDelete] = useState({ open: false, productId: null, sku: null });
 
     // style reuse
     const gridHeaderStyle = {
@@ -120,6 +122,7 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                     data: { userId: user.userId, productId, sku },
                 }
             );
+            setSelectedProduct(null)
             window.location.reload();
         } catch (error) {
             console.error("Error removing product from basket:", error.response?.data || error);
@@ -154,7 +157,15 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                                         <div key={`qty-${item.productId}-${item.variant?.sku}`} style={{ color: "#111827", textAlign: "right" }}>{item.quantity || 0}</div>,
                                         <div key={`total-${item.productId}-${item.variant?.sku}`} style={{ color: "#111827", textAlign: "right" }}>{new Intl.NumberFormat(i18n.language || "en-US", { style: "currency", currency: "THB", maximumFractionDigits: 0 }).format(item.totalPrice || 0)}</div>,
                                         <div key={`del-${item.productId}-${item.variant?.sku}`} style={{ textAlign: "right" }}>
-                                            <button onClick={() => handleRemoveProduct(item.productId, item.variant?.sku)} style={btnTrashStyle} title="ลบสินค้า"><FaTrash /></button>
+                                            <button
+                                                onClick={() => {
+                                                    setConfirmDelete({ open: true, productId: item.productId, sku: item.variant?.sku })
+                                                    setSelectedProduct(item)
+                                                }}
+                                                style={btnTrashStyle}
+                                                title="ลบสินค้า">
+                                                <FaTrash />
+                                            </button>
                                         </div>
                                     ];
                                 }).flat()}
@@ -182,6 +193,59 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                         <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>แจ้งเตือน</div>
                         <div style={{ color: "#374151", marginBottom: 16 }}>คุณยังไม่มีสินค้าในตะกร้า</div>
                         <button onClick={() => setShowWarning(false)} style={{ padding: "10px 16px", background: "#635bff", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: "bold", boxShadow: "0 2px 8px rgba(99,91,255,0.15)" }}>ตกลง</button>
+                    </div>
+                </div>
+            )}
+            {confirmDelete.open && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/50" style={{ zIndex: 1100 }} onClick={() => setConfirmDelete({ open: false, productId: null, sku: null })}>
+                    <div className="bg-white w-full max-w-md rounded-lg shadow-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                        <div className="px-6 py-4 border-b">
+                            <h3 className="text-lg font-semibold">Confirm Deletion</h3>
+                        </div>
+                        <div className="p-6 space-y-3">
+                            <p className="text-gray-700">คุณต้องการลบสินค้าใช่หรือไม่?</p>
+                            {(() => {
+                                const product = productData.find(p => String(p._id) === String(confirmDelete.productId));
+                                const variant = product?.variants?.find(v => v.sku === confirmDelete.sku);
+                                return product ? (
+                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                        <p className="text-sm font-medium text-gray-800">
+                                            <span className="font-semibold">สินค้า:</span> {product.title?.en || product.title?.th || "ไม่ระบุชื่อ"}
+                                        </p>
+                                        <p className="text-sm text-gray-600">
+                                            <span className="font-semibold">SKU:</span> {confirmDelete.sku || "ไม่ระบุ SKU"}
+                                        </p>
+                                        {variant?.name && (
+                                            <p className="text-sm text-gray-600">
+                                                <span className="font-semibold">รุ่น:</span> {variant.name}
+                                            </p>
+                                        )}
+                                    </div>
+                                ) : null;
+                            })()}
+                            <p className="text-sm text-red-600">การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+                        </div>
+                        <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                                onClick={() => setConfirmDelete({ open: false, productId: null, sku: null })}
+                            >
+                                ยกเลิก
+                            </button>
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                                onClick={() => {
+                                    if (confirmDelete.productId && confirmDelete.sku) {
+                                        handleRemoveProduct(confirmDelete.productId, confirmDelete.sku);
+                                    }
+                                    setConfirmDelete({ open: false, productId: null, sku: null });
+                                }}
+                            >
+                                ลบสินค้า
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

@@ -151,9 +151,7 @@ function ProductsConfigShopping() {
     }
 
     const handleDeleteVariant = async (productId, sku) => {
-        try {
-            console.log(`productId =>${productId}`)
-            console.log(`sku => ${sku}`)
+        try {            
             const fp = await getDeviceFingerprint();
             const response = await axios.delete(`${BASE_URL}/shopping/product/variant/delete/${productId}`, {
                 data: { skuVariant: sku },  // 👈 ใส่ body ตรงนี้
