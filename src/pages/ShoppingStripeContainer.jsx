@@ -135,7 +135,6 @@ const ShoppingStripeContainer = ({ clientSecret, userEmailRef, onAddressChange }
         });
 
         if (error) {
-
             if (error.type === "card_error" || error.type === "validation_error") {
                 setMessage(error.message);
             } else if (error.type === "canceled") {

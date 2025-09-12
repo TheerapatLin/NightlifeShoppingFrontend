@@ -4,6 +4,7 @@ import { useAsyncError, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import ProductsConfigShopping from "../components/ProductsConfigShopping"
+import ShoppingOrderConfig from "../components/ShoppingOrderConfig"
 
 function Store() {
     const { t, i18n } = useTranslation();
@@ -51,7 +52,7 @@ function Store() {
             <div className="flex flex-col gap-2 mt-[65px] w-full">
                 <div className="flex justify-center">
                     <div className="mt-2 flex items-center bg-gray-800 p-2 overflow-x-auto rounded-full space-x-2">
-                        
+
                         <button
                             className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "product"
                                 ? "bg-blue-500 text-white"
@@ -81,10 +82,8 @@ function Store() {
                 <div>
 
                     {selectedTab === "product" && <ProductsConfigShopping />}
+                    {selectedTab === "your-order" && <ShoppingOrderConfig />}
 
-                    {/*   {selectedTab === "your-order" && <UserProfile />}
-
-          {selectedTab === "affiliate" && <AffiliateDashboard />}  */}
                 </div>
             </div>
         </>

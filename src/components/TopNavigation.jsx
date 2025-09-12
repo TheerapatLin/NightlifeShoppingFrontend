@@ -1,12 +1,7 @@
 // TopNavigation.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import Dropdown_link_lang from "./Dropdown_link-lang";
-import Dropdown_lang_currency from "./Dropdown_lang-currency";
-import Dropdown_Business_customers from "./Dropdown_Business-customers";
 import { useGlobalEvent } from "../context/GlobalEventContext";
-import ThinBag from "../Helpers/icons/ThinBag";
-import Cart from "../pages/Cart";
 import { useCart } from "../context/CartContext";
 import Nightlife1 from "../img/NightLife_logo_1.png";
 import Nightlife1_long1 from "../img/NightLife_logo_1.png";
@@ -125,6 +120,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   useEffect(() => {
     const fetchBasket = async () => {
       if (!user || !user.userId) return;
+      console.log(`user => ${user.userId}`)
       try {
         const fp = await getDeviceFingerprint();
         const res = await axios.get(`${BASE_URL}/shopping/basket/${user.userId}`,
@@ -132,7 +128,15 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
         );
         setBasketData(res.data);
       } catch (error) {
-        console.error("Error fetching baskets:", error);
+        if (error?.response?.status === 404) {
+          console.error("IF Error fetching baskets:", error.response);
+
+          const fp = await getDeviceFingerprint();
+          await axios.post(`${BASE_URL}/shopping/basket`, { userId: user.userId }, { headers: { "device-fingerprint": fp }, withCredentials: true });
+          const res2 = await axios.get(`${BASE_URL}/shopping/basket/${user.userId}`, { headers: { "device-fingerprint": fp }, withCredentials: true });
+          setBasketData(res2.data);
+        }
+        console.error("Error fetching baskets:", error.response);
       }
     };
     fetchBasket();
@@ -287,7 +291,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                           }`}
                         style={styles.menuItem}
                       >
-                        Store
+                        Stock
                       </Link>
                     )}
                     {/* <Link
@@ -322,7 +326,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                         }`}
                       style={styles.menuItem}
                     >
-                      Basket{totalItemsInBasket ? ` (${totalItemsInBasket})` : ""}
+                      Basket{totalItemsInBasket ? ` [${totalItemsInBasket}]` : ""}
                     </Link>
 
 

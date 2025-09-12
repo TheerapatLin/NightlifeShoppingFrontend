@@ -57,15 +57,17 @@ function ProductDetail() {
         );
         return res2.data?._id;
       }
-      throw err;
+      console.log(`Error ensureBasketAndGetId: ${err}`)
     }
   };
+ 
 
   const handleAddToBasket = async () => {
     if (!isLoggedIn || !user?.userId) {
       setAddError("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้า");
       return;
     }
+    
     if (!selectedVariant || !product?._id) return;
     const qty = Number(quantityToAdd) || 1;
     if (qty <= 0) {
@@ -75,8 +77,9 @@ function ProductDetail() {
     setAdding(true);
     setAddError("");
     setAddSuccess("");
+    const uid = user.userId
     try {
-      const uid = user.userId;
+
       const basketId = await ensureBasketAndGetId(uid);
       const fp = await getDeviceFingerprint();
       await axios.patch(
@@ -162,6 +165,16 @@ function ProductDetail() {
                     }}
                     style={{ border: "1px solid #eee", borderRadius: 8, padding: 12, cursor: "pointer", background: "#fff" }}
                   >
+                    {Array.isArray(v.images) && v.images.length > 0 ? (
+                      <div style={{ marginBottom: 8, background: "#f7f7f7", borderRadius: 6, overflow: "hidden" }}>
+                        <img
+                          src={v.images[0]?.fileName}
+                          alt={`${v.sku}-cover`}
+                          style={{ width: "100%", height: 100, objectFit: "cover", display: "block" }}
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        />
+                      </div>
+                    ) : null}
                     <div style={{ fontWeight: 600 }}>{v.sku}</div>
                     <div style={{ color: "#666", fontSize: 13 }}>
                       {v.attributes?.size ? `Size: ${v.attributes.size}` : ""}

@@ -130,6 +130,7 @@ export default function CompletePage() {
       setIntentId(paymentIntent.id);
       localStorage.removeItem("client_secret");
     });
+    
   }, [stripe]);
 
   useEffect(() => {

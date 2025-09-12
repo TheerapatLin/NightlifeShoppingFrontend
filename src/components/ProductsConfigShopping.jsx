@@ -70,8 +70,13 @@ function ProductsConfigShopping() {
             setProducts(response.data || []);
             setError(null);
         } catch (err) {
-            console.error('Error fetching products:', err);
-            setError('Failed to fetch products');
+            console.error('Error fetching products:', err.response.data.message || err);
+            if (err.response.data.message === "ไม่พบ products") {
+                setError(null);
+                setProducts([]);
+            } else {
+                setError('Failed to fetch products');
+            }
             setProducts([]);
         } finally {
             setLoading(false);
@@ -179,7 +184,11 @@ function ProductsConfigShopping() {
     if (error) {
         return (
             <div className="flex justify-center items-center p-8">
-                <div className="text-red-600">Error: {error}</div>
+                <div className="text-red-600">
+                    <h1>
+                        {error}
+                    </h1>
+                </div>
             </div>
         );
     }
@@ -204,8 +213,8 @@ function ProductsConfigShopping() {
                 </button>
             </div>
             {products.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                    No products found
+                <div className="text-center py-8 text-500">
+                    <h1>No products found</h1>
                 </div>
             ) : (
                 <div className="overflow-x-auto">

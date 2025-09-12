@@ -39,7 +39,7 @@ function Profile() {
 
   // get orders from api
   const fetchOrders = async () => {
-    try{
+    try {
       const fp = await getDeviceFingerprint();
       const res = await axios.get(`${BASE_URL}/shopping/order/${user.userId}`,
         {
@@ -49,7 +49,7 @@ function Profile() {
       )
       setOrders(res.data)
     }
-    catch(error) {
+    catch (error) {
       console.error("Error fetching orders:", error);
     }
   }
@@ -155,11 +155,10 @@ function Profile() {
         <div className="flex justify-center">
           <div className="mt-2 flex items-center bg-gray-800 p-2 overflow-x-auto rounded-full space-x-2">
             <button
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
-                selectedTab === "profile"
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "profile"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
+                }`}
               onClick={() => {
                 setSelectedTab("profile");
                 localStorage.setItem("profileSelectedTab", "profile");
@@ -168,11 +167,10 @@ function Profile() {
               Profile
             </button>
             <button
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
-                selectedTab === "deals"
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "deals"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
+                }`}
               onClick={() => {
                 setSelectedTab("deals");
                 localStorage.setItem("profileSelectedTab", "deals");
@@ -181,11 +179,10 @@ function Profile() {
               Deals
             </button>
             <button
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
-                selectedTab === "events"
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "events"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
+                }`}
               onClick={() => {
                 setSelectedTab("events");
                 localStorage.setItem("profileSelectedTab", "events");
@@ -194,16 +191,15 @@ function Profile() {
               Events
             </button>
             <button
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
-                selectedTab === "order"
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "order"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
+                }`}
               onClick={() => {
                 setSelectedTab("order");
               }}
             >
-              Order
+              Shopping Order
             </button>
             {(user?.role == "admin" ||
               user?.role == "superadmin" ||
@@ -211,39 +207,37 @@ function Profile() {
               user?.role == "affiliator_host" ||
               user?.role == "host_affiliator" ||
               user?.role == "affiliator") && (
-              <button
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
-                  selectedTab === "affiliate"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                }`}
-                onClick={() => {
-                  setSelectedTab("affiliate");
-                  localStorage.setItem("profileSelectedTab", "affiliate");
-                }}
-              >
-                Affiliate
-              </button>
-            )}
+                <button
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "affiliate"
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  onClick={() => {
+                    setSelectedTab("affiliate");
+                    localStorage.setItem("profileSelectedTab", "affiliate");
+                  }}
+                >
+                  Affiliate
+                </button>
+              )}
             {(user?.role == "admin" ||
               user?.role == "superadmin" ||
               user?.role == "host" ||
               user?.role == "affiliator_host" ||
               user?.role == "host_affiliator") && (
-              <button
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${
-                  selectedTab === "scheduler"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                }`}
-                onClick={() => {
-                  setSelectedTab("scheduler");
-                  localStorage.setItem("profileSelectedTab", "scheduler");
-                }}
-              >
-                Scheduler
-              </button>
-            )}
+                <button
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "scheduler"
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  onClick={() => {
+                    setSelectedTab("scheduler");
+                    localStorage.setItem("profileSelectedTab", "scheduler");
+                  }}
+                >
+                  Scheduler
+                </button>
+              )}
             {user?.role === "superadmin" && (
               <button
                 className="flex-shrink-0 px-4 py-2 rounded-full text-sm bg-yellow-500 text-white hover:bg-yellow-600 flex items-center gap-1"
@@ -264,6 +258,8 @@ function Profile() {
           {selectedTab === "events" && <UserEvents />}
 
           {selectedTab === "profile" && <UserProfile />}
+
+          {selectedTab === "order" && <UserOrders orders={orders} />}
 
           {selectedTab === "affiliate" && <AffiliateDashboard />}
 
@@ -294,7 +290,7 @@ function Profile() {
 
           {selectedTab === "superadmin" && <UserSuperAdmin />}
 
-          {selectedTab === "order" && <UserOrders orders={orders} />}
+
         </div>
       </div>
     </>
