@@ -5,6 +5,56 @@ import { getDeviceFingerprint } from "../lib/fingerprint";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
+// ----- Constants & Utilities -----
+const STATUS_OPTIONS = [
+    'preparing',
+    'packed',
+    'pending',
+    'picked',
+    'transit',
+    'hub',
+    'delivering',
+    'delivered',
+    'failed',
+    'cancelled',
+    'returning'
+];
+
+const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    try {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch {
+        return '-';
+    }
+};
+
+const formatCurrency = (amount) => new Intl.NumberFormat('th-TH', {
+    style: 'currency',
+    currency: 'THB',
+    maximumFractionDigits: 0
+}).format(amount);
+
+const buildAdminNotePayload = (notes) => (Array.isArray(notes) ? notes : [])
+    .map(s => (typeof s === 'string' ? s.trim() : ''))
+    .filter(Boolean)
+    .map(message => ({ message }));
+
+const extractNoteMessages = (notes) => Array.isArray(notes)
+    ? notes.map(n => (typeof n === 'string' ? n : (n?.message || ''))).filter(Boolean)
+    : [];
+
+const getFPConfig = async () => {
+    const fp = await getDeviceFingerprint();
+    return { headers: { 'device-fingerprint': fp }, withCredentials: true };
+};
+
 function ShoppingOrderConfig({ onOrdersUpdate }) {
     const { user } = useAuth();
     const [orders, setOrders] = useState([]);
@@ -13,6 +63,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productDetails, setProductDetails] = useState({});
+    const [buyerNames, setBuyerNames] = useState({});
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [editStatus, setEditStatus] = useState('preparing');
@@ -25,34 +76,6 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
     const [newOrderAdminNote, setNewOrderAdminNote] = useState('');
     const [savingOrderNote, setSavingOrderNote] = useState(false);
     const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
-    const STATUS_OPTIONS = [
-        'preparing',
-        'packed',
-        'pending',
-        'picked',
-        'transit',
-        'hub',
-        'delivering',
-        'delivered',
-        'failed',
-        'cancelled',
-        'returning'
-    ];
-
-    const formatDate = (dateString) => {
-        if (!dateString) return '-';
-        try {
-            const date = new Date(dateString);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        } catch {
-            return '-';
-        }
-    };
 
     const handleOrderClick = (order) => {
         setSelectedOrder(order);
@@ -64,25 +87,14 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         setSelectedOrder(null);
     };
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('th-TH', {
-            style: 'currency',
-            currency: 'THB',
-            maximumFractionDigits: 0
-        }).format(amount);
-    };
-
     const fetchProductDetails = async (productId) => {
         if (!productId || productDetails[productId]) {
             return productDetails[productId];
         }
 
         try {
-            const fp = await getDeviceFingerprint();
-            const res = await axios.get(`${BASE_URL}/shopping/product/${productId}`, {
-                headers: { "device-fingerprint": fp },
-                withCredentials: true
-            });
+            const config = await getFPConfig();
+            const res = await axios.get(`${BASE_URL}/shopping/product/${productId}`, config);
 
             const product = res.data;
             setProductDetails(prev => ({
@@ -113,6 +125,25 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         }
     };
 
+    const fetchBuyerName = async (buyerId) => {
+        if (!buyerId) return null;
+        if (buyerNames[buyerId]) return buyerNames[buyerId];
+        try {
+            const config = await getFPConfig();
+            const res = await axios.get(`${BASE_URL}/accounts/getuserweb/${user?.userId}`, {
+                ...config,
+                data: { userId: buyerId }
+            });
+            const name = res?.data?.authenticated_user?.name || res?.data?.data?.user?.name || buyerId;
+            setBuyerNames(prev => ({ ...prev, [buyerId]: name }));
+            return name;
+        } catch (err) {
+            console.error(`Failed to fetch buyer name for ${buyerId}:`, err);
+            setBuyerNames(prev => ({ ...prev, [buyerId]: buyerId }));
+            return buyerId;
+        }
+    };
+
     const loadOrders = async () => {
         if (!user?.userId) {
             setLoading(false);
@@ -122,11 +153,8 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         }
         try {
             setLoading(true);
-            const fp = await getDeviceFingerprint();
-            const res = await axios.get(`${BASE_URL}/shopping/creator-creatororder/${user.userId}`, {
-                headers: { "device-fingerprint": fp },
-                withCredentials: true
-            });
+            const config = await getFPConfig();
+            const res = await axios.get(`${BASE_URL}/shopping/creator-creatororder/${user.userId}`, config);
             const data = res?.data;
             const ordersArray = Array.isArray(data?.order) ? data.order : [];
             setOrders(ordersArray);
@@ -137,6 +165,12 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                 order.productId ? fetchProductDetails(order.productId) : Promise.resolve(null)
             );
             await Promise.all(productPromises);
+
+            // Fetch buyer names for all orders
+            const buyerPromises = ordersArray.map(order =>
+                order.buyerId ? fetchBuyerName(order.buyerId) : Promise.resolve(null)
+            );
+            await Promise.all(buyerPromises);
 
             // Notify parent component about orders update
             if (onOrdersUpdate) {
@@ -158,19 +192,13 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         setEditingItem(item);
         setEditStatus(item?.status || 'preparing');
         // Compose admin notes from order-level adminNote that are related (if any); default to empty
-        const existingNotes = Array.isArray(item?.adminNote)
-            ? item.adminNote.map(n => n?.message || '').filter(Boolean)
-            : [];
-        setEditAdminNotes(existingNotes);
+        setEditAdminNotes(extractNoteMessages(item?.adminNote));
         setIsEditModalOpen(true);
     };
 
     // Open order-level admin note editor
     const openEditOrderNotes = () => {
-        const existing = Array.isArray(selectedOrder?.adminNote)
-            ? selectedOrder.adminNote.map(n => (typeof n === 'string' ? n : (n?.message || ''))).filter(Boolean)
-            : [];
-        setEditOrderAdminNotes(existing);
+        setEditOrderAdminNotes(extractNoteMessages(selectedOrder?.adminNote));
         setNewOrderAdminNote('');
         setIsEditOrderNoteOpen(true);
     };
@@ -196,11 +224,8 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
 
         try {
             setSavingEdit(true);
-            const fp = await getDeviceFingerprint();
-            const adminNoteArray = (Array.isArray(editAdminNotes) ? editAdminNotes : [])
-                .map(s => (typeof s === 'string' ? s.trim() : ''))
-                .filter(Boolean)
-                .map(message => ({ message }));
+            const config = await getFPConfig();
+            const adminNoteArray = buildAdminNotePayload(editAdminNotes);
 
             await axios.patch(
                 `${BASE_URL}/shopping/update-product-creatororder/${selectedOrder._id}`,
@@ -210,10 +235,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                     productId: editingItem.productId,
                     sku: editingItem.sku
                 },
-                {
-                    headers: { 'device-fingerprint': fp },
-                    withCredentials: true
-                }
+                config
             );
 
             const refreshed = await loadOrders();
@@ -257,19 +279,13 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         if (!selectedOrder?._id) return;
         try {
             setSavingOrderNote(true);
-            const fp = await getDeviceFingerprint();
-            const adminNoteArray = (Array.isArray(editOrderAdminNotes) ? editOrderAdminNotes : [])
-                .map(s => (typeof s === 'string' ? s.trim() : ''))
-                .filter(Boolean)
-                .map(message => ({ message }));
+            const config = await getFPConfig();
+            const adminNoteArray = buildAdminNotePayload(editOrderAdminNotes);
 
             await axios.patch(
                 `${BASE_URL}/shopping/update-creatororder/${selectedOrder._id}`,
                 { adminNote: adminNoteArray },
-                {
-                    headers: { 'device-fingerprint': fp },
-                    withCredentials: true
-                }
+                config
             );
 
             const refreshed = await loadOrders();
@@ -290,32 +306,42 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.userId]);
 
+    // Prefetch product details for all variant items when an order is selected
+    useEffect(() => {
+        if (!selectedOrder || !Array.isArray(selectedOrder.variant)) return;
+        const productIds = selectedOrder.variant
+            .map(v => v?.productId)
+            .filter(Boolean);
+        const uniqueProductIds = Array.from(new Set(productIds));
+        if (uniqueProductIds.length === 0) return;
+        Promise.all(uniqueProductIds.map(pid => fetchProductDetails(pid))).catch(() => {});
+    }, [selectedOrder]);
+
     // Auto-update creator order status based on item statuses
     useEffect(() => {
         const maybeUpdateOrderStatus = async () => {
             if (!selectedOrder?._id || updatingOrderStatus) return;
             const items = Array.isArray(selectedOrder.variant) ? selectedOrder.variant : [];
             if (items.length === 0) return;
-            const preparingCount = items.reduce((acc, it) => acc + (it.status === 'preparing' ? 1 : 0), 0);
-            const deliveredCount = items.reduce((acc, it) => acc + (it.status === 'delivered' ? 1 : 0), 0);
+            const allDelivered = items.every(it => it.status === 'delivered');
+            const nonePreparing = items.every(it => it.status !== 'preparing');
 
             try {
                 let nextStatus = null;
                 // Prioritize 'successful' over 'processing'
-                if (deliveredCount === items.length && selectedOrder.status !== 'successful') {
+                if (allDelivered && selectedOrder.status !== 'successful') {
                     nextStatus = 'successful';
-                } else if (preparingCount === 0 && selectedOrder.status !== 'processing' && selectedOrder.status !== 'successful') {
-                    // Do not downgrade from successful to processing
+                } else if (nonePreparing && !['processing', 'successful'].includes(selectedOrder.status)) {
                     nextStatus = 'processing';
                 }
 
                 if (nextStatus) {
                     setUpdatingOrderStatus(true);
-                    const fp = await getDeviceFingerprint();
+                    const config = await getFPConfig();
                     await axios.patch(
                         `${BASE_URL}/shopping/update-creatororder/${selectedOrder._id}`,
                         { status: nextStatus },
-                        { headers: { 'device-fingerprint': fp }, withCredentials: true }
+                        config
                     );
                     const refreshed = await loadOrders();
                     if (Array.isArray(refreshed)) {
@@ -358,8 +384,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">created At</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">buyer Id</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">product Name</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">buyer Name</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">creator Name</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">paid At</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">status</th>
@@ -374,10 +399,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                     onClick={() => handleOrderClick(order)}
                                 >
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(order.createdAt)}</td>
-                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{order.buyerId || '-'}</td>
-                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
-                                        {productDetails[order.productId]?.title || 'Loading...'}
-                                    </td>
+                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{buyerNames[order.buyerId] || order.buyerId || 'Loading...'}</td>
                                     <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
                                         {productDetails[order.productId]?.creatorName || 'Loading...'}
                                     </td>
@@ -460,12 +482,10 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
 
                                 <div className="bg-gray-50 p-3 rounded-lg">
 
-                                    <h3 className="font-semibold text-black mb-2">ข้อมูลผู้ซื้อ</h3>
+                                    <h3 className="font-semibold text-black mb-2">ข้อมูลผู้ซื้อ - ผู้ขาย</h3>
                                     <div className="space-y-1 text-sm">
-                                        <p className="text-black"><span className="font-medium">Buyer ID:</span> {selectedOrder.buyerId || '-'}</p>
-                                        <p className="text-black"><span className="font-medium">Creator ID:</span> {selectedOrder.creatorId || '-'}</p>
-                                        <p className="text-black"><span className="font-medium">Product ID:</span> {selectedOrder.productId || '-'}</p>
-                                    </div>
+                                        <p className="text-black"><span className="font-medium">ผู้ซื้อ:</span> {buyerNames[selectedOrder.buyerId] || selectedOrder.buyerId || '-'}</p>
+                                        <p className="text-black"><span className="font-medium">ผู้ขาย:</span> {productDetails[selectedOrder.productId]?.creatorName || '-'}</p>                                    </div>
                                 </div>
 
                                 <div className="bg-gray-50 p-3 rounded-lg">
@@ -546,6 +566,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                         <table className="min-w-full bg-white border border-gray-200 rounded-lg">
                                             <thead className="bg-gray-100">
                                                 <tr>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">Product Name</th>
                                                     <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">SKU</th>
                                                     <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">จำนวน</th>
                                                     <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">ราคาต่อชิ้น</th>
@@ -558,6 +579,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                             <tbody className="divide-y divide-gray-200">
                                                 {selectedOrder.variant.map((item, idx) => (
                                                     <tr key={item._id || idx}>
+                                                        <td className="px-3 py-2 text-sm text-black">{productDetails[item.productId]?.title || item.productId || '-'}</td>
                                                         <td className="px-3 py-2 text-sm text-black">{item.sku || '-'}</td>
                                                         <td className="px-3 py-2 text-sm text-black">{item.quantity || 0}</td>
                                                         <td className="px-3 py-2 text-sm text-black">{formatCurrency(item.originalPrice || 0)}</td>
