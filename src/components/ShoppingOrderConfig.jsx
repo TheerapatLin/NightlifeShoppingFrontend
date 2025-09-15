@@ -5,13 +5,39 @@ import { getDeviceFingerprint } from "../lib/fingerprint";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
-function ShoppingOrderConfig() {
+function ShoppingOrderConfig({ onOrdersUpdate }) {
     const { user } = useAuth();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [productDetails, setProductDetails] = useState({});
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingItem, setEditingItem] = useState(null);
+    const [editStatus, setEditStatus] = useState('preparing');
+    const [editAdminNotes, setEditAdminNotes] = useState([]);
+    const [newAdminNote, setNewAdminNote] = useState('');
+    const [savingEdit, setSavingEdit] = useState(false);
+    // Order-level admin note edit states
+    const [isEditOrderNoteOpen, setIsEditOrderNoteOpen] = useState(false);
+    const [editOrderAdminNotes, setEditOrderAdminNotes] = useState([]);
+    const [newOrderAdminNote, setNewOrderAdminNote] = useState('');
+    const [savingOrderNote, setSavingOrderNote] = useState(false);
+    const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
+    const STATUS_OPTIONS = [
+        'preparing',
+        'packed',
+        'pending',
+        'picked',
+        'transit',
+        'hub',
+        'delivering',
+        'delivered',
+        'failed',
+        'cancelled',
+        'returning'
+    ];
 
     const formatDate = (dateString) => {
         if (!dateString) return '-';
@@ -46,12 +72,53 @@ function ShoppingOrderConfig() {
         }).format(amount);
     };
 
+    const fetchProductDetails = async (productId) => {
+        if (!productId || productDetails[productId]) {
+            return productDetails[productId];
+        }
+
+        try {
+            const fp = await getDeviceFingerprint();
+            const res = await axios.get(`${BASE_URL}/shopping/product/${productId}`, {
+                headers: { "device-fingerprint": fp },
+                withCredentials: true
+            });
+
+            const product = res.data;
+            setProductDetails(prev => ({
+                ...prev,
+                [productId]: {
+                    title: product.title?.en || 'Unknown Product',
+                    creatorName: product.creator?.name || 'Unknown Creator'
+                }
+            }));
+
+            return {
+                title: product.title?.en || 'Unknown Product',
+                creatorName: product.creator?.name || 'Unknown Creator'
+            };
+        } catch (err) {
+            console.error(`Failed to fetch product ${productId}:`, err);
+            setProductDetails(prev => ({
+                ...prev,
+                [productId]: {
+                    title: 'Unknown Product',
+                    creatorName: 'Unknown Creator'
+                }
+            }));
+            return {
+                title: 'Unknown Product',
+                creatorName: 'Unknown Creator'
+            };
+        }
+    };
+
     const loadOrders = async () => {
         if (!user?.userId) {
             setLoading(false);
             setOrders([]);
             setError('User not found');
-            return;
+            return [];
         }
         try {
             setLoading(true);
@@ -61,14 +128,160 @@ function ShoppingOrderConfig() {
                 withCredentials: true
             });
             const data = res?.data;
-            setOrders(Array.isArray(data?.order) ? data.order : []);
+            const ordersArray = Array.isArray(data?.order) ? data.order : [];
+            setOrders(ordersArray);
             setError(null);
+
+            // Fetch product details for all orders
+            const productPromises = ordersArray.map(order =>
+                order.productId ? fetchProductDetails(order.productId) : Promise.resolve(null)
+            );
+            await Promise.all(productPromises);
+
+            // Notify parent component about orders update
+            if (onOrdersUpdate) {
+                onOrdersUpdate();
+            }
+            return ordersArray;
         } catch (err) {
             setOrders([]);
-            setError('Failed to fetch orders:', err);
-            console.log(`Failed to fetch orders: ${err}`)
+            const message = err?.response?.data?.message || err?.message || 'Failed to fetch orders';
+            setError(message);
+            console.log(`Failed to fetch orders: ${message}`)
         } finally {
             setLoading(false);
+        }
+        return [];
+    };
+
+    const openEditItem = (item) => {
+        setEditingItem(item);
+        setEditStatus(item?.status || 'preparing');
+        // Compose admin notes from order-level adminNote that are related (if any); default to empty
+        const existingNotes = Array.isArray(item?.adminNote)
+            ? item.adminNote.map(n => n?.message || '').filter(Boolean)
+            : [];
+        setEditAdminNotes(existingNotes);
+        setIsEditModalOpen(true);
+    };
+
+    // Open order-level admin note editor
+    const openEditOrderNotes = () => {
+        const existing = Array.isArray(selectedOrder?.adminNote)
+            ? selectedOrder.adminNote.map(n => (typeof n === 'string' ? n : (n?.message || ''))).filter(Boolean)
+            : [];
+        setEditOrderAdminNotes(existing);
+        setNewOrderAdminNote('');
+        setIsEditOrderNoteOpen(true);
+    };
+
+    const closeEditItem = () => {
+        setIsEditModalOpen(false);
+        setEditingItem(null);
+        setEditStatus('preparing');
+        setEditAdminNotes([]);
+        setNewAdminNote('');
+    };
+
+    const closeEditOrderNotes = () => {
+        setIsEditOrderNoteOpen(false);
+        setEditOrderAdminNotes([]);
+        setNewOrderAdminNote('');
+    };
+
+    const handleSaveEdit = async () => {
+        if (!selectedOrder?._id || !editingItem?.sku || !selectedOrder?.productId) {
+            return;
+        }
+
+        try {
+            setSavingEdit(true);
+            const fp = await getDeviceFingerprint();
+            const adminNoteArray = (Array.isArray(editAdminNotes) ? editAdminNotes : [])
+                .map(s => (typeof s === 'string' ? s.trim() : ''))
+                .filter(Boolean)
+                .map(message => ({ message }));
+
+            await axios.patch(
+                `${BASE_URL}/shopping/update-product-creatororder/${selectedOrder._id}`,
+                {
+                    adminNote: adminNoteArray,
+                    status: editStatus,
+                    productId: editingItem.productId,
+                    sku: editingItem.sku
+                },
+                {
+                    headers: { 'device-fingerprint': fp },
+                    withCredentials: true
+                }
+            );
+
+            const refreshed = await loadOrders();
+            if (Array.isArray(refreshed) && selectedOrder?._id) {
+                const updated = refreshed.find(o => o._id === selectedOrder._id);
+                if (updated) {
+                    setSelectedOrder(updated);
+                }
+            }
+            closeEditItem();
+        } catch (err) {
+            console.error('Failed to update item:', err.response?.data || err);
+        } finally {
+            setSavingEdit(false);
+        }
+    };
+
+    const handleRemoveNote = (indexToRemove) => {
+        setEditAdminNotes(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    };
+
+    const handleAddNote = () => {
+        const trimmed = newAdminNote.trim();
+        if (!trimmed) return;
+        setEditAdminNotes(prev => [...prev, trimmed]);
+        setNewAdminNote('');
+    };
+
+    const handleRemoveOrderNote = (indexToRemove) => {
+        setEditOrderAdminNotes(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    };
+
+    const handleAddOrderNote = () => {
+        const trimmed = newOrderAdminNote.trim();
+        if (!trimmed) return;
+        setEditOrderAdminNotes(prev => [...prev, trimmed]);
+        setNewOrderAdminNote('');
+    };
+
+    const handleSaveOrderNotes = async () => {
+        if (!selectedOrder?._id) return;
+        try {
+            setSavingOrderNote(true);
+            const fp = await getDeviceFingerprint();
+            const adminNoteArray = (Array.isArray(editOrderAdminNotes) ? editOrderAdminNotes : [])
+                .map(s => (typeof s === 'string' ? s.trim() : ''))
+                .filter(Boolean)
+                .map(message => ({ message }));
+
+            await axios.patch(
+                `${BASE_URL}/shopping/update-creatororder/${selectedOrder._id}`,
+                { adminNote: adminNoteArray },
+                {
+                    headers: { 'device-fingerprint': fp },
+                    withCredentials: true
+                }
+            );
+
+            const refreshed = await loadOrders();
+            if (Array.isArray(refreshed) && selectedOrder?._id) {
+                const updated = refreshed.find(o => o._id === selectedOrder._id);
+                if (updated) setSelectedOrder(updated);
+            }
+            closeEditOrderNotes();
+        } catch (err) {
+            console.error('Failed to update order admin notes:', err.response?.data || err);
+        } finally {
+            setSavingOrderNote(false);
         }
     };
 
@@ -77,27 +290,64 @@ function ShoppingOrderConfig() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.userId]);
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center p-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-2">Loading orders...</span>
-            </div>
-        );
-    }
+    // Auto-update creator order status based on item statuses
+    useEffect(() => {
+        const maybeUpdateOrderStatus = async () => {
+            if (!selectedOrder?._id || updatingOrderStatus) return;
+            const items = Array.isArray(selectedOrder.variant) ? selectedOrder.variant : [];
+            if (items.length === 0) return;
+            const preparingCount = items.reduce((acc, it) => acc + (it.status === 'preparing' ? 1 : 0), 0);
+            const deliveredCount = items.reduce((acc, it) => acc + (it.status === 'delivered' ? 1 : 0), 0);
 
-    if (error) {
-        return (
-            <div className="flex justify-center items-center p-8">
-                <div className="text-red-600">
-                    <h1>{error}</h1>
-                </div>
-            </div>
-        );
-    }
+            try {
+                let nextStatus = null;
+                // Prioritize 'successful' over 'processing'
+                if (deliveredCount === items.length && selectedOrder.status !== 'successful') {
+                    nextStatus = 'successful';
+                } else if (preparingCount === 0 && selectedOrder.status !== 'processing' && selectedOrder.status !== 'successful') {
+                    // Do not downgrade from successful to processing
+                    nextStatus = 'processing';
+                }
+
+                if (nextStatus) {
+                    setUpdatingOrderStatus(true);
+                    const fp = await getDeviceFingerprint();
+                    await axios.patch(
+                        `${BASE_URL}/shopping/update-creatororder/${selectedOrder._id}`,
+                        { status: nextStatus },
+                        { headers: { 'device-fingerprint': fp }, withCredentials: true }
+                    );
+                    const refreshed = await loadOrders();
+                    if (Array.isArray(refreshed)) {
+                        const updated = refreshed.find(o => o._id === selectedOrder._id);
+                        if (updated) setSelectedOrder(updated);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to auto-update order status:', err.response?.data || err);
+            } finally {
+                setUpdatingOrderStatus(false);
+            }
+            return;
+        };
+        maybeUpdateOrderStatus();
+        // Only re-evaluate when selectedOrder changes
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedOrder]);
 
     return (
         <div className="p-6">
+            {loading && (
+                <div className="flex items-center p-3 mb-4 bg-white border border-gray-200 rounded">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                    <span className="ml-2 text-sm text-gray-700">Loading orders...</span>
+                </div>
+            )}
+            {error && (
+                <div className="p-3 mb-4 bg-red-50 border border-red-200 text-red-700 rounded">
+                    {error}
+                </div>
+            )}
             {orders.length === 0 ? (
                 <div className="text-center py-8 text-500">
                     <h1>No orders found</h1>
@@ -109,7 +359,8 @@ function ShoppingOrderConfig() {
                             <tr>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">created At</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">buyer Id</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">product Id</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">product Name</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">creator Name</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">paid At</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">status</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">admin Note</th>
@@ -124,10 +375,15 @@ function ShoppingOrderConfig() {
                                 >
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(order.createdAt)}</td>
                                     <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{order.buyerId || '-'}</td>
-                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{order.productId || '-'}</td>
+                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
+                                        {productDetails[order.productId]?.title || 'Loading...'}
+                                    </td>
+                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
+                                        {productDetails[order.productId]?.creatorName || 'Loading...'}
+                                    </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(order.paidAt)}</td>
                                     <td className="px-4 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${order.status === 'paid'
+                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${order.status === 'paid' || order.status === 'delivered' || order.status === 'successful'
                                             ? 'bg-green-100 text-green-800'
                                             : order.status === 'cancelled' || order.status === 'failed'
                                                 ? 'bg-red-100 text-red-800'
@@ -138,7 +394,7 @@ function ShoppingOrderConfig() {
                                     </td>
                                     <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
                                         {Array.isArray(order.adminNote) && order.adminNote.length > 0
-                                            ? (order.adminNote[0]?.message || '-')
+                                            ? (order.adminNote[0]?.message || '-') + (order.adminNote.length > 1 ? ' ,... ' : '')
                                             : '-'}
                                     </td>
                                 </tr>
@@ -160,12 +416,14 @@ function ShoppingOrderConfig() {
                     >
                         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                             <h2 className="text-xl font-semibold text-gray-900">รายละเอียดคำสั่งซื้อ</h2>
-                            <button
-                                onClick={handleCloseModal}
-                                className="text-gray-400 hover:text-gray-600 text-2xl"
-                            >
-                                ×
-                            </button>
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={handleCloseModal}
+                                    className="text-gray-400 hover:text-gray-600 text-2xl"
+                                >
+                                    ×
+                                </button>
+                            </div>
                         </div>
 
                         <div className="p-4 space-y-4">
@@ -292,6 +550,9 @@ function ShoppingOrderConfig() {
                                                     <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">จำนวน</th>
                                                     <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">ราคาต่อชิ้น</th>
                                                     <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">ราคารวม</th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">สถานะ</th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">Admin Note</th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">แก้ไข</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200">
@@ -301,6 +562,17 @@ function ShoppingOrderConfig() {
                                                         <td className="px-3 py-2 text-sm text-black">{item.quantity || 0}</td>
                                                         <td className="px-3 py-2 text-sm text-black">{formatCurrency(item.originalPrice || 0)}</td>
                                                         <td className="px-3 py-2 text-sm text-black font-medium">{formatCurrency(item.totalPrice || 0)}</td>
+                                                        <td className="px-3 py-2 text-sm text-black">{item.status || 'preparing'}</td>
+                                                        <td className="px-3 py-2 text-sm text-black">{item.adminNote && item.adminNote.length > 0 ? 'มี' : '-'}</td>
+                                                        <td className="px-3 py-2 text-sm">
+                                                            <button
+                                                                type="button"
+                                                                className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                                                                onClick={() => openEditItem(item)}
+                                                            >
+                                                                แก้ไข
+                                                            </button>
+                                                        </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -311,11 +583,18 @@ function ShoppingOrderConfig() {
 
                             {/* Admin Notes */}
                             <div className="bg-red-50 p-3 rounded-lg">
-                                <h3 className="font-semibold text-black mb-2">หมายเหตุจากแอดมิน</h3>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="font-semibold text-black">หมายเหตุจากแอดมิน</h3>
+                                    <button
+                                        type="button"
+                                        className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm"
+                                        onClick={openEditOrderNotes}
+                                    >แก้ไข</button>
+                                </div>
                                 <div className="space-y-1 text-sm">
                                     {selectedOrder.adminNote && selectedOrder.adminNote.length > 0 ? (
                                         selectedOrder.adminNote.map((note, idx) => (
-                                            <p key={idx} className="text-black">{note.message || '-'}</p>
+                                            <p key={idx} className="text-black">{note?.message || '-'}</p>
                                         ))
                                     ) : (
                                         <p className="text-black">-</p>
@@ -326,6 +605,163 @@ function ShoppingOrderConfig() {
                     </div>
                 </div>
             )}
+
+            {isEditModalOpen && editingItem && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                    onClick={closeEditItem}
+                >
+                    <div
+                        className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 className="text-lg font-semibold text-gray-900">แก้ไขสินค้า</h3>
+                            <button onClick={closeEditItem} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <p className="text-sm text-gray-700"><span className="font-medium">SKU:</span> {editingItem.sku}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
+                                <select
+                                    className="w-full border rounded px-3 py-2"
+                                    value={editStatus}
+                                    onChange={(e) => setEditStatus(e.target.value)}
+                                >
+                                    {STATUS_OPTIONS.map(s => (
+                                        <option key={s} value={s}>{s}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">หมายเหตุจากแอดมิน</label>
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                    {Array.isArray(editAdminNotes) && editAdminNotes.length > 0 ? (
+                                        editAdminNotes.map((note, idx) => (
+                                            <span key={`${note}-${idx}`} className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-gray-100 text-gray-800 border">
+                                                <span className="mr-2">{note}</span>
+                                                <button
+                                                    type="button"
+                                                    className=" hover:text-red-600"
+                                                    onClick={() => handleRemoveNote(idx)}
+                                                    aria-label="remove note"
+                                                >
+                                                    x
+                                                </button>
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="text-sm text-gray-500">ยังไม่มีหมายเหตุ</span>
+                                    )}
+                                </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        className="flex-1 border rounded px-3 py-2"
+                                        value={newAdminNote}
+                                        onChange={(e) => setNewAdminNote(e.target.value)}
+                                        placeholder="พิมพ์หมายเหตุใหม่..."
+                                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddNote(); } }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="px-3 py-2 rounded bg-green-600 text-white hover:bg-green-700"
+                                        onClick={handleAddNote}
+                                    >เพิ่ม Note</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-2">
+                            <button
+                                type="button"
+                                className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                onClick={closeEditItem}
+                                disabled={savingEdit}
+                            >ยกเลิก</button>
+                            <button
+                                type="button"
+                                className={`px-4 py-2 rounded text-white ${savingEdit ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'}`}
+                                onClick={handleSaveEdit}
+                                disabled={savingEdit}
+                            >{savingEdit ? 'กำลังบันทึก...' : 'บันทึก'}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Order Admin Notes Modal */}
+            {isEditOrderNoteOpen && selectedOrder && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                    onClick={closeEditOrderNotes}
+                >
+                    <div
+                        className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 className="text-lg font-semibold text-gray-900">แก้ไขหมายเหตุคำสั่งซื้อ</h3>
+                            <button onClick={closeEditOrderNotes} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">หมายเหตุจากแอดมิน</label>
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                    {Array.isArray(editOrderAdminNotes) && editOrderAdminNotes.length > 0 ? (
+                                        editOrderAdminNotes.map((note, idx) => (
+                                            <span key={`${note}-${idx}`} className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-gray-100 text-gray-800 border">
+                                                <span className="mr-2">{note}</span>
+                                                <button
+                                                    type="button"
+                                                    className=" hover:text-red-600"
+                                                    onClick={() => handleRemoveOrderNote(idx)}
+                                                    aria-label="remove note"
+                                                >
+                                                    x
+                                                </button>
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="text-sm text-gray-500">ยังไม่มีหมายเหตุ</span>
+                                    )}
+                                </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        className="flex-1 border rounded px-3 py-2"
+                                        value={newOrderAdminNote}
+                                        onChange={(e) => setNewOrderAdminNote(e.target.value)}
+                                        placeholder="พิมพ์หมายเหตุใหม่..."
+                                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddOrderNote(); } }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="px-3 py-2 rounded bg-green-600 text-white hover:bg-green-700"
+                                        onClick={handleAddOrderNote}
+                                    >เพิ่ม Note</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-2">
+                            <button
+                                type="button"
+                                className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                onClick={closeEditOrderNotes}
+                                disabled={savingOrderNote}
+                            >ยกเลิก</button>
+                            <button
+                                type="button"
+                                className={`px-4 py-2 rounded text-white ${savingOrderNote ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'}`}
+                                onClick={handleSaveOrderNotes}
+                                disabled={savingOrderNote}
+                            >{savingOrderNote ? 'กำลังบันทึก...' : 'บันทึก'}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }

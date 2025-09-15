@@ -15,7 +15,7 @@ import BasketPopup from "./BasketPopup";
 
 const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   const [isCartVisible, setCartIsVisible] = useState(false);
-  const { isScrolled, currentPage, updateCurrentPage, windowSize } =
+  const { isScrolled, currentPage, updateCurrentPage, windowSize, refreshTrigger } =
     useGlobalEvent();
   const location = useLocation();
   const [totalNumber, setTotalNumber] = useState(0);
@@ -37,6 +37,7 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   const [basketData, setBasketData] = useState(null);
   const [isBasketOpen, setIsBasketOpen] = useState(false);
   const [addressData, setAddressData] = useState(null);
+  const [paidOrdersCount, setPaidOrdersCount] = useState(0);
 
   const styles = {
     menuItem: {
@@ -73,6 +74,28 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     localStorage.setItem("language", lng);
+  };
+
+  const fetchPaidOrdersCount = async () => {
+    if (!user?.userId || (user?.role !== "admin" && user?.role !== "superadmin")) {
+      setPaidOrdersCount(0);
+      return;
+    }
+    
+    try {
+      const fp = await getDeviceFingerprint();
+      const res = await axios.get(`${BASE_URL}/shopping/creator-creatororder/${user.userId}`, {
+        headers: { "device-fingerprint": fp },
+        withCredentials: true
+      });
+      const data = res?.data;
+      const orders = Array.isArray(data?.order) ? data.order : [];
+      const paidCount = orders.filter(order => order.status === 'paid').length;
+      setPaidOrdersCount(paidCount);
+    } catch (err) {
+      console.error('Failed to fetch paid orders count:', err);
+      setPaidOrdersCount(0);
+    }
   };
 
   const expandPromptWithTimeout = () => {
@@ -219,6 +242,11 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
     }
   }, [location.pathname]);
 
+  // Fetch paid orders count when user changes or refresh is triggered
+  useEffect(() => {
+    fetchPaidOrdersCount();
+  }, [user?.userId, user?.role, refreshTrigger]);
+
   return (
     <>
       <div style={{ zIndex: "10000000" }}>
@@ -289,9 +317,28 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                         to="/shopping/store"
                         className={`item02 ${currentPage.name === "" ? "active" : ""
                           }`}
-                        style={styles.menuItem}
+                        style={{...styles.menuItem, position: 'relative'}}
                       >
                         Stock
+                        {paidOrdersCount > 0 && (
+                          <span style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            fontSize: '10px',
+                            borderRadius: '50%',
+                            height: '20px',
+                            width: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 'bold'
+                          }}>
+                            {paidOrdersCount}
+                          </span>
+                        )}
                       </Link>
                     )}
                     {/* <Link
@@ -324,9 +371,29 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
                       }}
                       className={`item02 ${currentPage.name === "" ? "active" : ""
                         }`}
-                      style={styles.menuItem}
+                        style={{...styles.menuItem, position: 'relative'}}
                     >
-                      Basket{totalItemsInBasket ? ` [${totalItemsInBasket}]` : ""}
+                      Basket
+                      {/* {totalItemsInBasket ? ` [${totalItemsInBasket}]` : ""} */}
+                      {totalItemsInBasket > 0 && (
+                          <span style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            fontSize: '10px',
+                            borderRadius: '50%',
+                            height: '20px',
+                            width: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 'bold'
+                          }}>
+                            {totalItemsInBasket}
+                          </span>
+                        )}
                     </Link>
 
 

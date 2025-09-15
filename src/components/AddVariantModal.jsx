@@ -105,7 +105,6 @@ function AddVariantModal({ isOpen, onClose, productId, onCompleted }) {
             if (typeof onClose === 'function') onClose();
             if (typeof onCompleted === 'function') onCompleted();
         } catch (err) {
-            console.error("Error creating variant:", err.response?.data || err);
             setError("Failed to create variant");
         } finally {
             setSubmitting(false);

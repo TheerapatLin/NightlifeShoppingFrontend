@@ -125,7 +125,7 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
             setSelectedProduct(null)
             window.location.reload();
         } catch (error) {
-            console.error("Error removing product from basket:", error.response?.data || error);
+            console.error("Error removing product from basket:", error);
         }
     };
 

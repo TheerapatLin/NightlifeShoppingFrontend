@@ -99,7 +99,7 @@ function EditProductModal({ isOpen, onClose, product, onUpdated }) {
             if (typeof onUpdated === 'function') onUpdated();
             if (typeof onClose === 'function') onClose();
         } catch (err) {
-            console.error('Error updating product:', err.response?.data || err);
+            console.error('Error updating product:', err);
             setError('Failed to update product');
         } finally {
             setSubmitting(false);

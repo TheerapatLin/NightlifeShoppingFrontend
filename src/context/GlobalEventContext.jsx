@@ -47,9 +47,15 @@ export const GlobalEventProvider = ({ children }) => {
     const updateCurrentPage = (name, index) => {
         setCurrentPage({ name, index });
     };
+
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    
+    const triggerRefresh = () => {
+        setRefreshTrigger(prev => prev + 1);
+    };
     
     return (
-        <GlobalEventContext.Provider value={{ isScrolled, windowSize, currentPage, updateCurrentPage }}>
+        <GlobalEventContext.Provider value={{ isScrolled, windowSize, currentPage, updateCurrentPage, refreshTrigger, triggerRefresh }}>
             {children}
         </GlobalEventContext.Provider>
     );

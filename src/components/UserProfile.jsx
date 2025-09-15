@@ -196,6 +196,9 @@ function UserProfile() {
             <Pencil size={16} />
             {t("profile.edit")} {/* คุณมี i18n อยู่แล้ว */}
           </button>
+          <h2 className="text-2xl font-bold text-white">
+            Coin: {profile.userData?.numCoin}
+          </h2>
         </div>
 
         <Field

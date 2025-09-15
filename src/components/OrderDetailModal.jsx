@@ -134,6 +134,22 @@ function OrderDetailModal({ open, orderId, onClose }) {
                                             <div className="text-xs text-gray-500">Last 4</div>
                                             <div>{order.paymentMetadata.last4 ? `•••• ${order.paymentMetadata.last4}` : '-'}</div>
                                         </div>
+                                        {order.paymentMetadata.receiptUrl && (
+                                            <p className="text-black">
+                                                {/* <span className="font-medium">ใบเสร็จ:</span> */}
+                                                <div className="text-xs text-gray-500">ใบเสร็จ
+                                                    <a
+                                                        href={order.paymentMetadata.receiptUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="ml-2 text-blue-600 hover:text-blue-800 underline"
+                                                    >
+                                                        ดูใบเสร็จ
+                                                    </a>
+                                                </div>
+
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -191,6 +207,8 @@ function OrderDetailModal({ open, orderId, onClose }) {
                                                     <th className="px-3 py-2 text-left">Variant</th>
                                                     <th className="px-3 py-2 text-left">Qty</th>
                                                     <th className="px-3 py-2 text-left">Price</th>
+                                                    <th className="px-3 py-2 text-left">Status</th>
+                                                    <th className="px-3 py-2 text-left">Admin Note</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -220,6 +238,12 @@ function OrderDetailModal({ open, orderId, onClose }) {
                                                             <td className="px-3 py-2">{variantSku}</td>
                                                             <td className="px-3 py-2">{it.quantity ?? '-'}</td>
                                                             <td className="px-3 py-2">{it.originalPrice ?? '-'}</td>
+                                                            <td className="px-3 py-2">{it.status ?? 'preparing'}</td>
+                                                            <td className="px-3 py-2">{
+                                                                Array.isArray(it?.adminNote) && it.adminNote.length > 0
+                                                                    ? (typeof it.adminNote[0] === 'string' ? it.adminNote[0] : (it.adminNote[0]?.message || '-'))
+                                                                    : '-'
+                                                            }</td>
                                                         </tr>
                                                     );
                                                 })}
@@ -228,6 +252,22 @@ function OrderDetailModal({ open, orderId, onClose }) {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Order-level Admin Notes */}
+                            <div>
+                                <div className="text-sm font-semibold mb-1">Admin Notes</div>
+                                <div className="text-sm">
+                                    {Array.isArray(order.adminNote) && order.adminNote.length > 0 ? (
+                                        <ul className="list-disc pl-5 space-y-1">
+                                            {order.adminNote.map((n, i) => (
+                                                <li key={i}>{typeof n === 'string' ? n : (n?.message || '-')}</li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <span>-</span>
+                                    )}
+                                </div>
+                            </div>
 
                             <div>
                                 <div className="text-sm font-semibold mb-1">Raw</div>

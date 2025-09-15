@@ -1,19 +1,50 @@
 import React, { useState, useEffect } from "react";
-
+import axios from 'axios';
 import { useAsyncError, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { useGlobalEvent } from "../context/GlobalEventContext";
 import ProductsConfigShopping from "../components/ProductsConfigShopping"
 import ShoppingOrderConfig from "../components/ShoppingOrderConfig"
+import { getDeviceFingerprint } from "../lib/fingerprint";
+
+const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
 function Store() {
     const { t, i18n } = useTranslation();
     const [selectedTab, setSelectedTab] = useState(() => {
         return "product";
     });
+    const [paidOrdersCount, setPaidOrdersCount] = useState(0);
 
     const { user, checkAuthStatus } = useAuth();
     const navigate = useNavigate();
+    const { triggerRefresh } = useGlobalEvent();
+
+    const fetchPaidOrdersCount = async () => {
+        if (!user?.userId) {
+            setPaidOrdersCount(0);
+            return;
+        }
+        
+        try {
+            const fp = await getDeviceFingerprint();
+            const res = await axios.get(`${BASE_URL}/shopping/creator-creatororder/${user.userId}`, {
+                headers: { "device-fingerprint": fp },
+                withCredentials: true
+            });
+            const data = res?.data;
+            const orders = Array.isArray(data?.order) ? data.order : [];
+            const paidCount = orders.filter(order => order.status === 'paid').length;
+            setPaidOrdersCount(paidCount);
+            
+            // Trigger global refresh for TopNavigation
+            triggerRefresh();
+        } catch (err) {
+            console.error('Failed to fetch orders count:', err);
+            setPaidOrdersCount(0);
+        }
+    };
 
     useEffect(() => {
         const check = async () => {
@@ -46,6 +77,11 @@ function Store() {
         };
     }, []);
 
+    // Fetch paid orders count when user changes
+    useEffect(() => {
+        fetchPaidOrdersCount();
+    }, [user?.userId]);
+
 
     return (
         <>
@@ -65,7 +101,7 @@ function Store() {
                             Your Product
                         </button>
                         <button
-                            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm ${selectedTab === "your-order"
+                            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm relative ${selectedTab === "your-order"
                                 ? "bg-blue-500 text-white"
                                 : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                                 }`}
@@ -74,6 +110,11 @@ function Store() {
                             }}
                         >
                             Your Order
+                            {paidOrdersCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                    {paidOrdersCount}
+                                </span>
+                            )}
                         </button>
 
                     </div>
@@ -82,7 +123,7 @@ function Store() {
                 <div>
 
                     {selectedTab === "product" && <ProductsConfigShopping />}
-                    {selectedTab === "your-order" && <ShoppingOrderConfig />}
+                    {selectedTab === "your-order" && <ShoppingOrderConfig onOrdersUpdate={fetchPaidOrdersCount} />}
 
                 </div>
             </div>
