@@ -7,6 +7,8 @@ import { useGlobalEvent } from "../context/GlobalEventContext";
 import ProductsConfigShopping from "../components/ProductsConfigShopping"
 import ShoppingOrderConfig from "../components/ShoppingOrderConfig"
 import { getDeviceFingerprint } from "../lib/fingerprint";
+import { FaCrown } from "react-icons/fa";
+import ShoppingSuperAdmin from "../components/ShoppingSuperAdmin"
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
@@ -26,7 +28,7 @@ function Store() {
             setPaidOrdersCount(0);
             return;
         }
-        
+
         try {
             const fp = await getDeviceFingerprint();
             const res = await axios.get(`${BASE_URL}/shopping/creator-creatororder/${user.userId}`, {
@@ -37,7 +39,7 @@ function Store() {
             const orders = Array.isArray(data?.order) ? data.order : [];
             const paidCount = orders.filter(order => order.status === 'paid').length;
             setPaidOrdersCount(paidCount);
-            
+
             // Trigger global refresh for TopNavigation
             triggerRefresh();
         } catch (err) {
@@ -116,6 +118,17 @@ function Store() {
                                 </span>
                             )}
                         </button>
+                        {user?.role === "superadmin" && (
+                            <button
+                                className="flex-shrink-0 px-4 py-2 rounded-full text-sm bg-yellow-500 text-white hover:bg-yellow-600 flex items-center gap-1"
+                                onClick={() => {
+                                    setSelectedTab("superadmin");
+                                    localStorage.setItem("profileSelectedTab", "superadmin");
+                                }}
+                            >
+                                <FaCrown className="text-white" />
+                            </button>
+                        )}
 
                     </div>
                 </div>
@@ -124,6 +137,7 @@ function Store() {
 
                     {selectedTab === "product" && <ProductsConfigShopping />}
                     {selectedTab === "your-order" && <ShoppingOrderConfig onOrdersUpdate={fetchPaidOrdersCount} />}
+                    {selectedTab === "superadmin" && <ShoppingSuperAdmin />}
 
                 </div>
             </div>
