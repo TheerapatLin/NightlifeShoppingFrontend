@@ -22,7 +22,7 @@ function ShoppingSuperAdmin() {
     return (
         <div className="max-w-6xl mx-auto mt-8 px-4">
             <div className="mb-4 text-center">
-                <h2 className="text-2xl font-bold text-white">Superadmin Tools</h2>
+                <h2 className="text-2xl font-bold text-white">Shopping Superadmin Tools</h2>
             </div>
 
             <div className="mb-6 overflow-x-auto">
