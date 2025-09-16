@@ -107,8 +107,6 @@ function ProductsConfigShopping() {
         return `${price} ${currency || 'THB'}`;
     };
 
-
-
     const openModal = (product) => {
         setSelectedProduct(product);
         setIsModalOpen(true);
