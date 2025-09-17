@@ -48,7 +48,6 @@ const ShoppingCheckout = () => {
       isIntentLoading.current = true;
       createShoppingPaymetIntent();
     }
-    console.log(`addressData => ${JSON.stringify(addressData)}`)
   }, [addressData])
 
   return (

@@ -12,9 +12,6 @@ const ShoppingOrderIdManagerModal = ({ isOpen, onClose, orderId }) => {
     const [order, setOrder] = useState(null);
     const [productDetails, setProductDetails] = useState({});
     const [productLoading, setProductLoading] = useState(false);
-    const [buyerLoading, setBuyerLoading] = useState(false);
-    const [buyerError, setBuyerError] = useState(null);
-    const [buyerName, setBuyerName] = useState(null);
 
     useEffect(() => {
         const fetchDetail = async () => {
@@ -83,30 +80,6 @@ const ShoppingOrderIdManagerModal = ({ isOpen, onClose, orderId }) => {
         loadProducts();
     }, [order]);
 
-    useEffect(() => {
-        const loadBuyer = async () => {
-            if (!order || !order.userId) return;
-            setBuyerLoading(true);
-            setBuyerError(null);
-            try {
-                const fp = await getDeviceFingerprint();
-                const res = await axios.get(`${BASE_URL}/accounts/getuserweb/${order.userId}`, {
-                    headers: { "device-fingerprint": fp },
-                    withCredentials: true,
-                });
-                const data = res?.data || {};
-                const nameCandidate = data?.authenticated_user?.name || null;
-                setBuyerName(nameCandidate);
-            } catch (err) {
-                setBuyerError(err?.response?.data?.message || err.message || "Failed to load buyer");
-                console.log(`Failed to load buyer:`, err?.response?.data?.message || err)
-            } finally {
-                setBuyerLoading(false);
-            }
-        };
-        loadBuyer();
-    }, [order, user?.userId]);
-
     if (!isOpen) return null;
 
     return (
@@ -128,7 +101,7 @@ const ShoppingOrderIdManagerModal = ({ isOpen, onClose, orderId }) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <div className="text-xs text-gray-500">Buyer</div>
-                                    <div className="text-sm text-black  ">{buyerLoading ? 'Loading...' : (buyerName || '-')}</div>
+                                    <div className="text-sm text-black  ">{order.user.name}</div>
                                 </div>
                                 <div>
                                     <div className="text-xs text-gray-500">Status</div>

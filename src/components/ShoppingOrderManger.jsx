@@ -23,7 +23,6 @@ const ShoppingOrderManager = () => {
   const [loading, setLoading] = useState(true);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState("");
-  const [userNameById, setUserNameById] = useState({});
 
   // ✅ ให้การเรียงทำที่ backend (default: ใหม่→เก่า)
   const [sortKey, setSortKey] = useState("createdAt"); // createdAt | paidAt | originalPrice | status | paymentMode
@@ -104,35 +103,6 @@ const ShoppingOrderManager = () => {
       setOrders(list);
       setOrderCount(list.length);
       setTotalPages(Math.ceil(list.length / pageSize));
-
-      // ดึงรายชื่อผู้ใช้จาก userId ของแต่ละ order แล้ว cache ไว้
-      const uniqueUserIds = Array.from(new Set((list || []).map((o) => o.userId).filter(Boolean)));
-      const idsToFetch = uniqueUserIds.filter((uid) => !userNameById[uid]);
-      if (idsToFetch.length > 0) {
-        const nameResults = await Promise.all(
-          idsToFetch.map(async (uid) => {
-            try {
-              const userRes = await axios.get(
-                `${BASE_URL}/accounts/getuserweb/${uid}`,
-                {
-                  headers: { "device-fingerprint": fp },
-                  withCredentials: true,
-                  params: { userId: uid },
-                }
-              );
-              const name = userRes?.data?.authenticated_user?.name;
-              return [uid, name || uid];
-            } catch (e) {
-              return [uid, uid];
-            }
-          })
-        );
-        setUserNameById((prev) => {
-          const next = { ...prev };
-          for (const [uid, name] of nameResults) next[uid] = name;
-          return next;
-        });
-      }
     } catch (err) {
       console.error("โหลด orders ไม่สำเร็จ", err);
       setOrders([]);
@@ -320,7 +290,7 @@ const ShoppingOrderManager = () => {
           <input
             type="text"
             className="w-full rounded px-3 py-2 text-black border"
-            placeholder="ค้นหาด้วย Order ID หรือ User ID..."
+            placeholder="ค้นหาด้วย Username"
             onChange={(e) => applySearchDebounced(e.target.value)}
             defaultValue={q}
             aria-label="Search orders by ID or user ID"
@@ -339,8 +309,8 @@ const ShoppingOrderManager = () => {
             <label
               key={s.key}
               className={`cursor-pointer select-none px-2 py-1 rounded border ${statusChecks[s.key]
-                  ? "bg-white text-black"
-                  : "bg-transparent text-white"
+                ? "bg-white text-black"
+                : "bg-transparent text-white"
                 }`}
               title={
                 s.key === "all" ? "แสดงทุกสถานะ" : `กรองเฉพาะสถานะ: ${s.label}`
@@ -380,7 +350,8 @@ const ShoppingOrderManager = () => {
                   {formatDateTime(order.createdAt)}
                 </td>
                 <td className="p-2 font-mono text-sm">
-                  {userNameById[order.userId] || order.userId || "-"}
+                  {/* {userNameById[order.userId] || order.userId || "-"} */}
+                  {order.user.name || "-"}
                 </td>
                 <td className="p-2">
                   {formatDateTime(order.paidAt)}

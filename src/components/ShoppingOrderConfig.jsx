@@ -63,7 +63,6 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productDetails, setProductDetails] = useState({});
-    const [buyerNames, setBuyerNames] = useState({});
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [editStatus, setEditStatus] = useState('preparing');
@@ -125,25 +124,6 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         }
     };
 
-    const fetchBuyerName = async (buyerId) => {
-        if (!buyerId) return null;
-        if (buyerNames[buyerId]) return buyerNames[buyerId];
-        try {
-            const config = await getFPConfig();
-            const res = await axios.get(`${BASE_URL}/accounts/getuserweb/${user?.userId}`, {
-                ...config,
-                data: { userId: buyerId }
-            });
-            const name = res?.data?.authenticated_user?.name || res?.data?.data?.user?.name || buyerId;
-            setBuyerNames(prev => ({ ...prev, [buyerId]: name }));
-            return name;
-        } catch (err) {
-            console.error(`Failed to fetch buyer name for ${buyerId}:`, err);
-            setBuyerNames(prev => ({ ...prev, [buyerId]: buyerId }));
-            return buyerId;
-        }
-    };
-
     const loadOrders = async () => {
         if (!user?.userId) {
             setLoading(false);
@@ -165,12 +145,6 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                 order.productId ? fetchProductDetails(order.productId) : Promise.resolve(null)
             );
             await Promise.all(productPromises);
-
-            // Fetch buyer names for all orders
-            const buyerPromises = ordersArray.map(order =>
-                order.buyerId ? fetchBuyerName(order.buyerId) : Promise.resolve(null)
-            );
-            await Promise.all(buyerPromises);
 
             // Notify parent component about orders update
             if (onOrdersUpdate) {
@@ -399,7 +373,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                     onClick={() => handleOrderClick(order)}
                                 >
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(order.createdAt)}</td>
-                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{buyerNames[order.buyerId] || order.buyerId || 'Loading...'}</td>
+                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{order.buyer.name || order.buyer.id || 'Loading...'}</td>
                                     <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
                                         {productDetails[order.productId]?.creatorName || 'Loading...'}
                                     </td>
@@ -484,7 +458,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
 
                                     <h3 className="font-semibold text-black mb-2">ข้อมูลผู้ซื้อ - ผู้ขาย</h3>
                                     <div className="space-y-1 text-sm">
-                                        <p className="text-black"><span className="font-medium">ผู้ซื้อ:</span> {buyerNames[selectedOrder.buyerId] || selectedOrder.buyerId || '-'}</p>
+                                        <p className="text-black"><span className="font-medium">ผู้ซื้อ:</span> {selectedOrder.buyer.name|| selectedOrder.buyer.id || '-'}</p>
                                         <p className="text-black"><span className="font-medium">ผู้ขาย:</span> {productDetails[selectedOrder.productId]?.creatorName || '-'}</p>                                    </div>
                                 </div>
 
