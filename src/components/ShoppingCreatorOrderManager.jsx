@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Eye, RefreshCw } from "lucide-react";
 import { getDeviceFingerprint } from "../lib/fingerprint";
+import ShoppingCreatorOrderIdManagerModal from "./ShoppingCreatorOrderIdManagerModal";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
@@ -18,6 +19,8 @@ function ShoppingCreatorOrderManager() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [orderCount, setOrderCount] = useState(0);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState("");
 
     // sorting
     const [sortKey, setSortKey] = useState("createdAt"); // createdAt | paidAt | status | paymentMode | buyer.name | creator.name
@@ -53,6 +56,11 @@ function ShoppingCreatorOrderManager() {
             second: "2-digit",
             hour12: false,
         });
+    };
+
+    const openOrderDetail = (orderId) => {
+        setSelectedOrderId(orderId);
+        setIsDetailOpen(true);
     };
 
     const fetchOrders = async () => {
@@ -398,6 +406,11 @@ function ShoppingCreatorOrderManager() {
                     ถัดไป
                 </button>
             </div>
+            <ShoppingCreatorOrderIdManagerModal
+                isOpen={isDetailOpen}
+                onClose={() => setIsDetailOpen(false)}
+                creatorOrderId={selectedOrderId}
+            />
         </div>
     );
 }
