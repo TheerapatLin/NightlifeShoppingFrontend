@@ -144,7 +144,10 @@ const ShoppingOrderManager = () => {
         <button
           type="button"
           onClick={() => handleSort(columnKey)}
-          className={`inline-flex items-center gap-1 select-none ${isActive ? "text-blue-700 font-semibold" : "text-gray-800"
+          className={`
+            inline-flex items-center gap-1 select-none
+             ${isActive ? "text-blue-700 font-semibold"
+              : "text-gray-800"
             }`}
           aria-sort={
             isActive
@@ -211,9 +214,14 @@ const ShoppingOrderManager = () => {
       cancelled: { text: "ยกเลิก", color: "bg-red-100 text-red-800" },
       refunded: { text: "คืนเงิน", color: "bg-gray-100 text-gray-800" },
     };
-    const statusInfo = statusMap[status] || { text: status, color: "bg-gray-100 text-gray-800" };
+    const statusInfo = statusMap[status] || { text: status || "-", color: "bg-gray-100 text-gray-800" };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
+      <span className=
+        {`
+      px-2 py-1 rounded-full text-xs font-medium 
+      ${statusInfo.color}
+      `}
+      >
         {statusInfo.text}
       </span>
     );
@@ -350,7 +358,6 @@ const ShoppingOrderManager = () => {
                   {formatDateTime(order.createdAt)}
                 </td>
                 <td className="p-2 font-mono text-sm">
-                  {/* {userNameById[order.userId] || order.userId || "-"} */}
                   {order.user.name || "-"}
                 </td>
                 <td className="p-2">
