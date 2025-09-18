@@ -436,7 +436,10 @@ const ShoppingOrderManager = () => {
       </div>
       <ShoppingOrderIdManagerModal
         isOpen={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
+        onClose={() => {
+          setIsDetailOpen(false)
+          fetchOrders()
+        }}
         orderId={selectedOrderId}
       />
     </div>

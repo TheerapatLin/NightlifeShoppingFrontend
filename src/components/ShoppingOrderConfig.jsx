@@ -288,7 +288,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
             .filter(Boolean);
         const uniqueProductIds = Array.from(new Set(productIds));
         if (uniqueProductIds.length === 0) return;
-        Promise.all(uniqueProductIds.map(pid => fetchProductDetails(pid))).catch(() => {});
+        Promise.all(uniqueProductIds.map(pid => fetchProductDetails(pid))).catch(() => { });
     }, [selectedOrder]);
 
     // Auto-update creator order status based on item statuses
@@ -390,7 +390,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                     </td>
                                     <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
                                         {Array.isArray(order.adminNote) && order.adminNote.length > 0
-                                            ? (order.adminNote[0]?.message || '-') + (order.adminNote.length > 1 ? ' ,... ' : '')
+                                            ? 'มี'
                                             : '-'}
                                     </td>
                                 </tr>
@@ -458,7 +458,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
 
                                     <h3 className="font-semibold text-black mb-2">ข้อมูลผู้ซื้อ - ผู้ขาย</h3>
                                     <div className="space-y-1 text-sm">
-                                        <p className="text-black"><span className="font-medium">ผู้ซื้อ:</span> {selectedOrder.buyer.name|| selectedOrder.buyer.id || '-'}</p>
+                                        <p className="text-black"><span className="font-medium">ผู้ซื้อ:</span> {selectedOrder.buyer.name || selectedOrder.buyer.id || '-'}</p>
                                         <p className="text-black"><span className="font-medium">ผู้ขาย:</span> {productDetails[selectedOrder.productId]?.creatorName || '-'}</p>                                    </div>
                                 </div>
 
