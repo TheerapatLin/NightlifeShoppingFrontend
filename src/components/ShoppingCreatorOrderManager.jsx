@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Eye, RefreshCw } from "lucide-react";
 import { getDeviceFingerprint } from "../lib/fingerprint";
@@ -408,7 +408,10 @@ function ShoppingCreatorOrderManager() {
             </div>
             <ShoppingCreatorOrderIdManagerModal
                 isOpen={isDetailOpen}
-                onClose={() => setIsDetailOpen(false)}
+                onClose={() => {
+                    setIsDetailOpen(false)
+                    fetchOrders()
+                }}
                 creatorOrderId={selectedOrderId}
             />
         </div>

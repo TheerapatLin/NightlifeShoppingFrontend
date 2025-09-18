@@ -34,6 +34,8 @@ const ShoppingOrderIdManagerModal = ({ isOpen, onClose, orderId }) => {
     const [order, setOrder] = useState(null);
     const [productDetails, setProductDetails] = useState({});
     const [productLoading, setProductLoading] = useState(false);
+
+    // update adminNote & status
     const [editOrderAdminNotes, setEditOrderAdminNotes] = useState([]);
     const [newOrderAdminNote, setNewOrderAdminNote] = useState('');
     const [isEditOrderNoteOpen, setIsEditOrderNoteOpen] = useState(false);
@@ -340,7 +342,9 @@ const ShoppingOrderIdManagerModal = ({ isOpen, onClose, orderId }) => {
                                     type="button"
                                     className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm"
                                     onClick={() => openEditOrderNotes(order)}
-                                >แก้ไข</button>
+                                >
+                                    แก้ไข
+                                </button>
                             </div>
 
                             <div>
@@ -353,7 +357,6 @@ const ShoppingOrderIdManagerModal = ({ isOpen, onClose, orderId }) => {
                     )}
                 </div>
             </div>
-
 
             {/* Edit Order Admin Notes Modal */}
             {isEditOrderNoteOpen && order && (
