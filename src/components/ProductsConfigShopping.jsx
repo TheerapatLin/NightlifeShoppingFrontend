@@ -7,6 +7,7 @@ import { getDeviceFingerprint } from "../lib/fingerprint";
 import AddVariantModal from "./AddVariantModal";
 import EditProductModal from "./EditProductModal";
 import EditVariantProductModal from "./EditVariantProductModal";
+import { useTranslation } from "react-i18next";
 
 const successPopupStyle = {
     position: "fixed",
@@ -30,6 +31,7 @@ const btnStyle = base => ({
 });
 
 function ProductsConfigShopping() {
+    const { i18n } = useTranslation();
     const { user } = useAuth();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -149,7 +151,7 @@ function ProductsConfigShopping() {
     }
 
     const handleDeleteVariant = async (productId, sku) => {
-        try {            
+        try {
             const fp = await getDeviceFingerprint();
             const response = await axios.delete(`${BASE_URL}/shopping/product/variant/delete/${productId}`, {
                 data: { skuVariant: sku },  // 👈 ใส่ body ตรงนี้
@@ -205,12 +207,15 @@ function ProductsConfigShopping() {
                         })
                     }}
                 >
-                    Create New Product
+                    {(i18n.language === "th" ? 'สร้างสินค้าใหม่' : 'Create New Product')}
                 </button>
             </div>
             {products.length === 0 ? (
                 <div className="text-center py-8 text-500">
-                    <h1>No products found</h1>
+                    <h1>
+                        No products found
+                        {(i18n.language === "th" ? 'ยังไม่มีสินค้า' : 'No products found')}
+                    </h1>
                 </div>
             ) : (
                 <div className="overflow-x-auto">
@@ -218,29 +223,28 @@ function ProductsConfigShopping() {
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Image
+                                    {(i18n.language === "th" ? 'รูปภาพ' : 'Image')}
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Created At
+                                    {(i18n.language === "th" ? 'วันที่สร้าง' : 'Created At')}
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Updated At
+                                    {(i18n.language === "th" ? 'วันที่แก้ไข' : 'Updated At')}
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Title (EN)
+                                    {(i18n.language === "th" ? 'ชื่อสินค้า' : 'Title')}
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Description (EN)
+                                    {(i18n.language === "th" ? 'คำอธิบายสินค้า' : 'Description')}
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Price
-                                </th>
-
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
+                                    {(i18n.language === "th" ? 'ราคา' : 'Price')}
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Tags
+                                    {(i18n.language === "th" ? 'สถานะ' : 'Status')}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {(i18n.language === "th" ? 'ป้ายชื่อ' : 'Tags')}
                                 </th>
                             </tr>
                         </thead>
@@ -259,7 +263,9 @@ function ProductsConfigShopping() {
                                             />
                                         ) : (
                                             <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
-                                                <span className="text-gray-400 text-xs">No Image</span>
+                                                <span className="text-gray-400 text-xs">
+                                                    {(i18n.language === "th" ? 'ไม่มีรูปภาพ' : 'No image')}
+                                                </span>
                                             </div>
                                         )}
                                     </td>
@@ -270,10 +276,11 @@ function ProductsConfigShopping() {
                                         {formatDate(product.updatedAt)}
                                     </td>
                                     <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
-                                        {product.title?.en || '-'}
+                                        {(i18n.language === "th" ? product.title?.th || product.title?.en || '-' : product.title?.en || product.title?.th || '-')}
                                     </td>
                                     <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
-                                        {product.description?.en || '-'}
+                                        {(i18n.language === "th" ? product.description?.th || product.description?.en || '-' : product.description?.en || product.description?.th || '-')}
+
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {formatPrice(product.originalPrice, product.currency)}
@@ -332,14 +339,18 @@ function ProductsConfigShopping() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={closeModal}>
                     <div className="bg-white w-full max-w-5xl rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[70vh]" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-6 py-4 border-b">
-                            <h3 className="text-lg font-semibold">Product Details</h3>
+                            <h3 className="text-lg font-semibold">
+                                {(i18n.language === "th" ? 'รายะละเอียดสินค้า' : 'Product Details')}
+                            </h3>
                             <button className="text-gray-500 hover:text-gray-700" onClick={closeModal}>✕</button>
                         </div>
 
                         <div className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
                             {/* Images */}
                             <div>
-                                <div className="text-sm font-medium text-gray-500 mb-2">Images</div>
+                                <div className="text-sm font-medium text-gray-500 mb-2">
+                                    {(i18n.language === "th" ? 'รูปภาพ' : 'Images')}
+                                </div>
                                 <div className="flex gap-3 flex-wrap">
                                     {Array.isArray(selectedProduct.image) && selectedProduct.image.length > 0 ? (
                                         selectedProduct.image.map((img, idx) => (
@@ -355,7 +366,7 @@ function ProductsConfigShopping() {
                                             />
                                         ))
                                     ) : (
-                                        <div className="text-gray-400">No images</div>
+                                        <div className="text-gray-400">{(i18n.language === "th" ? 'ไม่มีรูปภาพ' : 'No image')}</div>
                                     )}
                                 </div>
                             </div>
@@ -363,19 +374,27 @@ function ProductsConfigShopping() {
                             {/* Basic info */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Title (EN)</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'ชื่อ (EN)' : 'Title (EN)')}
+                                    </div>
                                     <div className="text-gray-900">{selectedProduct.title?.en || '-'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Title (TH)</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'ชื่อ (TH)' : 'Title (TH)')}
+                                    </div>
                                     <div className="text-gray-900">{selectedProduct.title?.th || '-'}</div>
                                 </div>
                                 <div className="md:col-span-2">
-                                    <div className="text-sm font-medium text-gray-500">Description (EN)</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'คำอธิบาย (EN)' : 'Description (EN)')}
+                                    </div>
                                     <div className="text-gray-900 whitespace-pre-wrap">{selectedProduct.description?.en || '-'}</div>
                                 </div>
                                 <div className="md:col-span-2">
-                                    <div className="text-sm font-medium text-gray-500">Description (TH)</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'คำอธิบาย (TH)' : 'Description (TH)')}
+                                    </div>
                                     <div className="text-gray-900 whitespace-pre-wrap">{selectedProduct.description?.th || '-'}</div>
                                 </div>
                             </div>
@@ -383,11 +402,15 @@ function ProductsConfigShopping() {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Price</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'ราคา' : 'Price')}
+                                    </div>
                                     <div className="text-gray-900">{formatPrice(selectedProduct.originalPrice, selectedProduct.currency)}</div>
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Status</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'สถานะ' : 'Status')}
+                                    </div>
                                     <div className="text-gray-900 capitalize">{selectedProduct.status || '-'}</div>
                                 </div>
                             </div>
@@ -404,32 +427,42 @@ function ProductsConfigShopping() {
                             {/* Dates */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Created At</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'วันที่สร้าง' : 'Created At')}
+                                    </div>
                                     <div className="text-gray-900">{formatDate(selectedProduct.createdAt)}</div>
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Updated At</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'วันที่แก้ไข' : 'Updated At')}
+                                    </div>
                                     <div className="text-gray-900">{formatDate(selectedProduct.updatedAt)}</div>
                                 </div>
                             </div>
 
                             {/* Tags */}
                             <div>
-                                <div className="text-sm font-medium text-gray-500 mb-1">Tags</div>
+                                <div className="text-sm font-medium text-gray-500 mb-1">
+                                    {(i18n.language === "th" ? 'ป้ายชื่อ' : 'Tags')}
+                                </div>
                                 <div className="flex flex-wrap gap-2">
                                     {Array.isArray(selectedProduct.tags) && selectedProduct.tags.length > 0 ? (
                                         selectedProduct.tags.map((tag, idx) => (
                                             <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">{tag}</span>
                                         ))
                                     ) : (
-                                        <span className="text-gray-400">No tags</span>
+                                        <span className="text-gray-400">
+                                            {(i18n.language === "th" ? 'ยังไม่มีป้ายชื่อ' : 'No tags')}
+                                        </span>
                                     )}
                                 </div>
                             </div>
 
                             {/* Variants */}
                             <div>
-                                <div className="text-sm font-medium text-gray-500 mb-1">Variants</div>
+                                <div className="text-sm font-medium text-gray-500 mb-1">
+                                    {(i18n.language === "th" ? 'ตัวแปรสินค้า' : 'Variants')}
+                                </div>
                                 <div className="flex flex-wrap gap-2">
                                     {Array.isArray(selectedProduct.variants) && selectedProduct.variants.length > 0 ? (
                                         selectedProduct.variants.map((v, idx) => (
@@ -443,7 +476,9 @@ function ProductsConfigShopping() {
                                             </button>
                                         ))
                                     ) : (
-                                        <span className="text-gray-400">No variants</span>
+                                        <span className="text-gray-400">
+                                            {(i18n.language === "th" ? 'ยังไม่มีตัวแปรสินค้า' : 'No variants')}
+                                        </span>
                                     )}
                                 </div>
                             </div>
@@ -481,7 +516,7 @@ function ProductsConfigShopping() {
                                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                                 onClick={() => setShowVariantModal(true)}
                             >
-                                Add Variant
+                                {(i18n.language === "th" ? 'เพิ่มตัวแปรสินค้า' : 'Add Variant')}
                             </button>
 
                             <button
@@ -551,7 +586,7 @@ function ProductsConfigShopping() {
                             <h3
                                 className="text-lg font-semibold"
                             >
-                                Variant Details
+                                {(i18n.language === "th" ? 'รายละเอียดตัวแปรสินค้า' : 'Variant Details')}
                             </h3>
                             <button className="text-gray-500 hover:text-gray-700" onClick={closeVariantModal}>✕</button>
                         </div>
@@ -562,7 +597,7 @@ function ProductsConfigShopping() {
                                     <div
                                         className="text-sm font-medium text-gray-500 mb-2"
                                     >
-                                        Images
+                                        {(i18n.language === "th" ? 'รูปภาพ' : 'Images')}
                                     </div>
                                     {(() => {
                                         const images = getSortedVariantImages(selectedVariant);
@@ -608,23 +643,33 @@ function ProductsConfigShopping() {
                                     })()}
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">SKU</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'รหัสสินค้า' : 'SKU')}
+                                        </div>
                                     <div className="text-gray-900">{selectedVariant.sku || '-'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Price</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'ราคา' : 'Price')}
+                                        </div>
                                     <div className="text-gray-900">{selectedVariant.price != null ? `${selectedVariant.price} ${selectedVariant.currency || 'THB'}` : '-'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Stock</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'จำนวนสินค้าคงเหลือ' : 'Stock')}
+                                        </div>
                                     <div className="text-gray-900">{selectedVariant.quantity ?? '-'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Sold out</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'จำนวนสินค้าที่ขายไปแล้ว' : 'Sold out')}
+                                        </div>
                                     <div className="text-gray-900">{selectedVariant.soldQuantity ?? '-'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Attributes</div>
+                                    <div className="text-sm font-medium text-gray-500">
+                                        {(i18n.language === "th" ? 'คุณสมบัติ' : 'Attributes')}
+                                        </div>
                                     <div className="text-gray-900">
                                         {selectedVariant.attributes && Object.keys(selectedVariant.attributes).length > 0 ? (
                                             <div className="flex flex-wrap gap-2">

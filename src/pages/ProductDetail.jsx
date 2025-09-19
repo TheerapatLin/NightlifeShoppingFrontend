@@ -4,8 +4,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { getDeviceFingerprint } from "../lib/fingerprint";
+import { useTranslation } from "react-i18next";
 
 function ProductDetail() {
+  const { t, i18n } = useTranslation();
   const { productId } = useParams();
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
@@ -30,7 +32,7 @@ function ProductDetail() {
         setProduct(res.data);
         setError("");
       } catch (err) {
-        setError("ไม่พบสินค้า หรือเกิดข้อผิดพลาด");
+        setError("Internal Error.");
       } finally {
         setLoading(false);
       }
@@ -57,21 +59,21 @@ function ProductDetail() {
         );
         return res2.data?._id;
       }
-      console.log(`Error ensureBasketAndGetId: ${err}`)
+      console.log(`Error ensureBasketAndGetId: ${err}.`)
     }
   };
- 
+
 
   const handleAddToBasket = async () => {
     if (!isLoggedIn || !user?.userId) {
-      setAddError("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้า");
+      setAddError("Please Login.");
       return;
     }
-    
+
     if (!selectedVariant || !product?._id) return;
     const qty = Number(quantityToAdd) || 1;
     if (qty <= 0) {
-      setAddError("จำนวนต้องมากกว่า 0");
+      setAddError("Unable to add product with 1 quantity.");
       return;
     }
     setAdding(true);
@@ -96,13 +98,13 @@ function ProductDetail() {
         },
         { headers: { "device-fingerprint": fp }, withCredentials: true }
       );
-      setAddSuccess("เพิ่มสินค้าลงตะกร้าแล้ว");
+      setAddSuccess("Add to basket complete");
       // รีเฟรชหน้าเพื่ออัปเดตจำนวนสินค้าในปุ่ม Basket
       setTimeout(() => {
         window.location.reload();
       }, 300);
     } catch (err) {
-      const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message || "เกิดข้อผิดพลาด";
+      const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message || "Internal Error.";
       setAddError(String(msg));
     } finally {
       setAdding(false);
@@ -111,7 +113,9 @@ function ProductDetail() {
 
   if (loading) {
     return (
-      <div style={{ padding: 20 }}>กำลังโหลดข้อมูลสินค้า...</div>
+      <div style={{ padding: 20 }}>
+        {(i18n.language === "th" ? 'กำลังโหลดข้อมูลสินค้า...' : 'Loading Products...')}
+      </div>
     );
   }
 
@@ -120,7 +124,7 @@ function ProductDetail() {
       <div style={{ padding: 20 }}>
         <div style={{ marginBottom: 12 }}>{error}</div>
         <button onClick={() => navigate(-1)} style={{ padding: "8px 16px" }}>
-          กลับ
+          {(i18n.language === "th" ? 'กลับ' : 'back')}
         </button>
       </div>
     );
@@ -140,20 +144,25 @@ function ProductDetail() {
           {cover ? (
             <img src={cover} alt={product.title?.en || "Product"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
-            <div style={{ padding: 40, textAlign: "center", color: "#aaa" }}>No image</div>
+            <div style={{ padding: 40, textAlign: "center", color: "#aaa" }}>
+              {(i18n.language === "th" ? 'ไม่มีรูปภาพ' : 'No image')}
+            </div>
           )}
         </div>
         <div>
-          <h2 style={{ margin: "8px 0" }}>{product.title?.th || product.title?.en || "Untitled"}</h2>
+          <h2 style={{ margin: "8px 0" }}>
+            {(i18n.language === "th" ? product.title?.th || product.title.en || 'ไม่พบชื่อสินค้า' : product.title?.en || product.title.th || 'Unknow Product Name.')}
+          </h2>
           <div style={{ color: "#444", margin: "12px 0" }}>
-            {product.description?.th || product.description?.en || ""}
-          </div>
+            {(i18n.language === "th" ? product.description?.th || product.description?.en || "ไม่มีคำอธิบาย" : product.description?.en || product.description?.th || "No Description.")}          </div>
           <div style={{ fontSize: 20, fontWeight: 600, margin: "12px 0" }}>
             {new Intl.NumberFormat("th-TH", { style: "currency", currency: product.currency || "THB", maximumFractionDigits: 0 }).format(product.originalPrice || 0)}
           </div>
           {Array.isArray(product.variants) && product.variants.length > 0 && (
             <div style={{ marginTop: 16 }}>
-              <div style={{ fontWeight: 600, marginBottom: 8 }}>Variants</div>
+              <div style={{ fontWeight: 600, marginBottom: 8 }}>
+                {(i18n.language === "th" ? 'ตัวแปรของสินค้า' : 'Variants')}
+              </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12 }}>
                 {product.variants.map((v) => (
                   <div
@@ -177,11 +186,16 @@ function ProductDetail() {
                     ) : null}
                     <div style={{ fontWeight: 600 }}>{v.sku}</div>
                     <div style={{ color: "#666", fontSize: 13 }}>
-                      {v.attributes?.size ? `Size: ${v.attributes.size}` : ""}
-                      {v.attributes?.color ? `\u00A0\u00A0Color: ${v.attributes.color}` : ""}
+                      {v.attributes?.size ? (i18n.language === "th" ? `ขนาด: ${v.attributes.size}` : `Size: ${v.attributes.size}`) : ""}
+                      {v.attributes?.color ? (i18n.language === "th" ? `\u00A0\u00A0สี: ${v.attributes.color}` : `\u00A0\u00A0Color: ${v.attributes.color}`) : ""}
                     </div>
                     <div style={{ marginTop: 6, fontSize: 14 }}>
-                      Qty: {v.quantity} | Sold: {v.soldQuantity}
+                      {(i18n.language === "th" ? (
+                        <>
+                          จำนวนสินค้าคงเหลิอ: {v.quantity} <br />
+                          จำนวนสินค้าที่ขายไปแล้ว: {v.soldQuantity}
+                        </>
+                      ) : ` Qty: ${v.quantity} | Sold: ${v.soldQuantity}`)}
                     </div>
                     {v.price != null && (
                       <div style={{ marginTop: 6, fontWeight: 600 }}>
@@ -222,7 +236,9 @@ function ProductDetail() {
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 16, borderBottom: "1px solid #eee" }}>
-              <div style={{ fontWeight: 700 }}>Variant: {selectedVariant.sku}</div>
+              <div style={{ fontWeight: 700 }}>
+                {(i18n.language === "th" ? `ตัวแปรสินค้า: ${selectedVariant.sku}` : `Variant: ${selectedVariant.sku}`)}
+                </div>
               <button onClick={() => setIsVariantModalOpen(false)} style={{ background: "transparent", border: "none", fontSize: 22, cursor: "pointer" }}>×</button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 0 }}>
@@ -271,24 +287,43 @@ function ProductDetail() {
                     </div>
                   </>
                 ) : (
-                  <div style={{ width: "100%", height: 360, display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa" }}>No images</div>
+                  <div
+                    style={{
+                      width: "100%",
+                      height: 360,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#aaa"
+                    }}>
+                    {(i18n.language === "th" ? 'ไม่มีรูปภาพ' : 'No image')}
+                  </div>
                 )}
               </div>
               <div style={{ padding: 16 }}>
                 <div style={{ marginBottom: 8, color: "#555" }}>
-                  {selectedVariant.attributes?.size ? `Size: ${selectedVariant.attributes.size}` : ""}
-                  {selectedVariant.attributes?.color ? `\u00A0\u00A0Color: ${selectedVariant.attributes.color}` : ""}
-                  {selectedVariant.attributes?.material ? `\u00A0\u00A0Material: ${selectedVariant.attributes.material}` : ""}
+                  {selectedVariant.attributes?.size ? (i18n.language === "th" ? `ขนาด: ${selectedVariant.attributes.size}` : `Size: ${selectedVariant.attributes.size}`) : ""}
+                  {selectedVariant.attributes?.color ? (i18n.language === "th" ? `\u00A0\u00A0สี: ${selectedVariant.attributes.color}` : `\u00A0\u00A0Color: ${selectedVariant.attributes.color}`) : ""}
+                  {selectedVariant.attributes?.material ? (i18n.language === "th" ? `\u00A0\u00A0วัสดุ: ${selectedVariant.attributes.material}` : `\u00A0\u00A0Cotton: ${selectedVariant.attributes.material}`) : ""}
                 </div>
                 {selectedVariant.price != null && (
                   <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>
                     {new Intl.NumberFormat("th-TH", { style: "currency", currency: product.currency || "THB", maximumFractionDigits: 0 }).format(selectedVariant.price)}
                   </div>
                 )}
-                <div style={{ color: "#666" }}>Qty: {selectedVariant.quantity} | Sold: {selectedVariant.soldQuantity}</div>
+                <div style={{ color: "#666" }}>
+                  {(i18n.language === "th" ? (
+                    <>
+                      จำนวนสินค้าคงเหลิอ: {selectedVariant.quantity} <br />
+                      จำนวนสินค้าที่ขายไปแล้ว: {selectedVariant.soldQuantity}
+                    </>
+                  ) : ` Qty: ${selectedVariant.quantity} | Sold: ${selectedVariant.soldQuantity}`)}
+                </div>
 
                 <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8 }}>
-                  <label htmlFor="qtyInput" style={{ fontSize: 14, color: "#444" }}>จำนวน:</label>
+                  <label htmlFor="qtyInput" style={{ fontSize: 14, color: "#444" }}>
+                    {(i18n.language === "th" ? 'จำนวน' : 'Select quantity')}
+                    </label>
                   <input
                     id="qtyInput"
                     type="number"
@@ -302,7 +337,7 @@ function ProductDetail() {
                     disabled={adding}
                     style={{ padding: "10px 16px", background: adding ? "#6b7280" : "#16a34a", color: "#fff", borderRadius: 8, border: "none", cursor: adding ? "not-allowed" : "pointer" }}
                   >
-                    {adding ? "กำลังเพิ่ม..." : "เพิ่มลงตะกร้า"}
+                    {adding ? (i18n.language === "th" ? 'กำลังเพิ่ม...' : 'Adding') : (i18n.language === "th" ? 'เพิ่มลงตะกร้า' : 'Add to Basket')}
                   </button>
                 </div>
 
@@ -318,7 +353,7 @@ function ProductDetail() {
                     onClick={() => setIsVariantModalOpen(false)}
                     style={{ padding: "10px 16px", background: "#111", color: "#fff", borderRadius: 8, border: "none", cursor: "pointer" }}
                   >
-                    ปิด
+                   {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
                   </button>
                 </div>
               </div>

@@ -12,8 +12,6 @@ function OrderDetailModal({ open, orderId, onClose }) {
     const [productDetails, setProductDetails] = useState({});
     const [productLoading, setProductLoading] = useState(false);
 
-
-
     useEffect(() => {
         const fetchDetail = async () => {
             if (!open || !orderId) return;
@@ -137,14 +135,14 @@ function OrderDetailModal({ open, orderId, onClose }) {
                                         {order.paymentMetadata.receiptUrl && (
                                             <p className="text-black">
                                                 {/* <span className="font-medium">ใบเสร็จ:</span> */}
-                                                <div className="text-xs text-gray-500">ใบเสร็จ
+                                                <div className="text-xs text-gray-500">Receipt
                                                     <a
                                                         href={order.paymentMetadata.receiptUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="ml-2 text-blue-600 hover:text-blue-800 underline"
                                                     >
-                                                        ดูใบเสร็จ
+                                                        receipt
                                                     </a>
                                                 </div>
 

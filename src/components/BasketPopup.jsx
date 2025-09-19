@@ -14,7 +14,6 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
     const { isLoggedIn, user } = useAuth();
     const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
-    const [selectedProduct, setSelectedProduct] = useState(null);
     const [showWarning, setShowWarning] = useState(false);
     const [showWarningAddress, setShowWarningAddress] = useState(false);
     const [addressData, setAddressData] = useState(null);
@@ -74,13 +73,13 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                         className="text-center text-lg font-semibold mb-4"
                         style={{ color: "#dc2626" }}
                     >
-                        คุณยังไม่ได้ล็อกอิน
+                        {(i18n.language === "th" ? 'คุณยังไม่ได้ล็อกอิน' : 'Please Login.')}
                     </h2>
                     <button
                         onClick={() => navigate("/signup")}
                         className="block w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
                     >
-                        Go to Log in
+                        {(i18n.language === "th" ? 'ล็อกอิน' : 'LOGIN')}
                     </button>
                 </div>
             </div>
@@ -122,7 +121,6 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                     data: { userId: user.userId, productId, sku },
                 }
             );
-            setSelectedProduct(null)
             window.location.reload();
         } catch (error) {
             console.error("Error removing product from basket:", error);
@@ -134,16 +132,26 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
             <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
                 <div onClick={e => e.stopPropagation()} style={{ width: "min(720px, 92vw)", maxHeight: "80vh", background: "#fff", borderRadius: 12, boxShadow: "0 10px 30px rgba(0,0,0,0.2)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
                     <div style={{ padding: "14px 18px", borderBottom: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ fontSize: 18, fontWeight: 700 }}>Basket</div>
+                        <div style={{ fontSize: 18, fontWeight: 700 }}>
+                            {(i18n.language === "th" ? 'ตะกร้า' : 'Basket')}
+                        </div>
                         <button onClick={onClose} style={{ background: "transparent", border: "none", fontSize: 20, cursor: "pointer" }}>×</button>
                     </div>
                     <div style={{ padding: 16, overflow: "auto" }}>
                         {basketData?.items?.length ? (
                             <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 12, alignItems: "center" }}>
-                                <div style={{ ...gridHeaderStyle, textAlign: "left" }}>Product</div>
-                                <div style={gridHeaderStyle}>SKU</div>
-                                <div style={gridHeaderStyle}>Qty</div>
-                                <div style={gridHeaderStyle}>Total</div>
+                                <div style={{ ...gridHeaderStyle, textAlign: "left" }}>
+                                    {(i18n.language === "th" ? 'สินค้า' : 'Product')}
+                                </div>
+                                <div style={gridHeaderStyle}>
+                                    {(i18n.language === "th" ? 'รหัสสินค้า' : 'SKU')}
+                                </div>
+                                <div style={gridHeaderStyle}>
+                                    {(i18n.language === "th" ? 'จำนวน' : 'Qty')}
+                                </div>
+                                <div style={gridHeaderStyle}>
+                                    {(i18n.language === "th" ? 'รวม' : 'Total')}
+                                </div>
                                 <div style={gridHeaderStyle}></div>
                                 {basketData.items.map(item => {
                                     const product = productData.find(p => String(p._id) === String(item.productId));
@@ -151,7 +159,15 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                                     const imgSrc = variant?.images?.[0]?.fileName || product?.image?.[0]?.fileName || null;
                                     return [
                                         <div key={`img-${item.productId}-${item.variant?.sku}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                            {imgSrc ? <img src={imgSrc} alt={item.variant?.sku || "product"} style={imgStyle} /> : <div style={noImgStyle}>No image</div>}
+                                            {imgSrc ? <img
+                                                src={imgSrc}
+                                                alt={item.variant?.sku || "product"}
+                                                style={imgStyle} /> :
+                                                <div
+                                                    style={noImgStyle}>
+                                                    {(i18n.language === "th" ? 'ไม่มีรูปภาพ' : 'No image')}
+                                                </div>
+                                            }
                                         </div>,
                                         <div key={`sku-${item.productId}-${item.variant?.sku}`} style={{ color: "#6B7280", textAlign: "right" }}>{item.variant?.sku || "-"}</div>,
                                         <div key={`qty-${item.productId}-${item.variant?.sku}`} style={{ color: "#111827", textAlign: "right" }}>{item.quantity || 0}</div>,
@@ -160,7 +176,6 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                                             <button
                                                 onClick={() => {
                                                     setConfirmDelete({ open: true, productId: item.productId, sku: item.variant?.sku })
-                                                    setSelectedProduct(item)
                                                 }}
                                                 style={btnTrashStyle}
                                                 title="ลบสินค้า">
@@ -171,18 +186,50 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                                 }).flat()}
                             </div>
                         ) : (
-                            <div style={{ color: "#6B7280", textAlign: "center", padding: "24px 0" }}>Your basket is empty.</div>
+                            <div style={{ color: "#6B7280", textAlign: "center", padding: "24px 0" }}>
+                                {(i18n.language === "th" ? 'ยังไม่มีสินค้าในตะกร้า' : 'Your basket is empty.')}
+                            </div>
                         )}
                     </div>
                     <div style={{ padding: "12px 18px", borderTop: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ fontWeight: 600 }}>Total</div>
+                        <div style={{ fontWeight: 600 }}>
+                            {(i18n.language === "th" ? 'รวม' : 'Total')}
+                        </div>
                         <div style={{ fontWeight: 700 }}>{new Intl.NumberFormat(i18n.language || "en-US", { style: "currency", currency: "THB", maximumFractionDigits: 0 }).format(basketData?.totalPrice || 0)}</div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 18px", marginBottom: "8px" }}>
                         {addressData && <div style={{ color: "#28a745", fontWeight: 600, fontSize: 14 }}>เลือกที่อยู่แล้ว</div>}
                         <div style={{ display: "flex", gap: 12 }}>
-                            <button onClick={handleClearBasket} style={{ padding: "12px 20px", fontSize: 18, background: "#635bff", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: "bold", boxShadow: "0 2px 8px rgba(99,91,255,0.15)" }}>Clear Basket</button>
-                            <button onClick={handleCheckout} style={{ padding: "12px 20px", fontSize: 18, background: "#28a745", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: "bold", boxShadow: "0 2px 8px rgba(99,91,255,0.15)" }}>Confirm And Pay</button>
+                            <button
+                                onClick={handleClearBasket}
+                                style={{
+                                    padding: "12px 20px",
+                                    fontSize: 18,
+                                    background: "#635bff",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: 8,
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                    boxShadow: "0 2px 8px rgba(99,91,255,0.15)"
+                                }}>
+                                {(i18n.language === "th" ? 'ลบสินค้าทุกชิ้นในตะกร้า' : 'Clear Basket')}
+                            </button>
+                            <button
+                                onClick={handleCheckout}
+                                style={{
+                                    padding: "12px 20px",
+                                    fontSize: 18,
+                                    background: "#28a745",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: 8,
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                    boxShadow: "0 2px 8px rgba(99,91,255,0.15)"
+                                }}>
+                                {(i18n.language === "th" ? 'ยืนยันแล้วจ่าายเงิน' : 'Confirm And Pay')}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -200,30 +247,37 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                 <div className="fixed inset-0 flex items-center justify-center bg-black/50" style={{ zIndex: 1100 }} onClick={() => setConfirmDelete({ open: false, productId: null, sku: null })}>
                     <div className="bg-white w-full max-w-md rounded-lg shadow-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         <div className="px-6 py-4 border-b">
-                            <h3 className="text-lg font-semibold">Confirm Deletion</h3>
+                            <h3 className="text-lg font-semibold">
+                                {(i18n.language === "th" ? 'ยืนยันการลบ' : 'Confirm Deletion')}
+                            </h3>
                         </div>
                         <div className="p-6 space-y-3">
-                            <p className="text-gray-700">คุณต้องการลบสินค้าใช่หรือไม่?</p>
+                            <p className="text-gray-700">
+                                {(i18n.language === "th" ? 'คุณต้องการลบสินค้าใช่หรือไม่?' : 'Do you want to delete the product?')}
+                            </p>
                             {(() => {
                                 const product = productData.find(p => String(p._id) === String(confirmDelete.productId));
                                 const variant = product?.variants?.find(v => v.sku === confirmDelete.sku);
                                 return product ? (
                                     <div className="bg-gray-50 p-3 rounded-lg">
                                         <p className="text-sm font-medium text-gray-800">
-                                            <span className="font-semibold">สินค้า:</span> {product.title?.en || product.title?.th || "ไม่ระบุชื่อ"}
+                                            <span className="font-semibold">
+                                                {(i18n.language === "th" ? 'สินค้า: ' : 'Product: ')}
+                                            </span>
+                                            {(i18n.language === "th" ? product.title?.th || product.title?.en || "ไม่พบชื่อสินค้า" : product.title?.en || product.title?.th || "Unknow name")}
                                         </p>
                                         <p className="text-sm text-gray-600">
-                                            <span className="font-semibold">SKU:</span> {confirmDelete.sku || "ไม่ระบุ SKU"}
+                                            <span className="font-semibold">
+                                                {(i18n.language === "th" ? 'รหัสสินค้า: ' : 'SKU: ')}
+                                            </span>
+                                            {confirmDelete.sku || (i18n.language === "th" ? 'ไม่ระบุ SKU' : 'Unknow SKU')}
                                         </p>
-                                        {variant?.name && (
-                                            <p className="text-sm text-gray-600">
-                                                <span className="font-semibold">รุ่น:</span> {variant.name}
-                                            </p>
-                                        )}
                                     </div>
                                 ) : null;
                             })()}
-                            <p className="text-sm text-red-600">การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+                            <p className="text-sm text-red-600">
+                                {(i18n.language === "th" ? 'การกระทำนี้ไม่สามารถย้อนกลับได้' : 'This action is irreversible.')}
+                            </p>
                         </div>
                         <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
                             <button
@@ -231,7 +285,7 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                                 className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
                                 onClick={() => setConfirmDelete({ open: false, productId: null, sku: null })}
                             >
-                                ยกเลิก
+                                {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
                             </button>
                             <button
                                 type="button"
@@ -243,7 +297,7 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                                     setConfirmDelete({ open: false, productId: null, sku: null });
                                 }}
                             >
-                                ลบสินค้า
+                                {(i18n.language === "th" ? 'ลบสินค้า' : 'Delete')}
                             </button>
                         </div>
                     </div>

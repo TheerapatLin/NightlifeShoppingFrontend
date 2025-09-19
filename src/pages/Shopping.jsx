@@ -4,60 +4,65 @@ import "../public/css/App.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useGlobalEvent } from "../context/GlobalEventContext";
-import { useAuth } from "../context/AuthContext";
 import AllEventsInclude from "../components/AllEventsInclude";
 import VideotextNLShopping from "../components/VideotextNLShopping";
 import VideotextnightlifeMobile from "../components/VideotextnightlifeMobile";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
-import { getDeviceFingerprint } from "../lib/fingerprint";
 
 function Shopping() {
     const { t, i18n } = useTranslation();
     const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
-    const { isLoggedIn, logout, user } = useAuth();
     const navigate = useNavigate();
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
     const { isScrolled, currentPage, updateCurrentPage, windowSize } =
         useGlobalEvent();
 
 
     const [productData, setProductData] = useState([])
-    const [basketData, setBasketData] = useState(null)
 
     // ดึงข้อมูล product จาก backend (ใช้ API จริง)
     useEffect(() => {
         const fetchProduct = async () => {
             try {
+                setLoading(true);
                 const res = await axios.get(`${BASE_URL}/shopping/product`)
                 setProductData(res.data)
+                setError("");
             }
             catch (error) {
                 console.error("Error fetching products:", error);
+                setError("Internal Error.");
+            } finally {
+                setLoading(false);
             }
         }
         fetchProduct()
     }, [])
 
-    // ดึงข้อมูล basket จาก backend (ใช้ API จริง)
-    useEffect(() => {
-        const fetchBasket = async () => {
-            if (!user || !user.userId) return;
-            try {
-                const fp = await getDeviceFingerprint();
-                const res = await axios.get(`${BASE_URL}/shopping/basket/${user.userId}`,
-                    {
-                        headers: { "device-fingerprint": fp },
-                        withCredentials: true,
-                    })
-                setBasketData(res.data)
-            }
-            catch (error) {
-                console.error("Error fetching baskets:", error);
-            }
-        }
-        fetchBasket()
-    }, [BASE_URL, user?.userId])
+    if (loading) {
+        return (
+            <div
+                style={{ padding: 20 }}
+            >
+                {(i18n.language === "th" ? 'กำลังโหลดข้อมูลสินค้า...' : 'Loading Products...')}
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div style={{ padding: 20 }}>
+                <div style={{ marginBottom: 12 }}>{error}</div>
+                <button onClick={() => navigate(-1)} style={{ padding: "8px 16px" }}>
+                    กลับ
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -84,7 +89,11 @@ function Shopping() {
                         justifyContent: "center",
                     }}
                 >
-                    <div className="EventSlideHeaderText1">Selected Products</div>
+                    <div
+                        className="EventSlideHeaderText1"
+                    >
+                        {(i18n.language === "th" ? 'สินค้าทั้งหมด' : 'All Products')}
+                    </div>
                 </div>
             </div>
 
@@ -143,7 +152,11 @@ function Shopping() {
                                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                         />
                                     ) : (
-                                        <span style={{ color: "#aaa" }}>No image</span>
+                                        <span
+                                            style={{ color: "#aaa" }}
+                                        >
+                                            {(i18n.language === "th" ? 'ไม่มีรูปภาพ' : 'No image')}
+                                        </span>
                                     )}
                                 </div>
                                 <div style={{ padding: "10px 12px" }}>
