@@ -19,6 +19,14 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
     const [addressData, setAddressData] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState({ open: false, productId: null, sku: null });
 
+    const btnStyle = base => ({
+        padding: "10px 20px",
+        border: "none",
+        borderRadius: 8,
+        fontWeight: "bold",
+        ...base
+    });
+
     // style reuse
     const gridHeaderStyle = {
         fontWeight: 600,
@@ -198,7 +206,22 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                         <div style={{ fontWeight: 700 }}>{new Intl.NumberFormat(i18n.language || "en-US", { style: "currency", currency: "THB", maximumFractionDigits: 0 }).format(basketData?.totalPrice || 0)}</div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 18px", marginBottom: "8px" }}>
-                        {addressData && <div style={{ color: "#28a745", fontWeight: 600, fontSize: 14 }}>เลือกที่อยู่แล้ว</div>}
+                        {addressData && <div style={{ color: "#28a745", fontWeight: 600, fontSize: 14 }}
+                        >
+                            เลือกที่อยู่แล้ว
+                            <button 
+                                onClick={() => setShowWarningAddress(true)}
+                                style={btnStyle({
+                                    background: "#6c757d",
+                                    color: "#fff",
+                                    cursor: "pointer",
+                                    marginLeft: "12px"
+                                })}>
+                                เปลี่ยนที่อยู่จัดส่ง
+                            </button>
+                        </div>
+                        
+                        }
                         <div style={{ display: "flex", gap: 12 }}>
                             <button
                                 onClick={handleClearBasket}
@@ -228,7 +251,7 @@ const BasketPopup = ({ isOpen, onClose, basketData, productData, onAddressData }
                                     fontWeight: "bold",
                                     boxShadow: "0 2px 8px rgba(99,91,255,0.15)"
                                 }}>
-                                {(i18n.language === "th" ? 'ยืนยันแล้วจ่าายเงิน' : 'Confirm And Pay')}
+                                {(i18n.language === "th" ? 'ยืนยันแล้วจ่ายเงิน' : 'Confirm And Pay')}
                             </button>
                         </div>
                     </div>

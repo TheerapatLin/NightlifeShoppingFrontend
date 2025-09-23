@@ -9,11 +9,12 @@ const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
     const { i18n } = useTranslation();
     const { user } = useAuth();
-    const [existingAddress, setExistingAddress] = useState(null);
+    const [existingAddresses, setExistingAddresses] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [formData, setFormData] = useState({ address: "", city: "", province: "", description: "" });
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+    const [selectedAddressId, setSelectedAddressId] = useState(null);
 
     // style reuse
     const btnStyle = base => ({
@@ -43,11 +44,11 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
     }
 
     useEffect(() => {
-        if (isOpen && user?.userId) fetchExistingAddress();
+        if (isOpen && user?.userId) fetchExistingAddresses();
         // eslint-disable-next-line
     }, [isOpen, user?.userId]);
 
-    const fetchExistingAddress = async () => {
+    const fetchExistingAddresses = async () => {
         setIsLoading(true);
         try {
             const fp = await getDeviceFingerprint();
@@ -57,10 +58,14 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                     withCredentials: true
                 }
             );
-            const firstAddress = res.data.Address[0]?.address ?? null;
-            setExistingAddress(firstAddress && (firstAddress.address || firstAddress.city || firstAddress.province) ? firstAddress : null);
+            const addresses = res.data.Address || [];
+            // Filter out empty addresses
+            const validAddresses = addresses.filter(addr => 
+                addr.address && (addr.address.address || addr.address.city || addr.address.province)
+            );
+            setExistingAddresses(validAddresses);
         } catch (e) {
-            setExistingAddress(null);
+            setExistingAddresses([]);
         } finally {
             setIsLoading(false);
         }
@@ -135,7 +140,7 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                         }}>
                         กำลังโหลด...
                     </div>
-                ) : existingAddress && !showForm ? (
+                ) : existingAddresses.length > 0 && !showForm ? (
                     <div>
                         <div
                             style={{
@@ -144,7 +149,7 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                                 marginBottom: 16,
                                 textAlign: "center"
                             }}>
-                            ระบุที่อยู่จัดส่ง
+                            เลือกที่อยู่จัดส่ง
                         </div>
                         <div
                             style={{
@@ -153,66 +158,76 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                             <div
                                 style={{
                                     fontWeight: 600,
-                                    marginBottom: 8
+                                    marginBottom: 12
                                 }}>
-                                พบข้อมูลที่อยู่ปัจจุบัน:
+                                ที่อยู่ที่มีอยู่:
                             </div>
-                            <div
-                                style={{
-                                    padding: 12,
-                                    background: "#f8f9fa",
-                                    borderRadius: 8,
-                                    border: "1px solid #e9ecef",
-                                    marginBottom: 8
-                                }}>
-                                <div>
-                                    <strong>
-                                        ที่อยู่:
-                                    </strong>
-                                    {existingAddress.address}
-                                </div>
-                                <div>
-                                    <strong>
-                                        เมือง:
-                                    </strong>
-                                    {existingAddress.city}
-                                </div>
-                                <div>
-                                    <strong>
-                                        จังหวัด:
-                                    </strong>
-                                    {existingAddress.province}
-                                </div>
-                                {existingAddress.description && <div>
-                                    <strong>
-                                        รายละเอียด:
-                                    </strong>
-                                    {existingAddress.description}
-                                </div>}
+                            <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                                {existingAddresses.map((addrObj, index) => {
+                                    const addr = addrObj.address;
+                                    const isSelected = selectedAddressId === index;
+                                    return (
+                                        <div
+                                            key={addrObj.id || index}
+                                            onClick={() => setSelectedAddressId(index)}
+                                            style={{
+                                                padding: 12,
+                                                background: isSelected ? "#ccc" : "#f8f9fa",
+                                                borderRadius: 8,
+                                                border: isSelected ? "2px solid #28a745" : "1px solid #e9ecef",
+                                                marginBottom: 8,
+                                                cursor: "pointer",
+                                                transition: "all 0.2s ease"
+                                            }}>
+                                            <div>
+                                                <strong>ที่อยู่:</strong> {addr.address}
+                                            </div>
+                                            <div>
+                                                <strong>เมือง:</strong> {addr.city}
+                                            </div>
+                                            <div>
+                                                <strong>จังหวัด:</strong> {addr.province}
+                                            </div>
+                                            {addr.description && (
+                                                <div>
+                                                    <strong>รายละเอียด:</strong> {addr.description}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                         <div
                             style={{
                                 display: "flex",
                                 gap: 12,
-                                justifyContent: "center"
+                                justifyContent: "center",
+                                flexWrap: "wrap"
                             }}>
                             <button
-                                onClick={() => handleAddress(existingAddress)}
+                                onClick={() => {
+                                    const selectedAddr = existingAddresses[selectedAddressId];
+                                    if (selectedAddr) {
+                                        handleAddress(selectedAddr.address);
+                                    }
+                                }}
+                                disabled={selectedAddressId === null}
                                 style={btnStyle({
-                                    background: "#28a745",
+                                    background: selectedAddressId === null ? "#ccc" : "#28a745",
                                     color: "#fff",
-                                    cursor: "pointer"
+                                    cursor: selectedAddressId === null ? "not-allowed" : "pointer"
                                 })}>
-                                ใช่ ใช้ที่อยู่นี้
+                                ใช้ที่อยู่ที่เลือก
                             </button>
-                            <button onClick={() => setShowForm(true)}
+                            <button 
+                                onClick={() => setShowForm(true)}
                                 style={btnStyle({
                                     background: "#6c757d",
                                     color: "#fff",
                                     cursor: "pointer"
                                 })}>
-                                ไม่ ใช้ที่อยู่อื่น
+                                เพิ่มที่อยู่ใหม่
                             </button>
                         </div>
                     </div>
@@ -225,7 +240,7 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                                 marginBottom: 16,
                                 textAlign: "center"
                             }}>
-                            {existingAddress ? "ใช้ที่อยู่อื่น" : "กรอกข้อมูลที่อยู่"}
+                            {existingAddresses.length > 0 ? "เพิ่มที่อยู่ใหม่" : "กรอกข้อมูลที่อยู่"}
                         </div>
                         <form onSubmit={handleFormSubmit}>
                             {[{
@@ -292,13 +307,16 @@ const AddressPopup = ({ isOpen, onClose, onAddressConfirm, onAddressSave }) => {
                                 }}>
                                 <button
                                     type="button"
-                                    onClick={onClose}
+                                    onClick={() => {
+                                        setShowForm(false);
+                                        setFormData({ address: "", city: "", province: "", description: "" });
+                                    }}
                                     style={btnStyle({
                                         background: "#6c757d",
                                         color: "#fff",
                                         cursor: "pointer"
                                     })}>
-                                    ยกเลิก
+                                    {existingAddresses.length > 0 ? "กลับ" : "ยกเลิก"}
                                 </button>
                                 <button
                                     type="submit"

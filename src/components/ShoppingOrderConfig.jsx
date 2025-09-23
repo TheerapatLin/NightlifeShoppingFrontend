@@ -375,7 +375,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(order.createdAt)}</td>
                                     <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{order.buyer.name || order.buyer.id || 'Loading...'}</td>
                                     <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
-                                        {productDetails[order.productId]?.creatorName || 'Loading...'}
+                                        {order.creator.name || order.creator.id || 'Loading...'}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(order.paidAt)}</td>
                                     <td className="px-4 py-4 whitespace-nowrap">

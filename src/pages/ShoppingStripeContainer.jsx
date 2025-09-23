@@ -39,6 +39,7 @@ const ShoppingStripeContainer = ({ clientSecret, userEmailRef, onAddressChange }
     };
 
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const stripe = useStripe();
     const [fullName, setFullName] = useState(user?.name || "");
@@ -49,6 +50,7 @@ const ShoppingStripeContainer = ({ clientSecret, userEmailRef, onAddressChange }
     const [message, setMessage] = useState(null);
     const [productData, setProductData] = useState([]);
     const [basketData, setBasketData] = useState(null);
+    const [addressData, setAddressData] = useState(location.state?.addressData || null);
 
     const handleBack = () => {
         navigate(`/`, {});
@@ -241,6 +243,32 @@ const ShoppingStripeContainer = ({ clientSecret, userEmailRef, onAddressChange }
                                     <div style={{ color: "#6B7280" }}>Your basket is empty.</div>
                                 )}
                             </div>
+                            
+                            {/* Address Information */}
+                            {addressData && (
+                                <div style={{ marginBottom: "16px", padding: "16px", backgroundColor: "#f8f9fa", borderRadius: "8px", border: "1px solid #e9ecef" }}>
+                                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 12, color: "#28a745" }}>
+                                        {i18n.language === "th" ? "ที่อยู่จัดส่ง สามารถเปลี่ยนที่อยู่จัดส่งได้จากในตะกร้า" : "Delivery Address"}
+                                    </div>
+                                    <div style={{ fontSize: 14, lineHeight: 1.6 }}>
+                                        <div style={{ marginBottom: 4 }}>
+                                            <strong>{i18n.language === "th" ? "ที่อยู่:" : "Address:"}</strong> {addressData.address}
+                                        </div>
+                                        <div style={{ marginBottom: 4 }}>
+                                            <strong>{i18n.language === "th" ? "เมือง:" : "City:"}</strong> {addressData.city}
+                                        </div>
+                                        <div style={{ marginBottom: 4 }}>
+                                            <strong>{i18n.language === "th" ? "จังหวัด:" : "Province:"}</strong> {addressData.province}
+                                        </div>
+                                        {addressData.description && (
+                                            <div style={{ marginBottom: 4 }}>
+                                                <strong>{i18n.language === "th" ? "รายละเอียด:" : "Details:"}</strong> {addressData.description}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                            
                             <div style={{ marginBottom: "16px" }}>
                                 <label>Full Name</label>
                                 <input
