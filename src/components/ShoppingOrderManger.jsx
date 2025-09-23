@@ -4,6 +4,7 @@ import axios from "axios";
 import { Eye, RefreshCw } from "lucide-react";
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import ShoppingOrderIdManagerModal from "./ShoppingOrderIdManagerModal";
+import { useTranslation } from "react-i18next";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
@@ -17,6 +18,7 @@ function debounce(fn, delay = 800) {
 }
 
 const ShoppingOrderManager = () => {
+  const { t, i18n } = useTranslation();
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL.replace(/\/$/, "");
   const [orders, setOrders] = useState([]);
   const [orderCount, setOrderCount] = useState(0);
@@ -156,7 +158,7 @@ const ShoppingOrderManager = () => {
                 : "descending"
               : "none"
           }
-          title="คลิกเพื่อเรียง/สลับทิศทาง"
+          title={(i18n.language === "th" ? 'คลิกเพื่อเรียง/สลับทิศทาง' : 'Click to sort/toggle direction')}
         >
           <span>{label}</span>
           <span className="text-xs">{arrow}</span>
@@ -209,10 +211,10 @@ const ShoppingOrderManager = () => {
   // แสดงสถานะ
   const getStatusBadge = (status) => {
     const statusMap = {
-      paid: { text: "ชำระแล้ว", color: "bg-green-100 text-green-800" },
-      pending: { text: "รอดำเนินการ", color: "bg-yellow-100 text-yellow-800" },
-      cancelled: { text: "ยกเลิก", color: "bg-red-100 text-red-800" },
-      refunded: { text: "คืนเงิน", color: "bg-gray-100 text-gray-800" },
+      paid: { text: (i18n.language === "th" ? 'ชำระแล้ว' : 'Paid'), color: "bg-green-100 text-green-800" },
+      pending: { text: (i18n.language === "th" ? 'รอดำเนินการ' : 'Pending'), color: "bg-yellow-100 text-yellow-800" },
+      cancelled: { text: (i18n.language === "th" ? 'ยกเลิก' : 'Cancelled'), color: "bg-red-100 text-red-800" },
+      refunded: { text: (i18n.language === "th" ? 'คืนเงิน' : 'Refunded'), color: "bg-gray-100 text-gray-800" },
     };
     const statusInfo = statusMap[status] || { text: status || "-", color: "bg-gray-100 text-gray-800" };
     return (
@@ -230,10 +232,10 @@ const ShoppingOrderManager = () => {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto text-white px-4">
-        <h2 className="text-2xl font-bold mt-8 mb-4">จัดการคำสั่งซื้อสินค้า</h2>
+        <h2 className="text-2xl font-bold mt-8 mb-4">{(i18n.language === "th" ? 'จัดการคำสั่งซื้อสินค้า' : 'Manage Shopping Orders')}</h2>
         <div className="bg-white rounded text-black h-48 flex flex-col items-center justify-center gap-3">
           <div className="h-10 w-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
-          <p className="text-sm text-gray-600">Loading...</p>
+          <p className="text-sm text-gray-600">{(i18n.language === "th" ? 'กำลังโหลด...' : 'Loading...')}</p>
         </div>
       </div>
     );
@@ -246,7 +248,7 @@ const ShoppingOrderManager = () => {
   return (
     <div className="max-w-7xl mx-auto text-white px-4">
       <h2 className="text-2xl font-bold mt-8 mb-4">
-        จัดการคำสั่งซื้อสินค้า{" "}
+        {(i18n.language === "th" ? 'จัดการคำสั่งซื้อสินค้า' : 'Manage Shopping Orders')}{" "}
         <span className="text-white/70">
           ({orderCount} รายการ) — แสดง {startIdx}-{endIdx}
         </span>
@@ -254,7 +256,7 @@ const ShoppingOrderManager = () => {
 
       {/* Controls แถวบน: page size + pager */}
       <div className="mb-3 flex items-center gap-3">
-        <label className="text-sm text-white/80">แสดงต่อหน้า</label>
+        <label className="text-sm text-white/80">{(i18n.language === "th" ? 'แสดงต่อหน้า' : 'Show per page')}</label>
         <select
           value={pageSize}
           onChange={(e) => {
@@ -276,17 +278,17 @@ const ShoppingOrderManager = () => {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
           >
-            ก่อนหน้า
+            {(i18n.language === "th" ? 'ก่อนหน้า' : 'Previous')}
           </button>
           <span className="text-white/80 text-sm">
-            หน้า {page} / {totalPages}
+            {(i18n.language === "th" ? 'หน้า {page} / {totalPages}' : 'Page {page} / {totalPages}')}
           </span>
           <button
             className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
           >
-            ถัดไป
+            {(i18n.language === "th" ? 'ถัดไป' : 'Next')}
           </button>
         </div>
       </div>
@@ -298,7 +300,7 @@ const ShoppingOrderManager = () => {
           <input
             type="text"
             className="w-full rounded px-3 py-2 text-black border"
-            placeholder="ค้นหาด้วย Username"
+            placeholder={(i18n.language === "th" ? 'ค้นหาด้วย Username' : 'Search by Username')}
             onChange={(e) => applySearchDebounced(e.target.value)}
             defaultValue={q}
             aria-label="Search orders by ID or user ID"
@@ -308,11 +310,11 @@ const ShoppingOrderManager = () => {
         {/* Status filters */}
         <div className="flex flex-wrap items-center gap-2">
           {[
-            { key: "all", label: "All" },
-            { key: "paid", label: "ชำระแล้ว" },
-            { key: "pending", label: "รอดำเนินการ" },
-            { key: "cancelled", label: "ยกเลิก" },
-            { key: "refunded", label: "คืนเงิน" },
+            { key: "all", label: (i18n.language === "th" ? 'ทั้งหมด' : 'All') },
+            { key: "paid", label: (i18n.language === "th" ? 'ชำระแล้ว' : 'Paid') },
+            { key: "pending", label: (i18n.language === "th" ? 'รอดำเนินการ' : 'Pending') },
+            { key: "cancelled", label: (i18n.language === "th" ? 'ยกเลิก' : 'Cancelled') },
+            { key: "refunded", label: (i18n.language === "th" ? 'คืนเงิน' : 'Refunded') },
           ].map((s) => (
             <label
               key={s.key}
@@ -321,7 +323,7 @@ const ShoppingOrderManager = () => {
                 : "bg-transparent text-white"
                 }`}
               title={
-                s.key === "all" ? "แสดงทุกสถานะ" : `กรองเฉพาะสถานะ: ${s.label}`
+                s.key === "all" ? (i18n.language === "th" ? 'แสดงทุกสถานะ' : 'Show all status') : (i18n.language === "th" ? `กรองเฉพาะสถานะ: ${s.label}` : `Filter by status: ${s.label}`)
               }
             >
               <input
@@ -341,14 +343,14 @@ const ShoppingOrderManager = () => {
         <table className="w-full">
           <thead className="bg-gray-200 text-left">
             <tr>
-              <SortableTh label="วันที่สร้าง" columnKey="createdAt" />
-              <th className="p-2">Buyer</th>
-              <SortableTh label="วันที่ชำระ" columnKey="paidAt" />
-              <SortableTh label="ราคารวม" columnKey="originalPrice" />
-              <SortableTh label="สถานะ" columnKey="status" />
-              <SortableTh label="โหมดการชำระ" columnKey="paymentMode" />
-              <th className="p-2">หมายเหตุแอดมิน</th>
-              <th className="p-2">Action</th>
+              <SortableTh label={(i18n.language === "th" ? 'วันที่สร้าง' : 'Created At')} columnKey="createdAt" />
+              <th className="p-2">{(i18n.language === "th" ? 'ผู้ซื้อ' : 'Buyer')}</th>
+              <SortableTh label={(i18n.language === "th" ? 'วันที่ชำระ' : 'Paid At')} columnKey="paidAt" />
+              <SortableTh label={(i18n.language === "th" ? 'ราคารวม' : 'Total Price')} columnKey="originalPrice" />
+              <SortableTh label={(i18n.language === "th" ? 'สถานะ' : 'Status')} columnKey="status" />
+              <SortableTh label={(i18n.language === "th" ? 'โหมดการชำระ' : 'Payment Mode')} columnKey="paymentMode" />
+              <th className="p-2">{(i18n.language === "th" ? 'หมายเหตุแอดมิน' : 'Admin Note')}</th>
+              <th className="p-2">{(i18n.language === "th" ? 'การแก้ไข' : 'Action')}</th>
             </tr>
           </thead>
           <tbody>
@@ -406,7 +408,7 @@ const ShoppingOrderManager = () => {
             {orders.length === 0 && (
               <tr>
                 <td colSpan={8} className="p-4 text-center text-gray-500">
-                  ไม่พบข้อมูลคำสั่งซื้อ
+                  {(i18n.language === "th" ? 'ไม่พบข้อมูลคำสั่งซื้อ' : 'No order found')}
                 </td>
               </tr>
             )}
@@ -421,17 +423,17 @@ const ShoppingOrderManager = () => {
           onClick={() => setPage((p) => Math.max(1, p - 1))}
           disabled={page <= 1}
         >
-          ก่อนหน้า
+          {(i18n.language === "th" ? 'ก่อนหน้า' : 'Previous')}
         </button>
         <span className="text-white/80 text-sm">
-          หน้า {page} / {totalPages}
+          {(i18n.language === "th" ? 'หน้า {page} / {totalPages}' : 'Page {page} / {totalPages}')}
         </span>
         <button
           className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           disabled={page >= totalPages}
         >
-          ถัดไป
+          {(i18n.language === "th" ? 'ถัดไป' : 'Next')}
         </button>
       </div>
       <ShoppingOrderIdManagerModal

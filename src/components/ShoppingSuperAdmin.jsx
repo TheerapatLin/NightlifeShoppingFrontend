@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import ShoppingDiscountManager from "./ShoppingDiscountManager"
 import ShoppingOrderManager from "./ShoppingOrderManger"
 import ShoppingCreatorOrderManager from "./ShoppingCreatorOrderManager"
+import { useTranslation } from "react-i18next";
 
 function ShoppingSuperAdmin() {
+    const { t, i18n } = useTranslation();
+
     const [activeTab, setActiveTab] = useState(null);
 
     // ✅ ระบุแท็บที่ “ปิดใช้งานชั่วคราว”
@@ -22,7 +25,7 @@ function ShoppingSuperAdmin() {
     return (
         <div className="max-w-6xl mx-auto mt-8 px-4">
             <div className="mb-4 text-center">
-                <h2 className="text-2xl font-bold text-white">Shopping Superadmin Tools</h2>
+                <h2 className="text-2xl font-bold text-white">{(i18n.language === "th" ? 'Shopping Superadmin Tools' : 'Shopping Superadmin Tools')}</h2>
             </div>
 
             <div className="mb-6 overflow-x-auto">
