@@ -3,10 +3,12 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import imageCompression from "browser-image-compression";
+import { useTranslation } from "react-i18next";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
 function EditVariantProductModal({ isOpen, onClose, productId, variant, onUpdated }) {
+    const { i18n } = useTranslation();
     const { user } = useAuth();
     const [form, setForm] = useState({
         sku: '',
@@ -159,7 +161,9 @@ function EditVariantProductModal({ isOpen, onClose, productId, variant, onUpdate
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
             <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between px-6 py-4 border-b">
-                    <h3 className="text-lg font-semibold">Edit Variant</h3>
+                    <h3 className="text-lg font-semibold">
+                        {(i18n.language === "th" ? 'แก้ไขตัวแปรสินค้า' : 'Edit Variant')}
+                        </h3>
                     <button className="text-gray-500 hover:text-gray-700" onClick={onClose}>✕</button>
                 </div>
                 <form
@@ -170,9 +174,13 @@ function EditVariantProductModal({ isOpen, onClose, productId, variant, onUpdate
                         <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</div>
                     )}
 
-                    <p className="text-sm text-gray-600 mb-2">สามารถใส่รูปได้สูงสุด 6 รูป</p>
+                    <p className="text-sm text-gray-600 mb-2">
+                        {(i18n.language === "th" ? 'สามารถใส่รูปได้สูงสุด 6 รูป' : 'You can only upload up to 6 images')}
+                    </p>
                     {imageEntries.length === 6 && (
-                        <p className="text-sm text-red-600 mb-2">คุณไม่สามารถเพิ่มรูปมากไปกว่านี้ได้แล้ว</p>
+                        <p className="text-sm text-red-600 mb-2">
+                            {(i18n.language === "th" ? 'คุณไม่สามารถเพิ่มรูปมากไปกว่านี้ได้แล้ว' : 'You cannot upload more images than this')}
+                        </p>
                     )}
 
                     <div className="w-full flex justify-center">
@@ -218,40 +226,58 @@ function EditVariantProductModal({ isOpen, onClose, productId, variant, onUpdate
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Current SKU</label>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {(i18n.language === "th" ? 'SKU ปัจจุบัน' : 'Current SKU')}
+                            </label>
                             <input name="sku" value={form.sku} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-gray-100" disabled />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">New SKU</label>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {(i18n.language === "th" ? 'SKU ใหม่' : 'New SKU')}
+                            </label>
                             <input name="newSku" value={form.newSku} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Optional" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Price</label>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {(i18n.language === "th" ? 'ราคา' : 'Price')}
+                            </label>
                             <input name="price" value={form.price} onChange={handleChange} className="w-full border rounded px-3 py-2" type="number" min="0" step="0.01" placeholder="0.00" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Quantity</label>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {(i18n.language === "th" ? 'จำนวน' : 'Quantity')}
+                            </label>
                             <input name="quantity" value={form.quantity} onChange={handleChange} className="w-full border rounded px-3 py-2" type="number" min="0" placeholder="0" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Sold Quantity</label>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {(i18n.language === "th" ? 'จำนวนที่ขายไปแล้ว' : 'Sold Quantity')}
+                            </label>
                             <input name="soldQuantity" value={form.soldQuantity} onChange={handleChange} className="w-full border rounded px-3 py-2" type="number" min="0" placeholder="0" />
                         </div>
                     </div>
 
                     <div className="border-t pt-4">
-                        <h4 className="text-md font-medium text-gray-700 mb-3">Attributes</h4>
+                        <h4 className="text-md font-medium text-gray-700 mb-3">
+                            {(i18n.language === "th" ? 'คุณสมบัติ' : 'Attributes')}
+                        </h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Size</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'ขนาด' : 'Size')}
+                                </label>
                                 <input name="attributes.size" value={form.attributes.size} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="e.g., S, M, L, XL" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Color</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'สี' : 'Color')}
+                                </label>
                                 <input name="attributes.color" value={form.attributes.color} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="e.g., Red, Blue, Black" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Material</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'วัสดุ' : 'Material')}
+                                </label>
                                 <input name="attributes.material" value={form.attributes.material} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="e.g., Cotton, Polyester" />
                             </div>
                         </div>
@@ -273,10 +299,10 @@ function EditVariantProductModal({ isOpen, onClose, productId, variant, onUpdate
                             }}
                             disabled={submitting}
                         >
-                            Cancel
+                            {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
                         </button>
                         <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" disabled={submitting}>
-                            {submitting ? 'Saving...' : 'Save Changes'}
+                            {submitting ? (i18n.language === "th" ? 'กำลังบันทึก' : 'Saving...') : (i18n.language === "th" ? 'บันทึก' : 'Save Changes')}
                         </button>
                     </div>
                 </form>

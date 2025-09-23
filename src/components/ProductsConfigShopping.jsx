@@ -739,14 +739,20 @@ function ProductsConfigShopping() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setConfirmDelete({ open: false, productId: null })}>
                     <div className="bg-white w-full max-w-md rounded-lg shadow-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         <div className="px-6 py-4 border-b">
-                            <h3 className="text-lg font-semibold">Confirm Deletion</h3>
+                            <h3 className="text-lg font-semibold">
+                                {(i18n.language === "th" ? 'ยืนยันการลบสินค้า' : 'Confirm Deletion')}
+                            </h3>
                         </div>
                         <div className="p-6 space-y-3">
-                            <p className="text-gray-700">คุณต้องการลบสินค้าใช่หรือไม่?</p>
+                            <p className="text-gray-700">
+                                {(i18n.language === "th" ? 'คุณต้องการลบสินค้าใช่หรือไม่?' : 'Do you want to delete the product?')}
+                            </p>
                             {selectedProduct?.title?.en || selectedProduct?.title?.th ? (
                                 <p className="text-sm text-gray-500">{selectedProduct?.title?.en || selectedProduct?.title?.th}</p>
                             ) : null}
-                            <p className="text-sm text-red-600">การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+                            <p className="text-sm text-red-600">
+                                {(i18n.language === "th" ? 'การกระทำนี้ไม่สามารถย้อนกลับได้' : 'This action is irreversible.')}
+                            </p>
                         </div>
                         <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
                             <button
@@ -754,7 +760,7 @@ function ProductsConfigShopping() {
                                 className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
                                 onClick={() => setConfirmDelete({ open: false, productId: null })}
                             >
-                                ยกเลิก
+                                {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
                             </button>
                             <button
                                 type="button"
@@ -766,7 +772,7 @@ function ProductsConfigShopping() {
                                     setConfirmDelete({ open: false, productId: null });
                                 }}
                             >
-                                ลบสินค้า
+                                {(i18n.language === "th" ? 'ลบสินค้า' : 'Delete')}
                             </button>
                         </div>
                     </div>
@@ -776,14 +782,20 @@ function ProductsConfigShopping() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setConfirmDeleteVariant({ open: false, productId: null, sku: null })}>
                     <div className="bg-white w-full max-w-md rounded-lg shadow-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         <div className="px-6 py-4 border-b">
-                            <h3 className="text-lg font-semibold">Confirm Deletion</h3>
+                            <h3 className="text-lg font-semibold">
+                                {(i18n.language === "th" ? 'ยืนยันการลบตัวแปรสินค้า' : 'Confirm Deletion')}
+                            </h3>
                         </div>
                         <div className="p-6 space-y-3">
-                            <p className="text-gray-700">คุณต้องการลบ variant นี้ใช่หรือไม่?</p>
+                            <p className="text-gray-700">
+                                {(i18n.language === "th" ? 'คุณต้องการลบ variant นี้ใช่หรือไม่?' : 'Do you want to delete this variant?')}
+                            </p>
                             {selectedVariant.sku ? (
                                 <p className="text-sm text-gray-500">{selectedVariant.sku}</p>
                             ) : null}
-                            <p className="text-sm text-red-600">การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+                            <p className="text-sm text-red-600">
+                                {(i18n.language === "th" ? 'การกระทำนี้ไม่สามารถย้อนกลับได้' : 'This action is irreversible.')}
+                            </p>
                         </div>
                         <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
                             <button
@@ -791,7 +803,7 @@ function ProductsConfigShopping() {
                                 className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
                                 onClick={() => setConfirmDeleteVariant({ open: false, productId: null, sku: null })}
                             >
-                                ยกเลิก
+                                {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
                             </button>
                             <button
                                 type="button"
@@ -801,7 +813,7 @@ function ProductsConfigShopping() {
                                     setConfirmDeleteVariant({ open: false, productId: null, sku: null });
                                 }}
                             >
-                                ลบ variant
+                                {(i18n.language === "th" ? 'ลบ variant' : 'Delete')}
                             </button>
                         </div>
                     </div>
