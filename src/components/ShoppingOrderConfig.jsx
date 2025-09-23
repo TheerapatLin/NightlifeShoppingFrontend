@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import { useTranslation } from "react-i18next";
 import { Eye, RefreshCw } from "lucide-react";
-
+import { Search } from "lucide-react";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
@@ -456,7 +456,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
     useEffect(() => {
         loadOrders();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user?.userId, page, pageSize, sortKey, sortOrder, q, statusChecks]);
+    }, [user?.userId, page, pageSize, sortKey, sortOrder, statusChecks]);
 
     // Prefetch product details for all variant items when an order is selected
     useEffect(() => {
@@ -579,7 +579,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
             </div>
 
             <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
-                <div className="flex-1">
+                <div className="flex items-center gap-3 w-full md:w-96">
                     <input
                         type="text"
                         className="w-full rounded px-3 py-2 text-black border"
@@ -588,6 +588,14 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                         defaultValue={q}
                         aria-label="Search orders by buyer"
                     />
+                    <button
+                        type="button"
+                        className="p-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center justify-center"
+                        onClick={() => loadOrders()}
+                        title={(i18n.language === "th" ? 'ค้นหา' : 'Search')}
+                    >
+                        <Search size={20} />
+                    </button>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">

@@ -5,6 +5,7 @@ import { Eye, RefreshCw } from "lucide-react";
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import ShoppingOrderIdManagerModal from "./ShoppingOrderIdManagerModal";
 import { useTranslation } from "react-i18next";
+import { Search } from "lucide-react";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
@@ -118,7 +119,7 @@ const ShoppingOrderManager = () => {
   useEffect(() => {
     fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, sortKey, sortOrder, q, statusChecks]);
+  }, [page, pageSize, sortKey, sortOrder, statusChecks]);
 
   // เปลี่ยนคีย์เรียง
   const handleSort = (key) => {
@@ -296,7 +297,7 @@ const ShoppingOrderManager = () => {
       {/* 🔎 Search + Status Filters */}
       <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
         {/* Search */}
-        <div className="flex-1">
+        <div className="flex items-center gap-3 w-full md:w-96">
           <input
             type="text"
             className="w-full rounded px-3 py-2 text-black border"
@@ -305,6 +306,14 @@ const ShoppingOrderManager = () => {
             defaultValue={q}
             aria-label="Search orders by ID or user ID"
           />
+          <button
+            type="button"
+            className="p-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center justify-center"
+            onClick={() => fetchOrders()}
+            title={(i18n.language === "th" ? 'ค้นหา' : 'Search')}
+          >
+            <Search size={20} />
+          </button>
         </div>
 
         {/* Status filters */}
@@ -379,7 +388,7 @@ const ShoppingOrderManager = () => {
                 <td className="p-2">
                   {order.adminNote && order.adminNote.length > 0 ? (
                     <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
-                      มี
+                      {(i18n.language === "th" ? 'มี' : 'Yes')}
                     </span>
                   ) : (
                     <span className="text-gray-400">-</span>

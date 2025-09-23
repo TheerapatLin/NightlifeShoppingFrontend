@@ -4,6 +4,7 @@ import { Eye, RefreshCw } from "lucide-react";
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import ShoppingCreatorOrderIdManagerModal from "./ShoppingCreatorOrderIdManagerModal";
 import { useTranslation } from "react-i18next";
+import { Search } from "lucide-react";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
@@ -107,7 +108,7 @@ function ShoppingCreatorOrderManager() {
 
     useEffect(() => {
         fetchOrders();
-    }, [page, pageSize, sortKey, sortOrder, q, statusChecks]);
+    }, [page, pageSize, sortKey, sortOrder, statusChecks]);
 
     const handleSort = (key) => {
         if (sortKey === key) {
@@ -276,7 +277,7 @@ function ShoppingCreatorOrderManager() {
             </div>
 
             <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
-                <div className="flex-1">
+                <div className="flex items-center gap-3 w-full md:w-96">
                     <input
                         type="text"
                         className="w-full rounded px-3 py-2 text-black border"
@@ -285,6 +286,14 @@ function ShoppingCreatorOrderManager() {
                         defaultValue={q}
                         aria-label="Search orders by buyer or creator name"
                     />
+                    <button
+                        type="button"
+                        className="p-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center justify-center"
+                        onClick={() => fetchOrders()}
+                        title={(i18n.language === "th" ? 'ค้นหา' : 'Search')}
+                    >
+                        <Search size={20} />
+                    </button>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
