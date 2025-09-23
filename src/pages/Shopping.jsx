@@ -1,5 +1,5 @@
 // Shopping.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import "../public/css/App.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -9,6 +9,16 @@ import VideotextNLShopping from "../components/VideotextNLShopping";
 import VideotextnightlifeMobile from "../components/VideotextnightlifeMobile";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import { Search } from "lucide-react";
+
+// 🔧 debounce helper
+function debounce(fn, delay = 800) {
+    let t;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), delay);
+    };
+}
 
 function Shopping() {
     const { t, i18n } = useTranslation();
@@ -21,25 +31,30 @@ function Shopping() {
     const { isScrolled, currentPage, updateCurrentPage, windowSize } =
         useGlobalEvent();
 
-
     const [productData, setProductData] = useState([])
+    const [q, setQ] = useState("");
+
+    const fetchProduct = async () => {
+        try {
+            setLoading(true);
+            const res = await axios.get(`${BASE_URL}/shopping/product`, {
+                params: {
+                    q: q
+                }
+            })
+            setProductData(res.data)
+            setError("");
+        }
+        catch (error) {
+            console.error("Error fetching products:", error);
+            setError("Internal Error.");
+        } finally {
+            setLoading(false);
+        }
+    }
 
     // ดึงข้อมูล product จาก backend (ใช้ API จริง)
     useEffect(() => {
-        const fetchProduct = async () => {
-            try {
-                setLoading(true);
-                const res = await axios.get(`${BASE_URL}/shopping/product`)
-                setProductData(res.data)
-                setError("");
-            }
-            catch (error) {
-                console.error("Error fetching products:", error);
-                setError("Internal Error.");
-            } finally {
-                setLoading(false);
-            }
-        }
         fetchProduct()
     }, [])
 
@@ -63,6 +78,14 @@ function Shopping() {
             </div>
         );
     }
+
+    // const applySearchDebounced = useMemo(
+    //     () =>
+    //         debounce((val) => {
+    //             setQ(val);
+    //         }, 400),
+    //     []
+    // );
 
     return (
         <div>
@@ -92,8 +115,30 @@ function Shopping() {
                     <div
                         className="EventSlideHeaderText1"
                     >
-                        {(i18n.language === "th" ? 'สินค้าทั้งหมด' : 'All Products')}
+                        {(i18n.language === "th" ? 'สินค้า' : 'Products')}
                     </div>
+                </div>
+            </div>
+
+            <div className="container"
+                style={{ paddingTop: "20px", maxWidth: "90%" }}>
+                <div className="flex items-center gap-3 w-full md:w-96">
+                    <input
+                        type="text"
+                        className="flex-1 rounded px-3 py-2 text-black border"
+                        placeholder={(i18n.language === "th" ? 'ค้นหาสินค้า...' : 'Search products...')}
+                        onChange={(e) => setQ(e.target.value)}
+                        defaultValue={q}
+                        aria-label="Search"
+                    />
+                    <button
+                        type="button"
+                        className="p-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center justify-center"
+                        onClick={() => fetchProduct()}
+                        title={(i18n.language === "th" ? 'ค้นหา' : 'Search')}
+                    >
+                        <Search size={20} />
+                    </button>
                 </div>
             </div>
 
