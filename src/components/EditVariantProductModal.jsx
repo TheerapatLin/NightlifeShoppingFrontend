@@ -105,7 +105,6 @@ function EditVariantProductModal({ isOpen, onClose, productId, variant, onUpdate
                 const skuForImages = payload.newSku?.trim ? payload.newSku : form.sku;
                 formData.append('sku', skuForImages);
                 formData.append('indexes', indexesDelete);
-                console.log(`formData => ${JSON.stringify(formData, null, 2)}`)
                 await axios.patch(
                     `${BASE_URL}/shopping/product/variant/add-image/${productId}`,
                     formData,

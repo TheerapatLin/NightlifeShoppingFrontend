@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import { useTranslation } from "react-i18next";
+import { Eye, RefreshCw } from "lucide-react";
 
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
+
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
 // ----- Constants & Utilities -----
 const STATUS_OPTIONS = [
@@ -37,6 +40,21 @@ const formatDate = (dateString) => {
     }
 };
 
+const formatDateTime = (iso) => {
+    if (!iso) return "-";
+    const t = new Date(iso);
+    if (Number.isNaN(t.getTime())) return "-";
+    return t.toLocaleString("th-TH", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+    });
+};
+
 const formatCurrency = (amount) => new Intl.NumberFormat('th-TH', {
     style: 'currency',
     currency: 'THB',
@@ -56,6 +74,14 @@ const getFPConfig = async () => {
     const fp = await getDeviceFingerprint();
     return { headers: { 'device-fingerprint': fp }, withCredentials: true };
 };
+
+function debounce(fn, delay = 800) {
+    let timerId;
+    return (...args) => {
+        clearTimeout(timerId);
+        timerId = setTimeout(() => fn(...args), delay);
+    };
+}
 
 function ShoppingOrderConfig({ onOrdersUpdate }) {
     const { t, i18n } = useTranslation();
@@ -78,6 +104,28 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
     const [newOrderAdminNote, setNewOrderAdminNote] = useState('');
     const [savingOrderNote, setSavingOrderNote] = useState(false);
     const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
+
+    // sorting
+    const [sortKey, setSortKey] = useState("createdAt"); // createdAt | paidAt | status | buyer.name | creator.name
+    const [sortOrder, setSortOrder] = useState("desc"); // asc | desc
+
+    // pagination
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
+    const [totalPages, setTotalPages] = useState(1);
+    const [orderCount, setOrderCount] = useState(0);
+
+    // search & status filter
+    const [q, setQ] = useState("");
+    const [statusChecks, setStatusChecks] = useState({
+        all: true,
+        paid: false,
+        pending: false,
+        cancelled: false,
+        refunded: false,
+        processing: false,
+        successful: false
+    });
 
     const handleOrderClick = (order) => {
         setSelectedOrder(order);
@@ -137,10 +185,32 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         try {
             setLoading(true);
             const config = await getFPConfig();
-            const res = await axios.get(`${BASE_URL}/shopping/creator-creatororder/${user.userId}`, config);
+            
+            // Build status parameter
+            let statusParam = "all";
+            if (!statusChecks.all) {
+                const picked = Object.entries(statusChecks)
+                    .filter(([k, v]) => k !== "all" && v)
+                    .map(([k]) => k);
+                if (picked.length > 0) statusParam = picked.join(",");
+            }
+
+            const res = await axios.get(`${BASE_URL}/shopping/creator-creatororder/${user.userId}`, {
+                ...config,
+                params: {
+                    page,
+                    limit: pageSize,
+                    sortKey,
+                    sortOrder,
+                    q: q || undefined,
+                    status: statusParam,
+                }
+            });
             const data = res?.data;
             const ordersArray = Array.isArray(data?.order) ? data.order : [];
             setOrders(ordersArray);
+            setOrderCount(ordersArray.length);
+            setTotalPages(Math.ceil(ordersArray.length / pageSize));
             setError(null);
 
             // Fetch product details for all orders
@@ -156,6 +226,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
             return ordersArray;
         } catch (err) {
             setOrders([]);
+            setOrderCount(0);
             const message = err?.response?.data?.message || err?.message || 'Failed to fetch orders';
             setError(message);
             console.log(`Failed to fetch orders: ${message}`)
@@ -278,10 +349,114 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         }
     };
 
+    const applySearchDebounced = useMemo(
+        () =>
+            debounce((val) => {
+                setPage(1);
+                setQ(val);
+            }, 400),
+        []
+    );
+
+    const handleSort = (key) => {
+        if (sortKey === key) {
+            setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
+        } else {
+            setSortKey(key);
+            setSortOrder("asc");
+        }
+        setPage(1);
+    };
+
+    const SortableTh = ({ label, columnKey }) => {
+        const isActive = sortKey === columnKey;
+        const arrow = !isActive ? "↕" : sortOrder === "asc" ? "▲" : "▼";
+        return (
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <button
+                    type="button"
+                    onClick={() => handleSort(columnKey)}
+                    className={`
+                        inline-flex items-center gap-1 select-none 
+                        ${isActive ? "text-blue-700 font-semibold"
+                            : "text-gray-500"
+                        }`}
+                    aria-sort={
+                        isActive
+                            ? sortOrder === "asc"
+                                ? "ascending"
+                                : "descending"
+                            : "none"
+                    }
+                    title={(i18n.language === "th" ? 'คลิกเพื่อเรียง/สลับทิศทาง' : 'Click to sort/toggle direction')}
+                >
+                    <span>{label}</span>
+                    <span className="text-xs">{arrow}</span>
+                </button>
+            </th>
+        );
+    };
+
+    const getStatusBadge = (status) => {
+        const statusMap = {
+            paid: { text: (i18n.language === "th" ? 'ชำระแล้ว' : 'Paid'), color: "bg-green-100 text-green-800" },
+            pending: { text: (i18n.language === "th" ? 'รอดำเนินการ' : 'Pending'), color: "bg-yellow-100 text-yellow-800" },
+            cancelled: { text: (i18n.language === "th" ? 'ยกเลิก' : 'Cancelled'), color: "bg-red-100 text-red-800" },
+            refunded: { text: (i18n.language === "th" ? 'คืนเงิน' : 'Refunded'), color: "bg-gray-100 text-gray-800" },
+            processing: { text: (i18n.language === "th" ? 'กำลังดำเนินการ' : 'Processing'), color: "bg-green-100 text-green-800" },
+            successful: { text: (i18n.language === "th" ? 'จัดส่งสำเร็จ' : 'Successful'), color: "bg-green-100 text-green-800" }
+        };
+        const statusInfo = statusMap[status] || { text: status || "-", color: "bg-gray-100 text-gray-800" };
+        return (
+            <span className={`
+            px-2 py-1 rounded-full text-xs font-medium 
+            ${statusInfo.color}
+            `}
+            >
+                {statusInfo.text}
+            </span>
+        );
+    };
+
+    const toggleStatus = (key) => {
+        setPage(1);
+        setStatusChecks((prev) => {
+            if (key === "all") {
+                return {
+                    all: true,
+                    paid: false,
+                    pending: false,
+                    cancelled: false,
+                    refunded: false,
+                    processing: false,
+                    successful: false
+                };
+            }
+            else {
+                const next = { ...prev, all: false, [key]: !prev[key] };
+                const anyChecked = Object.entries(next)
+                    .filter(([k]) => k !== "all")
+                    .some(([, v]) => v);
+                if (!anyChecked) {
+                    return {
+                        all: true,
+                        paid: false,
+                        pending: false,
+                        cancelled: false,
+                        refunded: false,
+                        processing: false,
+                        successful: false
+                    };
+                }
+                return next;
+            }
+        });
+    };
+
     useEffect(() => {
         loadOrders();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user?.userId]);
+    }, [user?.userId, page, pageSize, sortKey, sortOrder, q, statusChecks]);
 
     // Prefetch product details for all variant items when an order is selected
     useEffect(() => {
@@ -338,86 +513,194 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedOrder]);
 
-    return (
-        <div className="p-6">
-            {loading && (
-                <div className="flex items-center p-3 mb-4 bg-white border border-gray-200 rounded">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                    <span className="ml-2 text-sm text-gray-700">
-                        {(i18n.language === "th" ? 'กำลังโหลดคำสั่งซื้อ...' : 'Loading orders...')}
-                    </span>
+    if (loading) {
+        return (
+            <div className="max-w-7xl mx-auto text-white px-4">
+                <h2 className="text-2xl font-bold mt-8 mb-4">{(i18n.language === "th" ? 'จัดการคำสั่งซื้อ Creator' : 'Manage Creator Orders')}</h2>
+                <div className="bg-white rounded text-black h-48 flex flex-col items-center justify-center gap-3">
+                    <div className="h-10 w-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                    <p className="text-sm text-gray-600">{(i18n.language === "th" ? 'กำลังโหลด...' : 'Loading...')}</p>
                 </div>
-            )}
+            </div>
+        );
+    }
+
+    // แสดงช่วงรายการปัจจุบัน
+    const startIdx = orderCount === 0 ? 0 : (page - 1) * pageSize + 1;
+    const endIdx = Math.min(page * pageSize, orderCount);
+
+    return (
+        <div className="max-w-7xl mx-auto text-white px-4">
+            <h2 className="text-2xl font-bold mt-8 mb-4">
+                {(i18n.language === "th" ? 'จัดการคำสั่งซื้อ Creator Orders' : 'Manage Creator Orders')}
+                <span className="text-white/70">
+                    ({orderCount} {(i18n.language === "th" ? 'รายการ' : 'orders')}) — {(i18n.language === "th" ? 'แสดง' : 'Showing')} {startIdx}-{endIdx}
+                </span>
+            </h2>
+
             {error && (
                 <div className="p-3 mb-4 bg-red-50 border border-red-200 text-red-700 rounded">
                     {error}
                 </div>
             )}
-            {orders.length === 0 ? (
-                <div className="text-center py-8 text-500">
-                    <h1>
-                        {(i18n.language === "th" ? 'ไม่พบคำสั่งซื้อ' : 'No orders found')}
-                    </h1>
+
+            <div className="mb-3 flex items-center gap-3">
+                <label className="text-sm text-white/80">{(i18n.language === "th" ? 'แสดงต่อหน้า' : 'Show per page')}</label>
+                <select
+                    value={pageSize}
+                    onChange={(e) => {
+                        setPageSize(parseInt(e.target.value, 10));
+                        setPage(1);
+                    }}
+                    className="text-black border rounded px-2 py-1"
+                >
+                    {PAGE_SIZE_OPTIONS.map((n) => (
+                        <option key={n} value={n}>{n}</option>
+                    ))}
+                </select>
+
+                <div className="ml-auto flex items-center gap-2">
+                    <button
+                        className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page <= 1}
+                    >
+                        {(i18n.language === "th" ? 'ก่อนหน้า' : 'Previous')}
+                    </button>
+                    <span className="text-white/80 text-sm">{(i18n.language === "th" ? `หน้า ${page} / ${totalPages}` : `Page ${page} / ${totalPages}`)}</span>
+                    <button
+                        className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={page >= totalPages}
+                    >
+                        {(i18n.language === "th" ? 'ถัดไป' : 'Next')}
+                    </button>
                 </div>
-            ) : (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    {(i18n.language === "th" ? 'สร้างเมื่อ' : 'created At')}
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    {(i18n.language === "th" ? 'ชื่อผู้ซื้อ' : 'buyer Name')}
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    {(i18n.language === "th" ? 'ชื่อผู้ขาย' : 'creator Name')}
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    {(i18n.language === "th" ? 'ชำระเมื่อ' : 'paid At')}
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    {(i18n.language === "th" ? 'สถานะ' : 'status')}
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    {(i18n.language === "th" ? 'หมายเหตุจากแอดมิน' : 'admin Note')}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {orders.map((order, idx) => (
-                                <tr
-                                    key={order._id || idx}
-                                    className="hover:bg-gray-50 cursor-pointer transition-colors duration-200"
-                                    onClick={() => handleOrderClick(order)}
-                                >
-                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(order.createdAt)}</td>
-                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{order.buyer.name || order.buyer.id || 'Loading...'}</td>
-                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
-                                        {order.creator.name || order.creator.id || 'Loading...'}
-                                    </td>
-                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(order.paidAt)}</td>
-                                    <td className="px-4 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${order.status === 'paid' || order.status === 'delivered' || order.status === 'successful'
-                                            ? 'bg-green-100 text-green-800'
-                                            : order.status === 'cancelled' || order.status === 'failed'
-                                                ? 'bg-red-100 text-red-800'
-                                                : 'bg-gray-100 text-gray-800'
-                                            }`}>
-                                            {order.status || 'unknown'}
+            </div>
+
+            <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+                <div className="flex-1">
+                    <input
+                        type="text"
+                        className="w-full rounded px-3 py-2 text-black border"
+                        placeholder={(i18n.language === "th" ? 'ค้นหาด้วย Buyer' : 'Search by Buyer')}
+                        onChange={(e) => applySearchDebounced(e.target.value)}
+                        defaultValue={q}
+                        aria-label="Search orders by buyer"
+                    />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                    {[
+                        { key: "all", label: (i18n.language === "th" ? 'ทั้งหมด' : 'All') },
+                        { key: "paid", label: (i18n.language === "th" ? 'ชำระแล้ว' : 'Paid') },
+                        { key: "pending", label: (i18n.language === "th" ? 'รอดำเนินการ' : 'Pending') },
+                        { key: "cancelled", label: (i18n.language === "th" ? 'ยกเลิก' : 'Cancelled') },
+                        { key: "refunded", label: (i18n.language === "th" ? 'คืนเงิน' : 'Refunded') },
+                        { key: "processing", label: (i18n.language === "th" ? 'กำลังดำเนินการ' : 'Processing') },
+                        { key: "successful", label: (i18n.language === "th" ? 'จัดส่งสำเร็จ' : 'Successful') }
+                    ].map((s) => (
+                        <label
+                            key={s.key}
+                            className={`cursor-pointer select-none px-2 py-1 rounded border ${statusChecks[s.key] ? "bg-white text-black" : "bg-transparent text-white"}`}
+                            title={s.key === "all" ? (i18n.language === "th" ? 'แสดงทุกสถานะ' : 'Show all status') : (i18n.language === "th" ? `กรองเฉพาะสถานะ: ${s.label}` : `Filter by status: ${s.label}`)}
+                        >
+                            <input
+                                type="checkbox"
+                                className="mr-1 align-middle"
+                                checked={!!statusChecks[s.key]}
+                                onChange={() => toggleStatus(s.key)}
+                            />
+                            <span className="align-middle">{s.label}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            <div className="overflow-x-auto bg-white rounded text-black">
+                <table className="w-full">
+                    <thead className="bg-gray-200 text-left">
+                        <tr>
+                            <SortableTh label={(i18n.language === "th" ? 'วันที่สร้าง' : 'Created At')} columnKey="createdAt" />
+                            <SortableTh label={(i18n.language === "th" ? 'ผู้ซื้อ' : 'Buyer')} columnKey="buyer.name" />
+                            <SortableTh label={(i18n.language === "th" ? 'วันที่ชำระ' : 'Paid At')} columnKey="paidAt" />
+                            <SortableTh label={(i18n.language === "th" ? 'สถานะ' : 'Status')} columnKey="status" />
+                            <th className="p-2">{(i18n.language === "th" ? 'หมายเหตุแอดมิน' : 'Admin Note')}</th>
+                            <th className="p-2">{(i18n.language === "th" ? 'การแก้ไข' : 'Action')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orders.map((order) => (
+                            <tr key={order._id} className="border-t">
+                                <td className="p-2">
+                                    {formatDateTime(order.createdAt)}
+                                </td>
+                                <td className="p-2 font-mono text-sm">
+                                    {order.buyer.name || "-"}
+                                </td>
+                                <td className="p-2 font-mono text-sm">
+                                    {formatDateTime(order.paidAt)}
+                                </td>
+                                <td className="p-2 font-mono text-sm">
+                                    {getStatusBadge(order.status)}
+                                </td>
+                                <td className="p-2">
+                                    {order.adminNote && order.adminNote.length > 0 ? (
+                                        <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
+                                            {(i18n.language === "th" ? 'มี' : 'Yes')}
                                         </span>
-                                    </td>
-                                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
-                                        {Array.isArray(order.adminNote) && order.adminNote.length > 0
-                                            ? 'มี'
-                                            : '-'}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                                    ) : (
+                                        <span className="text-gray-400">-</span>
+                                    )}
+                                </td>
+                                <td className="p-2">
+                                    <div className="flex gap-2">
+                                        <button
+                                            className="p-1 hover:bg-gray-100 rounded"
+                                            title={(i18n.language === "th" ? 'ดูรายละเอียด' : 'View details')}
+                                            onClick={() => handleOrderClick(order)}
+                                        >
+                                            <Eye size={16} />
+                                        </button>
+                                        <button
+                                            onClick={loadOrders}
+                                            className="p-1 hover:bg-gray-100 rounded text-blue-600"
+                                            title={(i18n.language === "th" ? 'รีเฟรชข้อมูล' : 'Refresh data')}
+                                        >
+                                            <RefreshCw size={16} />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        {orders.length === 0 && (
+                            <tr>
+                                <td colSpan={7} className="p-4 text-center text-gray-500">
+                                    {(i18n.language === "th" ? 'ไม่พบข้อมูลคำสั่งซื้อ' : 'No order found')}
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="mt-3 flex items-center gap-2 justify-end">
+                <button
+                    className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1}
+                >
+                    {(i18n.language === "th" ? 'ก่อนหน้า' : 'Previous')}
+                </button>
+                <span className="text-white/80 text-sm">{(i18n.language === "th" ? `หน้า ${page} / ${totalPages}` : `Page ${page} / ${totalPages}`)}</span>
+                <button
+                    className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
+                >
+                    {(i18n.language === "th" ? 'ถัดไป' : 'Next')}
+                </button>
+            </div>
 
             {/* Order Detail Modal */}
             {isModalOpen && selectedOrder && (

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Eye, RefreshCw } from "lucide-react";
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import ShoppingCreatorOrderIdManagerModal from "./ShoppingCreatorOrderIdManagerModal";
+import { useTranslation } from "react-i18next";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
@@ -15,6 +16,7 @@ function debounce(fn, delay = 800) {
 }
 
 function ShoppingCreatorOrderManager() {
+  const { t, i18n } = useTranslation();
     const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL.replace(/\/$/, "");
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -137,7 +139,7 @@ function ShoppingCreatorOrderManager() {
                                 : "descending"
                             : "none"
                     }
-                    title="คลิกเพื่อเรียง/สลับทิศทาง"
+                    title={(i18n.language === "th" ? 'คลิกเพื่อเรียง/สลับทิศทาง' : 'Click to sort/toggle direction')}
                 >
                     <span>{label}</span>
                     <span className="text-xs">{arrow}</span>
@@ -192,12 +194,12 @@ function ShoppingCreatorOrderManager() {
 
     const getStatusBadge = (status) => {
         const statusMap = {
-            paid: { text: "ชำระแล้ว", color: "bg-green-100 text-green-800" },
-            pending: { text: "รอดำเนินการ", color: "bg-yellow-100 text-yellow-800" },
-            cancelled: { text: "ยกเลิก", color: "bg-red-100 text-red-800" },
-            refunded: { text: "คืนเงิน", color: "bg-gray-100 text-gray-800" },
-            processing: { text: "กำลังดำเนินการ", color: "bg-green-100 text-green-800" },
-            successful: { text: "จัดส่งสำเร็จ", color: "bg-green-100 text-green-800" }
+            paid: { text: (i18n.language === "th" ? 'ชำระแล้ว' : 'Paid'), color: "bg-green-100 text-green-800" },
+            pending: { text: (i18n.language === "th" ? 'รอดำเนินการ' : 'Pending'), color: "bg-yellow-100 text-yellow-800" },
+            cancelled: { text: (i18n.language === "th" ? 'ยกเลิก' : 'Cancelled'), color: "bg-red-100 text-red-800" },
+            refunded: { text: (i18n.language === "th" ? 'คืนเงิน' : 'Refunded'), color: "bg-gray-100 text-gray-800" },
+            processing: { text: (i18n.language === "th" ? 'กำลังดำเนินการ' : 'Processing'), color: "bg-green-100 text-green-800" },
+            successful: { text: (i18n.language === "th" ? 'จัดส่งสำเร็จ' : 'Successful'), color: "bg-green-100 text-green-800" }
         };
         const statusInfo = statusMap[status] || { text: status || "-", color: "bg-gray-100 text-gray-800" };
         return (
@@ -215,10 +217,10 @@ function ShoppingCreatorOrderManager() {
     if (loading) {
         return (
             <div className="max-w-7xl mx-auto text-white px-4">
-                <h2 className="text-2xl font-bold mt-8 mb-4">จัดการคำสั่งซื้อ Creator</h2>
+                <h2 className="text-2xl font-bold mt-8 mb-4">{(i18n.language === "th" ? 'จัดการคำสั่งซื้อ Creator' : 'Manage Creator Orders')}</h2>
                 <div className="bg-white rounded text-black h-48 flex flex-col items-center justify-center gap-3">
                     <div className="h-10 w-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
-                    <p className="text-sm text-gray-600">Loading...</p>
+                    <p className="text-sm text-gray-600">{(i18n.language === "th" ? 'กำลังโหลด...' : 'Loading...')}</p>
                 </div>
             </div>
         );
@@ -231,16 +233,16 @@ function ShoppingCreatorOrderManager() {
     return (
         <div className="max-w-7xl mx-auto text-white px-4">
             <h2 className="text-2xl font-bold mt-8 mb-4">
-                จัดการคำสั่งซื้อ Creator{" "}
+                {(i18n.language === "th" ? 'จัดการคำสั่งซื้อ Creator Orders' : 'Manage Creator Orders')}
                 <span
                     className="text-white/70"
                 >
-                    ({orderCount} รายการ) — แสดง {startIdx}-{endIdx}
+                    ({orderCount} {(i18n.language === "th" ? 'รายการ' : 'orders')}) — {(i18n.language === "th" ? 'แสดง' : 'Showing')} {startIdx}-{endIdx}
                 </span>
             </h2>
 
             <div className="mb-3 flex items-center gap-3">
-                <label className="text-sm text-white/80">แสดงต่อหน้า</label>
+                <label className="text-sm text-white/80">{(i18n.language === "th" ? 'แสดงต่อหน้า' : 'Show per page')}</label>
                 <select
                     value={pageSize}
                     onChange={(e) => {
@@ -260,15 +262,15 @@ function ShoppingCreatorOrderManager() {
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page <= 1}
                     >
-                        ก่อนหน้า
+                        {(i18n.language === "th" ? 'ก่อนหน้า' : 'Previous')}
                     </button>
-                    <span className="text-white/80 text-sm">หน้า {page} / {totalPages}</span>
+                    <span className="text-white/80 text-sm">{(i18n.language === "th" ? 'หน้า {page} / {totalPages}' : 'Page {page} / {totalPages}')}</span>
                     <button
                         className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
                         onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                         disabled={page >= totalPages}
                     >
-                        ถัดไป
+                        {(i18n.language === "th" ? 'ถัดไป' : 'Next')}
                     </button>
                 </div>
             </div>
@@ -278,7 +280,7 @@ function ShoppingCreatorOrderManager() {
                     <input
                         type="text"
                         className="w-full rounded px-3 py-2 text-black border"
-                        placeholder="ค้นหาด้วย Buyer/Creator Name"
+                        placeholder={(i18n.language === "th" ? 'ค้นหาด้วย Buyer/Creator Name' : 'Search by Buyer/Creator Name')}
                         onChange={(e) => applySearchDebounced(e.target.value)}
                         defaultValue={q}
                         aria-label="Search orders by buyer or creator name"
@@ -287,18 +289,18 @@ function ShoppingCreatorOrderManager() {
 
                 <div className="flex flex-wrap items-center gap-2">
                     {[
-                        { key: "all", label: "All" },
-                        { key: "paid", label: "ชำระแล้ว" },
-                        { key: "pending", label: "รอดำเนินการ" },
-                        { key: "cancelled", label: "ยกเลิก" },
-                        { key: "refunded", label: "คืนเงิน" },
-                        { key: "processing", label: "กำลังดำเนินการ" },
-                        { key: "successful", label: "จัดส่งสำเร็จ" }
+                        { key: "all", label: (i18n.language === "th" ? 'ทั้งหมด' : 'All') },
+                        { key: "paid", label: (i18n.language === "th" ? 'ชำระแล้ว' : 'Paid') },
+                        { key: "pending", label: (i18n.language === "th" ? 'รอดำเนินการ' : 'Pending') },
+                        { key: "cancelled", label: (i18n.language === "th" ? 'ยกเลิก' : 'Cancelled') },
+                        { key: "refunded", label: (i18n.language === "th" ? 'คืนเงิน' : 'Refunded') },
+                        { key: "processing", label: (i18n.language === "th" ? 'กำลังดำเนินการ' : 'Processing') },
+                        { key: "successful", label: (i18n.language === "th" ? 'จัดส่งสำเร็จ' : 'Successful') }
                     ].map((s) => (
                         <label
                             key={s.key}
                             className={`cursor-pointer select-none px-2 py-1 rounded border ${statusChecks[s.key] ? "bg-white text-black" : "bg-transparent text-white"}`}
-                            title={s.key === "all" ? "แสดงทุกสถานะ" : `กรองเฉพาะสถานะ: ${s.label}`}
+                            title={s.key === "all" ? (i18n.language === "th" ? 'แสดงทุกสถานะ' : 'Show all status') : (i18n.language === "th" ? `กรองเฉพาะสถานะ: ${s.label}` : `Filter by status: ${s.label}`)}
                         >
                             <input
                                 type="checkbox"
@@ -316,14 +318,14 @@ function ShoppingCreatorOrderManager() {
                 <table className="w-full">
                     <thead className="bg-gray-200 text-left">
                         <tr>
-                            <SortableTh label="วันที่สร้าง" columnKey="createdAt" />
-                            <SortableTh label="ผู้ซื้อ" columnKey="buyer.name" />
-                            <SortableTh label="ครีเอเตอร์" columnKey="creator.name" />
-                            <SortableTh label="วันที่ชำระ" columnKey="paidAt" />
-                            <SortableTh label="สถานะ" columnKey="status" />
-                            <SortableTh label="โหมดการชำระ" columnKey="paymentMode" />
-                            <th className="p-2">หมายเหตุแอดมิน</th>
-                            <th className="p-2">Action</th>
+                            <SortableTh label={(i18n.language === "th" ? 'วันที่สร้าง' : 'Created At')} columnKey="createdAt" />
+                            <SortableTh label={(i18n.language === "th" ? 'ผู้ซื้อ' : 'Buyer')} columnKey="buyer.name" />
+                            <SortableTh label={(i18n.language === "th" ? 'เจ้าของสินค้า' : 'Creator')} columnKey="creator.name" />
+                            <SortableTh label={(i18n.language === "th" ? 'วันที่ชำระ' : 'Paid At')} columnKey="paidAt" />
+                            <SortableTh label={(i18n.language === "th" ? 'สถานะ' : 'Status')} columnKey="status" />
+                            <SortableTh label={(i18n.language === "th" ? 'โหมดการชำระ' : 'Payment Mode')} columnKey="paymentMode" />
+                            <th className="p-2">{(i18n.language === "th" ? 'หมายเหตุแอดมิน' : 'Admin Note')}</th>
+                            <th className="p-2">{(i18n.language === "th" ? 'การแก้ไข' : 'Action')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -352,7 +354,7 @@ function ShoppingCreatorOrderManager() {
                                 <td className="p-2">
                                     {order.adminNote && order.adminNote.length > 0 ? (
                                         <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
-                                            มี
+                                            {(i18n.language === "th" ? 'มี' : 'Yes')}
                                         </span>
                                     ) : (
                                         <span className="text-gray-400">-</span>
@@ -362,7 +364,7 @@ function ShoppingCreatorOrderManager() {
                                     <div className="flex gap-2">
                                         <button
                                             className="p-1 hover:bg-gray-100 rounded"
-                                            title="ดูรายละเอียด"
+                                            title={(i18n.language === "th" ? 'ดูรายละเอียด' : 'View details')}
                                             onClick={() => openOrderDetail(order._id)}
                                         >
                                             <Eye size={16} />
@@ -370,7 +372,7 @@ function ShoppingCreatorOrderManager() {
                                         <button
                                             onClick={fetchOrders}
                                             className="p-1 hover:bg-gray-100 rounded text-blue-600"
-                                            title="รีเฟรชข้อมูล"
+                                            title={(i18n.language === "th" ? 'รีเฟรชข้อมูล' : 'Refresh data')}
                                         >
                                             <RefreshCw size={16} />
                                         </button>
@@ -381,7 +383,7 @@ function ShoppingCreatorOrderManager() {
                         {orders.length === 0 && (
                             <tr>
                                 <td colSpan={8} className="p-4 text-center text-gray-500">
-                                    ไม่พบข้อมูลคำสั่งซื้อ
+                                    {(i18n.language === "th" ? 'ไม่พบข้อมูลคำสั่งซื้อ' : 'No order found')}
                                 </td>
                             </tr>
                         )}
@@ -395,15 +397,15 @@ function ShoppingCreatorOrderManager() {
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1}
                 >
-                    ก่อนหน้า
+                    {(i18n.language === "th" ? 'ก่อนหน้า' : 'Previous')}
                 </button>
-                <span className="text-white/80 text-sm">หน้า {page} / {totalPages}</span>
+                <span className="text-white/80 text-sm">{(i18n.language === "th" ? 'หน้า {page} / {totalPages}' : 'Page {page} / {totalPages}')}</span>
                 <button
                     className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page >= totalPages}
                 >
-                    ถัดไป
+                    {(i18n.language === "th" ? 'ถัดไป' : 'Next')}
                 </button>
             </div>
             <ShoppingCreatorOrderIdManagerModal

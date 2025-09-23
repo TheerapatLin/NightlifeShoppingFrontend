@@ -213,8 +213,8 @@ const ShoppingOrderManager = () => {
     const statusMap = {
       paid: { text: (i18n.language === "th" ? 'ชำระแล้ว' : 'Paid'), color: "bg-green-100 text-green-800" },
       pending: { text: (i18n.language === "th" ? 'รอดำเนินการ' : 'Pending'), color: "bg-yellow-100 text-yellow-800" },
-      cancelled: { text: (i18n.language === "th" ? 'ยกเลิก' : 'Cancelled'), color: "bg-red-100 text-red-800" },
-      refunded: { text: (i18n.language === "th" ? 'คืนเงิน' : 'Refunded'), color: "bg-gray-100 text-gray-800" },
+      cancelled: { text: "ยกเลิก", color: "bg-red-100 text-red-800" },
+      refunded: { text: "คืนเงิน", color: "bg-gray-100 text-gray-800" },
     };
     const statusInfo = statusMap[status] || { text: status || "-", color: "bg-gray-100 text-gray-800" };
     return (
@@ -423,17 +423,17 @@ const ShoppingOrderManager = () => {
           onClick={() => setPage((p) => Math.max(1, p - 1))}
           disabled={page <= 1}
         >
-          {(i18n.language === "th" ? 'ก่อนหน้า' : 'Previous')}
+          ก่อนหน้า
         </button>
         <span className="text-white/80 text-sm">
-          {(i18n.language === "th" ? 'หน้า {page} / {totalPages}' : 'Page {page} / {totalPages}')}
+          หน้า {page} / {totalPages}
         </span>
         <button
           className="px-3 py-1 bg-white/90 text-black rounded disabled:opacity-50"
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           disabled={page >= totalPages}
         >
-          {(i18n.language === "th" ? 'ถัดไป' : 'Next')}
+          ถัดไป
         </button>
       </div>
       <ShoppingOrderIdManagerModal

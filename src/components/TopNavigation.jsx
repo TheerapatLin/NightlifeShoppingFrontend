@@ -143,7 +143,6 @@ const TopNavigation = ({ duration = "0.6s", type = 3 }) => {
   useEffect(() => {
     const fetchBasket = async () => {
       if (!user || !user.userId) return;
-      console.log(`user => ${user.userId}`)
       try {
         const fp = await getDeviceFingerprint();
         const res = await axios.get(`${BASE_URL}/shopping/basket/${user.userId}`,
