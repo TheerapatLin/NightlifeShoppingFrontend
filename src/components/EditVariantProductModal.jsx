@@ -88,12 +88,9 @@ function EditVariantProductModal({ isOpen, onClose, productId, variant, onUpdate
                 indexesDelete: indexesDelete.length > 0 ? indexesDelete : undefined,
             };
 
-            console.log(`imageEntries.length => ${imageEntries.length}`)
-            console.log(`indexesDelete => ${JSON.stringify(indexesDelete, null, 2)}`)
-             
             // prepare and upload images if any entries exist
             if (imageEntries) {
-                              // compress files like AddVariantModal
+                // compress files like AddVariantModal
                 const options = { maxSizeMB: 0.5, maxWidthOrHeight: 1024, useWebWorker: true };
                 const compressedFiles = await Promise.all(
                     imageEntries
@@ -106,8 +103,7 @@ function EditVariantProductModal({ isOpen, onClose, productId, variant, onUpdate
                 const skuForImages = payload.newSku?.trim ? payload.newSku : form.sku;
                 formData.append('sku', skuForImages);
                 formData.append('indexes', indexesDelete);
-                console.log(`IF indexesDelete => ${JSON.stringify(indexesDelete, null, 2)}`)
-
+                console.log(`formData => ${JSON.stringify(formData, null, 2)}`)
                 await axios.patch(
                     `${BASE_URL}/shopping/product/variant/add-image/${productId}`,
                     formData,
@@ -145,12 +141,12 @@ function EditVariantProductModal({ isOpen, onClose, productId, variant, onUpdate
         if (toRemove && toRemove.kind === 'new' && toRemove.previewUrl) {
             URL.revokeObjectURL(toRemove.previewUrl);
         }
-        
+
         // Add order to indexesDelete for API deletion (only for existing images)
         if (toRemove && toRemove.kind === 'existing') {
             setIndexesDelete((prev) => [...prev, toRemove.order]);
         }
-        
+
         // Remove from display
         setImageEntries((prev) => {
             const next = [...prev];

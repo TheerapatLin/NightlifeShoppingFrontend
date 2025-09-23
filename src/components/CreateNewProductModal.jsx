@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from "axios";
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import { useAuth } from "../context/AuthContext";
-import { Camera } from "lucide-react";
 import imageCompression from "browser-image-compression";
+import { useTranslation } from "react-i18next";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
 function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
+    const { i18n } = useTranslation();
+
     const [form, setForm] = useState({
         titleEn: '',
         titleTh: '',
@@ -112,7 +114,9 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
             >
                 <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-between px-6 py-4 border-b">
-                        <h3 className="text-lg font-semibold">Create New Product</h3>
+                        <h3 className="text-lg font-semibold">
+                            {(i18n.language === "th" ? 'สร้างสินค้าใหม่' : 'Create New Product')}
+                        </h3>
                         <button
                             className="text-gray-500 hover:text-gray-700"
                             onClick={() => { setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; onClose(); }}>✕</button>
@@ -121,7 +125,9 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
                         {error && (
                             <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</div>
                         )}
-                        <p className="text-sm text-gray-600 mb-2">รูปภาพแสดงสินค้า</p>
+                        <p className="text-sm text-gray-600 mb-2">
+                            {(i18n.language === "th" ? 'รูปภาพแสดงสินค้า' : 'Image')}
+                        </p>
                         <div className="w-full flex justify-center">
                             <label
                                 htmlFor="profile-upload"
@@ -160,26 +166,36 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Title (EN)</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'ชื่อสินค้า (EN)' : 'Title (EN)')}
+                                </label>
                                 <input name="titleEn" value={form.titleEn} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Title in English" required />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Title (TH)</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'ชื่อสินค้า (TH)' : 'Title (TH)')}
+                                </label>
                                 <input name="titleTh" value={form.titleTh} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Title in Thai" required />
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Description (EN)</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'คำอธิบายสินค้า (EN)' : 'Description (EN)')}
+                                </label>
                                 <textarea name="descEn" value={form.descEn} onChange={handleChange} className="w-full border rounded px-3 py-2" rows={3} placeholder="Description in English" />
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Description (TH)</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'คำอธิบายสินค้า (TH)' : 'Description (TH)')}
+                                </label>
                                 <textarea name="descTh" value={form.descTh} onChange={handleChange} className="w-full border rounded px-3 py-2" rows={3} placeholder="Description in Thai" />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Price</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'ราคา' : 'Price')}
+                                </label>
                                 <input name="originalPrice" value={form.originalPrice} onChange={handleChange} className="w-full border rounded px-3 py-2" type="number" min="0" step="0.01" placeholder="0.00" required />
                             </div>
 
@@ -187,11 +203,21 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Tags</label>
-                                <input name="tags" value={form.tags} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="comma,separated,tags" />
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'ป้ายชื่อ' : 'Tags')}
+                                </label>
+                                <input
+                                    name="tags"
+                                    value={form.tags}
+                                    onChange={handleChange}
+                                    className="w-full border rounded px-3 py-2"
+                                    placeholder={(i18n.language === "th" ? 'ตัวอย่าง: ตุ๊กตา,เสื้อผ้า,กางเกง' : 'Exp: Doll,Cloth,Pants')}
+                                />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    {(i18n.language === "th" ? 'สถานะ' : 'Status')}
+                                </label>
                                 <select name="status" value={form.status} onChange={handleChange} className="w-full border rounded px-3 py-2">
                                     <option value="active">active</option>
                                     <option value="inactive">inactive</option>
@@ -200,13 +226,20 @@ function CreateNewProductModal({ isOpen, onClose, creatorId, onCreated }) {
                         </div>
 
                         <div className="flex justify-end gap-2 pt-2 border-t">
-                            <button type="button" className="px-4 py-2 bg-gray-200 text-gray-900 rounded hover:bg-gray-300" onClick={onClose} disabled={submitting}>Cancel</button>
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-gray-200 text-gray-900 rounded hover:bg-gray-300"
+                                onClick={onClose}
+                                disabled={submitting}
+                            >
+                                {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
+                            </button>
                             <button
                                 type="submit"
                                 className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
                                 disabled={submitting}
                             >
-                                {submitting ? 'Creating...' : 'Create'}
+                                {submitting ? (i18n.language === "th" ? 'กำลังสร้าง' : 'Creating') : (i18n.language === "th" ? 'สร้าง' : 'Create')}
                             </button>
                         </div>
                     </form>

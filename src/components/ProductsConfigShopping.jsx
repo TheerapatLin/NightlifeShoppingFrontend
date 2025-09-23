@@ -134,7 +134,7 @@ function ProductsConfigShopping() {
     const handleDeleteProduct = async (productId) => {
         try {
             const fp = await getDeviceFingerprint();
-            const response = await axios.delete(`${BASE_URL}/shopping/product/${productId}`,
+            await axios.delete(`${BASE_URL}/shopping/product/${productId}`,
                 {
                     headers: { "device-fingerprint": fp },
                     withCredentials: true
@@ -153,7 +153,7 @@ function ProductsConfigShopping() {
     const handleDeleteVariant = async (productId, sku) => {
         try {
             const fp = await getDeviceFingerprint();
-            const response = await axios.delete(`${BASE_URL}/shopping/product/variant/delete/${productId}`, {
+            await axios.delete(`${BASE_URL}/shopping/product/variant/delete/${productId}`, {
                 data: { skuVariant: sku },  // 👈 ใส่ body ตรงนี้
                 headers: { "device-fingerprint": fp },
                 withCredentials: true
@@ -174,7 +174,9 @@ function ProductsConfigShopping() {
         return (
             <div className="flex justify-center items-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-2">Loading products...</span>
+                <span className="ml-2">
+                    {(i18n.language === "th" ? 'กำลังโหลดข้อมูลสินค้าต่างๆ' : 'Loading products...')}
+                </span>
             </div>
         );
     }
@@ -213,7 +215,6 @@ function ProductsConfigShopping() {
             {products.length === 0 ? (
                 <div className="text-center py-8 text-500">
                     <h1>
-                        No products found
                         {(i18n.language === "th" ? 'ยังไม่มีสินค้า' : 'No products found')}
                     </h1>
                 </div>
@@ -645,31 +646,31 @@ function ProductsConfigShopping() {
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">
                                         {(i18n.language === "th" ? 'รหัสสินค้า' : 'SKU')}
-                                        </div>
+                                    </div>
                                     <div className="text-gray-900">{selectedVariant.sku || '-'}</div>
                                 </div>
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">
                                         {(i18n.language === "th" ? 'ราคา' : 'Price')}
-                                        </div>
+                                    </div>
                                     <div className="text-gray-900">{selectedVariant.price != null ? `${selectedVariant.price} ${selectedVariant.currency || 'THB'}` : '-'}</div>
                                 </div>
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">
                                         {(i18n.language === "th" ? 'จำนวนสินค้าคงเหลือ' : 'Stock')}
-                                        </div>
+                                    </div>
                                     <div className="text-gray-900">{selectedVariant.quantity ?? '-'}</div>
                                 </div>
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">
                                         {(i18n.language === "th" ? 'จำนวนสินค้าที่ขายไปแล้ว' : 'Sold out')}
-                                        </div>
+                                    </div>
                                     <div className="text-gray-900">{selectedVariant.soldQuantity ?? '-'}</div>
                                 </div>
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">
                                         {(i18n.language === "th" ? 'คุณสมบัติ' : 'Attributes')}
-                                        </div>
+                                    </div>
                                     <div className="text-gray-900">
                                         {selectedVariant.attributes && Object.keys(selectedVariant.attributes).length > 0 ? (
                                             <div className="flex flex-wrap gap-2">
