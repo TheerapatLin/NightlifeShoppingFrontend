@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { getDeviceFingerprint } from "../lib/fingerprint";
+import { useTranslation } from "react-i18next";
+
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
@@ -56,6 +58,7 @@ const getFPConfig = async () => {
 };
 
 function ShoppingOrderConfig({ onOrdersUpdate }) {
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -340,7 +343,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
             {loading && (
                 <div className="flex items-center p-3 mb-4 bg-white border border-gray-200 rounded">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                    <span className="ml-2 text-sm text-gray-700">Loading orders...</span>
+                    <span className="ml-2 text-sm text-gray-700">
+                        {(i18n.language === "th" ? 'กำลังโหลดคำสั่งซื้อ...' : 'Loading orders...')}
+                    </span>
                 </div>
             )}
             {error && (
@@ -350,19 +355,33 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
             )}
             {orders.length === 0 ? (
                 <div className="text-center py-8 text-500">
-                    <h1>No orders found</h1>
+                    <h1>
+                        {(i18n.language === "th" ? 'ไม่พบคำสั่งซื้อ' : 'No orders found')}
+                    </h1>
                 </div>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">created At</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">buyer Name</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">creator Name</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">paid At</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">status</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">admin Note</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {(i18n.language === "th" ? 'สร้างเมื่อ' : 'created At')}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {(i18n.language === "th" ? 'ชื่อผู้ซื้อ' : 'buyer Name')}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {(i18n.language === "th" ? 'ชื่อผู้ขาย' : 'creator Name')}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {(i18n.language === "th" ? 'ชำระเมื่อ' : 'paid At')}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {(i18n.language === "th" ? 'สถานะ' : 'status')}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {(i18n.language === "th" ? 'หมายเหตุจากแอดมิน' : 'admin Note')}
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -411,7 +430,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                            <h2 className="text-xl font-semibold text-gray-900">รายละเอียดคำสั่งซื้อ</h2>
+                            <h2 className="text-xl font-semibold text-gray-900">
+                                {(i18n.language === "th" ? 'รายละเอียดคำสั่งซื้อ' : 'Order Details')}
+                            </h2>
                             <div className="flex items-center space-x-2">
                                 <button
                                     onClick={handleCloseModal}
@@ -426,7 +447,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                             {/* Order Basic Info */}
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 <div className="bg-gray-50 p-3 rounded-lg">
-                                    <h3 className="font-semibold text-black mb-2">ข้อมูลคำสั่งซื้อ</h3>
+                                    <h3 className="font-semibold text-black mb-2">
+                                        {(i18n.language === "th" ? 'ข้อมูลคำสั่งซื้อ' : 'Order Details')}
+                                    </h3>
                                     <div className="space-y-1 text-sm">
                                         <p className="text-black"><span className="font-medium">Order ID:</span> {selectedOrder._id}</p>
 
@@ -436,7 +459,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                             <span
                                                 className="font-medium"
                                             >
-                                                สถานะ:
+                                                {(i18n.language === "th" ? 'สถานะ' : 'Status')}:
                                             </span>
                                             <span
                                                 className={`ml-2 px-2 py-1 text-xl font-semibold rounded-full ${selectedOrder.status === 'paid'
@@ -449,28 +472,32 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                             </span>
                                         </p>
 
-                                        <p className="text-black"><span className="font-medium">สร้างเมื่อ:</span> {formatDate(selectedOrder.createdAt)}</p>
-                                        <p className="text-black"><span className="font-medium">ชำระเมื่อ:</span> {formatDate(selectedOrder.paidAt)}</p>
+                                        <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'สร้างเมื่อ' : 'Created At')}:</span> {formatDate(selectedOrder.createdAt)}</p>
+                                        <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'ชำระเมื่อ' : 'Paid At')}:</span> {formatDate(selectedOrder.paidAt)}</p>
                                     </div>
                                 </div>
 
                                 <div className="bg-gray-50 p-3 rounded-lg">
 
-                                    <h3 className="font-semibold text-black mb-2">ข้อมูลผู้ซื้อ - ผู้ขาย</h3>
+                                    <h3 className="font-semibold text-black mb-2">
+                                        {(i18n.language === "th" ? 'ข้อมูลผู้ซื้อ - ผู้ขาย' : 'Buyer - Creator')}
+                                    </h3>
                                     <div className="space-y-1 text-sm">
-                                        <p className="text-black"><span className="font-medium">ผู้ซื้อ:</span> {selectedOrder.buyer.name || selectedOrder.buyer.id || '-'}</p>
-                                        <p className="text-black"><span className="font-medium">ผู้ขาย:</span> {productDetails[selectedOrder.productId]?.creatorName || '-'}</p>                                    </div>
+                                        <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'ผู้ซื้อ' : 'Buyer')}:</span> {selectedOrder.buyer.name || selectedOrder.buyer.id || '-'}</p>
+                                        <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'ผู้ขาย' : 'Creator')}:</span> {productDetails[selectedOrder.productId]?.creatorName || '-'}</p>                                    </div>
                                 </div>
 
                                 <div className="bg-gray-50 p-3 rounded-lg">
-                                    <h3 className="font-semibold text-black mb-2">สรุปยอดเงิน</h3>
+                                    <h3 className="font-semibold text-black mb-2">
+                                        {(i18n.language === "th" ? 'สรุปยอดเงิน' : 'Summary')}
+                                    </h3>
                                     <div className="space-y-1 text-sm">
                                         {selectedOrder.variant && selectedOrder.variant.length > 0 && (
                                             <p className="text-black font-semibold text-lg">
-                                                รวมทั้งหมด: {formatCurrency(selectedOrder.variant.reduce((sum, item) => sum + (item.totalPrice || 0), 0))}
+                                                {(i18n.language === "th" ? 'รวมทั้งหมด' : 'Total')}: {formatCurrency(selectedOrder.variant.reduce((sum, item) => sum + (item.totalPrice || 0), 0))}
                                             </p>
                                         )}
-                                        <p className="text-black"><span className="font-medium">จำนวนสินค้า:</span> {selectedOrder.variant?.length || 0} รายการ</p>
+                                        <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'จำนวนสินค้า' : 'Qty')}:</span> {selectedOrder.variant?.length || 0} รายการ</p>
                                     </div>
                                 </div>
                             </div>
@@ -478,7 +505,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                             {/* Shipping Address */}
                             {selectedOrder.ShippingAddress && (
                                 <div className="bg-blue-50 p-3 rounded-lg">
-                                    <h3 className="font-semibold text-black mb-2">ที่อยู่จัดส่ง</h3>
+                                    <h3 className="font-semibold text-black mb-2">
+                                        {(i18n.language === "th" ? 'ที่อยู่จัดส่ง' : 'Shipping Address')}
+                                    </h3>
                                     <div className="space-y-1 text-sm">
                                         <p className="text-black"><span className="font-medium">ชื่อที่อยู่:</span> {selectedOrder.ShippingAddress.addressName || '-'}</p>
 
@@ -488,19 +517,19 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                             <span
                                                 className="font-medium"
                                             >
-                                                สถานะ:
+                                                {(i18n.language === "th" ? 'สถานะ' : 'Status')}:
                                             </span>
                                             {selectedOrder.ShippingAddress.addressStatus || '-'}
                                         </p>
 
                                         {selectedOrder.ShippingAddress.address && (
                                             <div className="mt-2">
-                                                <p className="text-black"><span className="font-medium">ที่อยู่:</span> {selectedOrder.ShippingAddress.address.address || '-'}</p>
-                                                <p className="text-black"><span className="font-medium">เมือง:</span> {selectedOrder.ShippingAddress.address.city || '-'}</p>
-                                                <p className="text-black"><span className="font-medium">จังหวัด:</span> {selectedOrder.ShippingAddress.address.province || '-'}</p>
-                                                <p className="text-black"><span className="font-medium">ประเทศ:</span> {selectedOrder.ShippingAddress.address.country || '-'}</p>
+                                                <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'ที่อยู่' : 'Address')}:</span> {selectedOrder.ShippingAddress.address.address || '-'}</p>
+                                                <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'เมือง' : 'City')}:</span> {selectedOrder.ShippingAddress.address.city || '-'}</p>
+                                                <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'จังหวัด' : 'Province')}:</span> {selectedOrder.ShippingAddress.address.province || '-'}</p>
+                                                <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'ประเทศ' : 'Country')}:</span> {selectedOrder.ShippingAddress.address.country || '-'}</p>
                                                 {selectedOrder.ShippingAddress.address.description && (
-                                                    <p className="text-black"><span className="font-medium">รายละเอียดเพิ่มเติม:</span> {selectedOrder.ShippingAddress.address.description}</p>
+                                                    <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'รายละเอียดเพิ่มเติม' : 'Additional Details')}:</span> {selectedOrder.ShippingAddress.address.description}</p>
                                                 )}
                                             </div>
                                         )}
@@ -511,20 +540,22 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                             {/* Payment Details */}
                             {selectedOrder.paymentMetadata && (
                                 <div className="bg-green-50 p-3 rounded-lg">
-                                    <h3 className="font-semibold text-black mb-2">รายละเอียดการชำระเงิน</h3>
+                                    <h3 className="font-semibold text-black mb-2">
+                                        {(i18n.language === "th" ? 'รายละเอียดการชำระเงิน' : 'Payment Details')}
+                                    </h3>
                                     <div className="space-y-1 text-sm">
-                                        <p className="text-black"><span className="font-medium">วิธีการชำระ:</span> {selectedOrder.paymentMetadata.method || '-'}</p>
-                                        <p className="text-black"><span className="font-medium">บัตรเครดิต:</span> {selectedOrder.paymentMetadata.brand || '-'} ****{selectedOrder.paymentMetadata.last4 || ''}</p>
+                                        <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'วิธีการชำระ' : 'Payment Method')}:</span> {selectedOrder.paymentMetadata.method || '-'}</p>
+                                        <p className="text-black"><span className="font-medium">{(i18n.language === "th" ? 'บัตรเครดิต' : 'Credit Card')}:</span> {selectedOrder.paymentMetadata.brand || '-'} ****{selectedOrder.paymentMetadata.last4 || ''}</p>
                                         {selectedOrder.paymentMetadata.receiptUrl && (
                                             <p className="text-black">
-                                                <span className="font-medium">ใบเสร็จ:</span>
+                                                <span className="font-medium">{(i18n.language === "th" ? 'ใบเสร็จ' : 'Receipt')}:</span>
                                                 <a
                                                     href={selectedOrder.paymentMetadata.receiptUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="ml-2 text-blue-600 hover:text-blue-800 underline"
                                                 >
-                                                    ดูใบเสร็จ
+                                                    {(i18n.language === "th" ? 'ดูใบเสร็จ' : 'View Receipt')}
                                                 </a>
                                             </p>
                                         )}
@@ -535,19 +566,37 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                             {/* Variant Products */}
                             {selectedOrder.variant && selectedOrder.variant.length > 0 && (
                                 <div className="bg-yellow-50 p-3 rounded-lg">
-                                    <h3 className="font-semibold text-black mb-2">สินค้าที่สั่งซื้อ</h3>
+                                    <h3 className="font-semibold text-black mb-2">
+                                        {(i18n.language === "th" ? 'สินค้าที่สั่งซื้อ' : 'Ordered Products')}
+                                    </h3>
                                     <div className="overflow-x-auto">
                                         <table className="min-w-full bg-white border border-gray-200 rounded-lg">
                                             <thead className="bg-gray-100">
                                                 <tr>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">Product Name</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">SKU</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">จำนวน</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">ราคาต่อชิ้น</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">ราคารวม</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">สถานะ</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">Admin Note</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">แก้ไข</th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">
+                                                        {(i18n.language === "th" ? 'ชื่อสินค้า' : 'Product Name')}
+                                                    </th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">
+                                                        {(i18n.language === "th" ? 'SKU' : 'SKU')}
+                                                    </th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">
+                                                        {(i18n.language === "th" ? 'จำนวน' : 'Qty')}
+                                                    </th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">
+                                                        {(i18n.language === "th" ? 'ราคาต่อชิ้น' : 'Price per item')}
+                                                    </th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">
+                                                        {(i18n.language === "th" ? 'ราคารวม' : 'Total Price')}
+                                                    </th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">
+                                                        {(i18n.language === "th" ? 'สถานะ' : 'Status')}
+                                                    </th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">
+                                                        {(i18n.language === "th" ? 'หมายเหตุจากแอดมิน' : 'Admin Note')}
+                                                    </th>
+                                                    <th className="px-3 py-2 text-left text-xs font-medium text-black uppercase">
+                                                        {(i18n.language === "th" ? 'แก้ไข' : 'Edit')}
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200">
@@ -566,7 +615,7 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                                                 className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
                                                                 onClick={() => openEditItem(item)}
                                                             >
-                                                                แก้ไข
+                                                                {(i18n.language === "th" ? 'แก้ไข' : 'Edit')}
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -580,12 +629,16 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                             {/* Admin Notes */}
                             <div className="bg-red-50 p-3 rounded-lg">
                                 <div className="flex items-center justify-between mb-2">
-                                    <h3 className="font-semibold text-black">หมายเหตุจากแอดมิน</h3>
+                                    <h3 className="font-semibold text-black">
+                                        {(i18n.language === "th" ? 'หมายเหตุจากแอดมิน' : 'Admin Note')}
+                                    </h3>
                                     <button
                                         type="button"
                                         className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm"
                                         onClick={openEditOrderNotes}
-                                    >แก้ไข</button>
+                                    >
+                                        {(i18n.language === "th" ? 'แก้ไข' : 'Edit')}
+                                    </button>
                                 </div>
                                 <div className="space-y-1 text-sm">
                                     {selectedOrder.adminNote && selectedOrder.adminNote.length > 0 ? (
@@ -612,7 +665,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-900">แก้ไขสินค้า</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">
+                                {(i18n.language === "th" ? 'แก้ไขคำสั่งซื้อของสินค้า' : 'Edit Order Product')}
+                            </h3>
                             <button onClick={closeEditItem} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
                         </div>
                         <div className="p-6 space-y-4">
@@ -620,7 +675,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                 <p className="text-sm text-gray-700"><span className="font-medium">SKU:</span> {editingItem.sku}</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    {(i18n.language === "th" ? 'สถานะ' : 'Status')}
+                                </label>
                                 <select
                                     className="w-full border rounded px-3 py-2"
                                     value={editStatus}
@@ -632,7 +689,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">หมายเหตุจากแอดมิน</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    {(i18n.language === "th" ? 'หมายเหตุจากแอดมิน' : 'Admin Note')}
+                                </label>
                                 <div className="flex flex-wrap gap-2 mb-2">
                                     {Array.isArray(editAdminNotes) && editAdminNotes.length > 0 ? (
                                         editAdminNotes.map((note, idx) => (
@@ -649,7 +708,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                             </span>
                                         ))
                                     ) : (
-                                        <span className="text-sm text-gray-500">ยังไม่มีหมายเหตุ</span>
+                                        <span className="text-sm text-gray-500">
+                                            {(i18n.language === "th" ? 'ยังไม่มีหมายเหตุ' : 'No note')}
+                                        </span>
                                     )}
                                 </div>
                                 <div className="flex gap-2">
@@ -658,14 +719,16 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                         className="flex-1 border rounded px-3 py-2"
                                         value={newAdminNote}
                                         onChange={(e) => setNewAdminNote(e.target.value)}
-                                        placeholder="พิมพ์หมายเหตุใหม่..."
+                                        placeholder={(i18n.language === "th" ? 'พิมพ์หมายเหตุใหม่...' : 'Enter new note...')}
                                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddNote(); } }}
                                     />
                                     <button
                                         type="button"
                                         className="px-3 py-2 rounded bg-green-600 text-white hover:bg-green-700"
                                         onClick={handleAddNote}
-                                    >เพิ่ม Note</button>
+                                    >
+                                        {(i18n.language === "th" ? 'เพิ่ม Note' : 'Add Note')}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -675,13 +738,17 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                 className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
                                 onClick={closeEditItem}
                                 disabled={savingEdit}
-                            >ยกเลิก</button>
+                            >
+                                {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
+                            </button>
                             <button
                                 type="button"
                                 className={`px-4 py-2 rounded text-white ${savingEdit ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'}`}
                                 onClick={handleSaveEdit}
                                 disabled={savingEdit}
-                            >{savingEdit ? 'กำลังบันทึก...' : 'บันทึก'}</button>
+                            >
+                                {savingEdit ? (i18n.language === "th" ? 'กำลังบันทึก...' : 'Saving...') : (i18n.language === "th" ? 'บันทึก' : 'Save')}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -698,12 +765,16 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-900">แก้ไขหมายเหตุคำสั่งซื้อ</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">
+                                {(i18n.language === "th" ? 'แก้ไขหมายเหตุคำสั่งซื้อ' : 'Edit Order Admin Note')}
+                            </h3>
                             <button onClick={closeEditOrderNotes} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">หมายเหตุจากแอดมิน</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    {(i18n.language === "th" ? 'หมายเหตุจากแอดมิน' : 'Admin Note')}
+                                </label>
                                 <div className="flex flex-wrap gap-2 mb-2">
                                     {Array.isArray(editOrderAdminNotes) && editOrderAdminNotes.length > 0 ? (
                                         editOrderAdminNotes.map((note, idx) => (
@@ -720,7 +791,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                             </span>
                                         ))
                                     ) : (
-                                        <span className="text-sm text-gray-500">ยังไม่มีหมายเหตุ</span>
+                                        <span className="text-sm text-gray-500">
+                                            {(i18n.language === "th" ? 'ยังไม่มีหมายเหตุ' : 'No note')}
+                                        </span>
                                     )}
                                 </div>
                                 <div className="flex gap-2">
@@ -736,7 +809,9 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                         type="button"
                                         className="px-3 py-2 rounded bg-green-600 text-white hover:bg-green-700"
                                         onClick={handleAddOrderNote}
-                                    >เพิ่ม Note</button>
+                                    >
+                                        {(i18n.language === "th" ? 'เพิ่ม Note' : 'Add Note')}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -746,13 +821,17 @@ function ShoppingOrderConfig({ onOrdersUpdate }) {
                                 className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
                                 onClick={closeEditOrderNotes}
                                 disabled={savingOrderNote}
-                            >ยกเลิก</button>
+                            >
+                                {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
+                            </button>
                             <button
                                 type="button"
                                 className={`px-4 py-2 rounded text-white ${savingOrderNote ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'}`}
                                 onClick={handleSaveOrderNotes}
                                 disabled={savingOrderNote}
-                            >{savingOrderNote ? 'กำลังบันทึก...' : 'บันทึก'}</button>
+                            >
+                                {savingOrderNote ? (i18n.language === "th" ? 'กำลังบันทึก...' : 'Saving...') : (i18n.language === "th" ? 'บันทึก' : 'Save')}
+                            </button>
                         </div>
                     </div>
                 </div>
