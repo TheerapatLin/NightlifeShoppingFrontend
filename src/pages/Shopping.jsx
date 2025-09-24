@@ -1,24 +1,12 @@
 // Shopping.jsx
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import "../public/css/App.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { useNavigate, useLocation, Link } from "react-router-dom";
-import { useGlobalEvent } from "../context/GlobalEventContext";
+import { useNavigate } from "react-router-dom";
 import AllEventsInclude from "../components/AllEventsInclude";
-import VideotextNLShopping from "../components/VideotextNLShopping";
-import VideotextnightlifeMobile from "../components/VideotextnightlifeMobile";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
-import { Search } from "lucide-react";
-
-// 🔧 debounce helper
-function debounce(fn, delay = 800) {
-    let t;
-    return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), delay);
-    };
-}
+import { Search, Heart } from "lucide-react";
 
 function Shopping() {
     const { t, i18n } = useTranslation();
@@ -27,9 +15,6 @@ function Shopping() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
-    const { isScrolled, currentPage, updateCurrentPage, windowSize } =
-        useGlobalEvent();
 
     const [productData, setProductData] = useState([])
     const [q, setQ] = useState("");
@@ -79,24 +64,8 @@ function Shopping() {
         );
     }
 
-    // const applySearchDebounced = useMemo(
-    //     () =>
-    //         debounce((val) => {
-    //             setQ(val);
-    //         }, 400),
-    //     []
-    // );
-
     return (
         <div>
-
-            <div className="App">
-                {windowSize.width > 768 ? (
-                    <VideotextNLShopping />
-                ) : (
-                    <VideotextnightlifeMobile />
-                )}
-            </div>
 
             {/* ************** Selected Products **************** */}
             <div
@@ -122,22 +91,33 @@ function Shopping() {
 
             <div className="container"
                 style={{ paddingTop: "20px", maxWidth: "90%" }}>
-                <div className="flex items-center gap-3 w-full md:w-96">
-                    <input
-                        type="text"
-                        className="flex-1 rounded px-3 py-2 text-black border"
-                        placeholder={(i18n.language === "th" ? 'ค้นหาสินค้า...' : 'Search products...')}
-                        onChange={(e) => setQ(e.target.value)}
-                        defaultValue={q}
-                        aria-label="Search"
-                    />
+                <div className="flex items-center gap-3 w-full">
+                    <div className="flex items-center gap-3 w-full md:w-96">
+                        <input
+                            type="text"
+                            className="flex-1 rounded px-3 py-2 text-black border"
+                            placeholder={(i18n.language === "th" ? 'ค้นหาสินค้า...' : 'Search products...')}
+                            onChange={(e) => setQ(e.target.value)}
+                            defaultValue={q}
+                            aria-label="Search"
+                        />
+                        <button
+                            type="button"
+                            className="p-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center justify-center"
+                            onClick={() => fetchProduct()}
+                            title={(i18n.language === "th" ? 'ค้นหา' : 'Search')}
+                        >
+                            <Search size={20} />
+                        </button>
+                    </div>
+                    <div className="flex-1"></div>
                     <button
                         type="button"
-                        className="p-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center justify-center"
-                        onClick={() => fetchProduct()}
-                        title={(i18n.language === "th" ? 'ค้นหา' : 'Search')}
+                        className="p-2 rounded bg-red-500 text-white hover:bg-red-600 flex items-center justify-center"
+                        onClick={() => navigate('/shopping/wishlist')}
+                        title={(i18n.language === "th" ? 'รายการโปรด' : 'Wishlist')}
                     >
-                        <Search size={20} />
+                        <Heart size={20} />
                     </button>
                 </div>
             </div>

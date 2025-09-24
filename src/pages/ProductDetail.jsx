@@ -6,6 +6,11 @@ import { useAuth } from "../context/AuthContext";
 import { getDeviceFingerprint } from "../lib/fingerprint";
 import { useTranslation } from "react-i18next";
 
+const getFPConfig = async () => {
+  const fp = await getDeviceFingerprint();
+  return { headers: { 'device-fingerprint': fp }, withCredentials: true };
+};
+
 function ProductDetail() {
   const { t, i18n } = useTranslation();
   const { productId } = useParams();
@@ -23,22 +28,109 @@ function ProductDetail() {
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState("");
   const [addSuccess, setAddSuccess] = useState("");
+  const [wishlist, setWishlist] = useState([]);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${BASE_URL}/shopping/product/${productId}`);
+      setProduct(res.data);
+      setError("");
+    } catch (err) {
+      setError("Internal Error.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchWishlist = async () => {
+    // ตรวจสอบว่า user login แล้วหรือยัง
+    if (!isLoggedIn || !user?.userId) {
+      setIsInWishlist(false);
+      return;
+    }
+
+    try {
+      const config = await getFPConfig();
+      const res = await axios.get(`${BASE_URL}/shopping/wishlist/${user?.userId}`,
+        config
+      );
+      const wishlistItems = res.data.wishlist.items;
+      setWishlist(wishlistItems);
+      
+      // ใช้ข้อมูลที่ได้จาก API แทนการใช้ state เก่า
+      for (const item of wishlistItems) {
+        if (item.productId === productId || item.productId._id === productId) {
+          setIsInWishlist(true);
+          return; // หยุดทันทีเมื่อพบ
+        }
+      }
+      // ถ้าไม่พบในรายการ wishlist ให้ set เป็น false
+      setIsInWishlist(false);
+    }
+    catch (error) {
+      console.error("Error fetching wishlist:", error);
+      setIsInWishlist(false);
+    }
+  }
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(`${BASE_URL}/shopping/product/${productId}`);
-        setProduct(res.data);
-        setError("");
-      } catch (err) {
-        setError("Internal Error.");
-      } finally {
-        setLoading(false);
-      }
-    };
     if (productId) fetchProduct();
   }, [productId]);
+
+  // useEffect แยกสำหรับ wishlist เพื่อให้ทำงานเมื่อ user เปลี่ยน
+  useEffect(() => {
+    fetchWishlist();
+  }, [user, isLoggedIn, productId]);
+
+  const handleAddToWishlist = async () => {
+    if (!isLoggedIn || !user?.userId) {
+      alert(i18n.language === "th" ? "กรุณาเข้าสู่ระบบก่อน" : "Please login first");
+      return;
+    }
+    
+    try {
+      const config = await getFPConfig();
+      await axios.patch(`${BASE_URL}/shopping/wishlist/add-item`,
+        {
+          userId: user?.userId,
+          productId: product._id
+        },
+        config
+      );
+      // อัปเดต state หลังจากเพิ่มสำเร็จ
+      setIsInWishlist(true);
+      // รีเฟรช wishlist เพื่อให้ข้อมูลเป็นปัจจุบัน
+      fetchWishlist();
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+    }
+  }
+
+  const handleRemoveFromWishlist = async () => {
+    if (!isLoggedIn || !user?.userId) {
+      alert(i18n.language === "th" ? "กรุณาเข้าสู่ระบบก่อน" : "Please login first");
+      return;
+    }
+    
+    try {
+      const config = await getFPConfig();
+      await axios.patch(`${BASE_URL}/shopping/wishlist/remove-item`,
+        {
+          userId: user?.userId,
+          productId: product._id
+        },
+        config
+      );
+      // อัปเดต state หลังจากลบสำเร็จ
+      setIsInWishlist(false);
+      // รีเฟรช wishlist เพื่อให้ข้อมูลเป็นปัจจุบัน
+      fetchWishlist();
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+    }
+  }
 
   const ensureBasketAndGetId = async (uid) => {
     try {
@@ -80,8 +172,8 @@ function ProductDetail() {
     setAddError("");
     setAddSuccess("");
     const uid = user.userId
-    try {
 
+    try {
       const basketId = await ensureBasketAndGetId(uid);
       const fp = await getDeviceFingerprint();
       await axios.patch(
@@ -150,9 +242,73 @@ function ProductDetail() {
           )}
         </div>
         <div>
-          <h2 style={{ margin: "8px 0" }}>
-            {(i18n.language === "th" ? product.title?.th || product.title.en || 'ไม่พบชื่อสินค้า' : product.title?.en || product.title.th || 'Unknow Product Name.')}
-          </h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "8px 0" }}>
+
+            <h2 style={{ margin: 0, flex: 1 }}>
+              {(i18n.language === "th" ? product.title?.th || product.title.en || 'ไม่พบชื่อสินค้า' : product.title?.en || product.title.th || 'Unknow Product Name.')}
+            </h2>
+
+            {/* Wishlist Heart Button */}
+            {isInWishlist ?
+              <button
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginLeft: "12px"
+                }}
+                onClick={handleRemoveFromWishlist}
+                title={i18n.language === "th" ? "ลบออกจากรายการโปรด" : "remove from wishlist"}
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="#dc2626"   // ทำให้หัวใจทึบสีแดง
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 
+      7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </button>
+              :
+              <button
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginLeft: "12px"
+                }}
+                onClick={handleAddToWishlist}
+                title={i18n.language === "th" ? "เพิ่มในรายการโปรด" : "Add to wishlist"}
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#dc2626"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
+            }
+
+
+
+          </div>
+
           <div style={{ color: "#444", margin: "12px 0" }}>
             {(i18n.language === "th" ? product.description?.th || product.description?.en || "ไม่มีคำอธิบาย" : product.description?.en || product.description?.th || "No Description.")}          </div>
           <div style={{ fontSize: 20, fontWeight: 600, margin: "12px 0" }}>
@@ -238,7 +394,7 @@ function ProductDetail() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 16, borderBottom: "1px solid #eee" }}>
               <div style={{ fontWeight: 700 }}>
                 {(i18n.language === "th" ? `ตัวแปรสินค้า: ${selectedVariant.sku}` : `Variant: ${selectedVariant.sku}`)}
-                </div>
+              </div>
               <button onClick={() => setIsVariantModalOpen(false)} style={{ background: "transparent", border: "none", fontSize: 22, cursor: "pointer" }}>×</button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 0 }}>
@@ -323,7 +479,7 @@ function ProductDetail() {
                 <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8 }}>
                   <label htmlFor="qtyInput" style={{ fontSize: 14, color: "#444" }}>
                     {(i18n.language === "th" ? 'จำนวน' : 'Select quantity')}
-                    </label>
+                  </label>
                   <input
                     id="qtyInput"
                     type="number"
@@ -353,7 +509,7 @@ function ProductDetail() {
                     onClick={() => setIsVariantModalOpen(false)}
                     style={{ padding: "10px 16px", background: "#111", color: "#fff", borderRadius: 8, border: "none", cursor: "pointer" }}
                   >
-                   {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
+                    {(i18n.language === "th" ? 'ยกเลิก' : 'Cancel')}
                   </button>
                 </div>
               </div>

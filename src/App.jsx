@@ -44,6 +44,7 @@ import Videotextnightlife from "../src/components/Videotextnightlife";
 import VideotextnightlifeMobile from "../src/components/VideotextnightlifeMobile";
 import ShoppingCheckout from "./pages/ShoppingCheckout";
 import Store from "./pages/Store"
+import ShoppingWishlist from "./pages/ShoppingWishlist";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 import { loadStripe } from "@stripe/stripe-js";
@@ -205,6 +206,14 @@ function RouteContainer() {
             element={
               <MotionPage>
                 <ProductDetail />
+              </MotionPage>
+            }
+          />
+          <Route
+            path="/shopping/wishlist"
+            element={
+              <MotionPage>
+                <ShoppingWishlist />
               </MotionPage>
             }
           />
