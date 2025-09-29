@@ -63,6 +63,7 @@ export const AuthProvider = ({ children }) => {
           `${BASE_URL}/auth/refresh-web`,
           {
             fingerprint: fp,
+            role: role,
           },
           {
             headers: {
@@ -71,7 +72,6 @@ export const AuthProvider = ({ children }) => {
               businessId: "1",
               Authorization: `Bearer ${accessToken}`,
               refreshToken: refreshToken,
-              "role": role,
             },
             withCredentials: true,
           }
