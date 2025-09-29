@@ -274,6 +274,7 @@ function SignUpForm() {
       if (payload) {
         localStorage.setItem("accessToken", payload.tokens.accessToken);
         localStorage.setItem("refreshToken", payload.tokens.refreshToken);
+        localStorage.setItem("role", payload.user.role);
         // ถ้าต้องส่ง user ให้ context:
         if (payload.user) {
           await login(payload.user);
