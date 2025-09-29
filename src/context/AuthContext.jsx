@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      console.log("checkAuthStatus");
       const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/auth/refresh-web`,
