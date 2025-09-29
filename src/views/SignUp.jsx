@@ -249,7 +249,6 @@ function SignUpForm() {
   };
 
   const loginUser = async () => {
-    console.log("loginUser loginFormData:", loginFormData);
     try {
       const fp = await getDeviceFingerprint();
       const response = await axios.post(
@@ -273,6 +272,8 @@ function SignUpForm() {
       const payload = response.data?.data || response.data;
       console.log("loginUser payload:", payload);
       if (payload) {
+        localStorage.setItem("accessToken", JSON.stringify(payload.tokens.accessToken));
+        localStorage.setItem("refreshToken", JSON.stringify(payload.tokens.refreshToken));
         // ถ้าต้องส่ง user ให้ context:
         if (payload.user) {
           await login(payload.user);
