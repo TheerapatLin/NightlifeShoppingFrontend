@@ -54,6 +54,8 @@ export const AuthProvider = ({ children }) => {
     if (!isRefreshingToken) {
       isRefreshingToken = true;
       try {
+        const accessToken = localStorage.getItem("accessToken");
+        const refreshToken = localStorage.getItem("refreshToken");
         const fp = await getDeviceFingerprint();
         const response = await axios.post(
           `${BASE_URL}/auth/refresh-web`,
@@ -65,6 +67,8 @@ export const AuthProvider = ({ children }) => {
               "Content-Type": "application/json",
               "device-fingerprint": fp,
               businessId: "1",
+              Authorization: `Bearer ${accessToken}`,
+              refreshToken: refreshToken,
             },
             withCredentials: true,
           }
