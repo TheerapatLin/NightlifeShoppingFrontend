@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
         const accessToken = localStorage.getItem("accessToken");
         const refreshToken = localStorage.getItem("refreshToken");
         const role = localStorage.getItem("role");
-        
+
         const fp = await getDeviceFingerprint();
         const response = await axios.post(
           `${BASE_URL}/auth/refresh-web`,
@@ -71,15 +71,13 @@ export const AuthProvider = ({ children }) => {
               businessId: "1",
               Authorization: `Bearer ${accessToken}`,
               refreshToken: refreshToken,
-              role: role,
+              "role": role,
             },
             withCredentials: true,
           }
         );
         
         if (response.status === 200) {
-          // const userData = response.data.data.user;
-          // localStorage.setItem("user", JSON.stringify(userData));
           setIsLoggedIn(true);
           setUser(response.data.data.user);
           console.log("200 refreshToken data.user:", response.data.data.user);
