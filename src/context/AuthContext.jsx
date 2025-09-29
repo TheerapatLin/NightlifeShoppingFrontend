@@ -56,6 +56,8 @@ export const AuthProvider = ({ children }) => {
       try {
         const accessToken = localStorage.getItem("accessToken");
         const refreshToken = localStorage.getItem("refreshToken");
+        const role = localStorage.getItem("role");
+        
         const fp = await getDeviceFingerprint();
         const response = await axios.post(
           `${BASE_URL}/auth/refresh-web`,
@@ -69,6 +71,7 @@ export const AuthProvider = ({ children }) => {
               businessId: "1",
               Authorization: `Bearer ${accessToken}`,
               refreshToken: refreshToken,
+              role: role,
             },
             withCredentials: true,
           }
@@ -91,7 +94,7 @@ export const AuthProvider = ({ children }) => {
         console.error("Error refreshing token:", error);
         setIsLoggedIn(false);
         setUser(null);
-        console.log("ไม่สำเร็จ");
+        console.log("refreshToken ไม่สำเร็จ");
         isRefreshingToken = false;
       }
     }
