@@ -53,7 +53,6 @@ export const AuthProvider = ({ children }) => {
   const refreshToken = async () => {
     if (!isRefreshingToken) {
       isRefreshingToken = true;
-      // console.log(`try to refresh-token : ${BASE_URL}/auth/refresh-web`);
       try {
         const fp = await getDeviceFingerprint();
         const response = await axios.post(
@@ -70,10 +69,13 @@ export const AuthProvider = ({ children }) => {
             withCredentials: true,
           }
         );
-
+        
         if (response.status === 200) {
+          // const userData = response.data.data.user;
+          // localStorage.setItem("user", JSON.stringify(userData));
           setIsLoggedIn(true);
           setUser(response.data.data.user);
+          console.log("200 refreshToken data.user:", response.data.data.user);
           await checkAuthStatus();
           isRefreshingToken = false;
         } else {

@@ -249,6 +249,7 @@ function SignUpForm() {
   };
 
   const loginUser = async () => {
+    console.log("loginUser loginFormData:", loginFormData);
     try {
       const fp = await getDeviceFingerprint();
       const response = await axios.post(
@@ -270,6 +271,7 @@ function SignUpForm() {
 
       // บาง backend ห่อ data ซ้อนกัน ลองรองรับทั้งสองแบบ
       const payload = response.data?.data || response.data;
+      console.log("loginUser payload:", payload);
       if (payload) {
         // ถ้าต้องส่ง user ให้ context:
         if (payload.user) {

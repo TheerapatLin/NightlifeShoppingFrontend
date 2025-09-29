@@ -15,6 +15,7 @@ export const SecurityProvider = ({ children }) => {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
   const fetchCsrfToken = async () => {
+    console.log("fetchCsrfToken");
     try {
       const response = await axios.get(`${BASE_URL}/auth/login`, {
         withCredentials: true,
