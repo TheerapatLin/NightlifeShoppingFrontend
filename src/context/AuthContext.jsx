@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     console.log("User Data:", userData);
     // ❌ ไม่เรียก checkAuthStatus() ระหว่าง login เพราะจะทำให้เกิด token mismatch
-    // await checkAuthStatus();
+    await checkAuthStatus();
   };
 
   const refreshToken = async () => {
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }) => {
           }
           
           // ❌ ไม่เรียก checkAuthStatus() เพิ่มเพราะจะทำให้เกิด infinite loop
-          // await checkAuthStatus();
+          await checkAuthStatus();
           isRefreshingToken = false;
         } else {
           setIsLoggedIn(false);

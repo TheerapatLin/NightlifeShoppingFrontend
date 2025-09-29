@@ -280,7 +280,7 @@ function SignUpForm() {
           await login(payload.user);
         }
         // ❌ ลบ checkAuthStatus() ออก เพราะทำให้เกิด token mismatch
-        // await checkAuthStatus(); 
+        await checkAuthStatus(); 
         navigate("/");
       } else {
         console.log("No data received");
