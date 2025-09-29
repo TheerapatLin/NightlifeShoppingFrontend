@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setIsLoggedIn(false);
       setUser(null);
+      console.log(`checkAuthStatus error: ${error}`);
       return false;
     }
   };
