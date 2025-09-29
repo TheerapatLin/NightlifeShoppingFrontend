@@ -14,6 +14,8 @@ export const AuthProvider = ({ children }) => {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
   const checkAuthStatus = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
     try {
       console.log("checkAuthStatus");
       const fp = await getDeviceFingerprint();
@@ -25,6 +27,8 @@ export const AuthProvider = ({ children }) => {
             "Content-Type": "application/json",
             "device-fingerprint": fp,
             businessId: "1",
+            Authorization: `Bearer ${accessToken}`,
+            refreshToken: refreshToken,
           },
           withCredentials: true,
         }
@@ -32,7 +36,7 @@ export const AuthProvider = ({ children }) => {
       if (response.status === 200) {
         setIsLoggedIn(true);
         setUser(response.data.data.user);
-        
+
         // ✅ อัพเดต localStorage ถ้ามี token ใหม่มาจาก response
         if (response.data.data.tokens?.accessToken) {
           localStorage.setItem("accessToken", response.data.data.tokens.accessToken);
@@ -40,7 +44,7 @@ export const AuthProvider = ({ children }) => {
         if (response.data.data.tokens?.refreshToken) {
           localStorage.setItem("refreshToken", response.data.data.tokens.refreshToken);
         }
-        
+
         return true; // ✅ เพิ่ม return
       } else {
         setIsLoggedIn(false);
@@ -67,9 +71,7 @@ export const AuthProvider = ({ children }) => {
     if (!isRefreshingToken) {
       isRefreshingToken = true;
       try {
-        // ✅ ให้ใช้ cookie แทน localStorage เพื่อความ sync
-        // const accessToken = localStorage.getItem("accessToken");
-        // const refreshToken = localStorage.getItem("refreshToken");
+
         const role = localStorage.getItem("role");
 
         const fp = await getDeviceFingerprint();
@@ -84,19 +86,16 @@ export const AuthProvider = ({ children }) => {
               "Content-Type": "application/json",
               "device-fingerprint": fp,
               businessId: "1",
-              // ❌ ลบ Authorization header ออก ให้ใช้ cookie แทน
-              // Authorization: `Bearer ${accessToken}`,
-              // refreshToken: refreshToken,
             },
             withCredentials: true,
           }
         );
-        
+
         if (response.status === 200) {
           setIsLoggedIn(true);
           setUser(response.data.data.user);
           console.log("200 refreshToken data.user:", response.data.data.user);
-          
+
           // ✅ อัพเดต localStorage ถ้ามี token ใหม่มาจาก response
           if (response.data.data.tokens?.accessToken) {
             localStorage.setItem("accessToken", response.data.data.tokens.accessToken);
@@ -104,7 +103,7 @@ export const AuthProvider = ({ children }) => {
           if (response.data.data.tokens?.refreshToken) {
             localStorage.setItem("refreshToken", response.data.data.tokens.refreshToken);
           }
-          
+
           // ❌ ไม่เรียก checkAuthStatus() เพิ่มเพราะจะทำให้เกิด infinite loop
           await checkAuthStatus();
           isRefreshingToken = false;
