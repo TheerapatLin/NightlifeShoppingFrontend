@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(true);
     setUser(userData);
     console.log("User Data:", userData);
-    await checkAuthStatus();
+    // await checkAuthStatus();
   };
 
   const refreshToken = async () => {
@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem("refreshToken", response.data.data.tokens.refreshToken);
           }
 
-          await checkAuthStatus();
+          // await checkAuthStatus();
           isRefreshingToken = false;
         } else {
           setIsLoggedIn(false);
