@@ -14,10 +14,10 @@ export const AuthProvider = ({ children }) => {
   const BASE_URL = import.meta.env.VITE_BASE_API_URL_LOCAL;
 
   const checkAuthStatus = async () => {
+    console.log(`checkAuthStatus`)
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
     try {
-      console.log("checkAuthStatus");
       const fp = await getDeviceFingerprint();
       const response = await axios.post(
         `${BASE_URL}/auth/refresh-web`,
@@ -63,7 +63,6 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(true);
     setUser(userData);
     console.log("User Data:", userData);
-    // ❌ ไม่เรียก checkAuthStatus() ระหว่าง login เพราะจะทำให้เกิด token mismatch
     await checkAuthStatus();
   };
 
@@ -104,7 +103,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem("refreshToken", response.data.data.tokens.refreshToken);
           }
 
-          // ❌ ไม่เรียก checkAuthStatus() เพิ่มเพราะจะทำให้เกิด infinite loop
           await checkAuthStatus();
           isRefreshingToken = false;
         } else {

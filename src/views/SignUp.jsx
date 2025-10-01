@@ -79,7 +79,7 @@ function SignUpForm() {
             }
           );
 
-          await checkAuthStatus();
+          // await checkAuthStatus();
           // ล้าง error เดิมในฟอร์มอีเมล/พาส เผื่อค้างอยู่
           setErrors((prev) => ({ ...prev, email: "", password: "" }));
           navigate("/");
@@ -280,7 +280,7 @@ function SignUpForm() {
           await login(payload.user);
         }
         // ❌ ลบ checkAuthStatus() ออก เพราะทำให้เกิด token mismatch
-        await checkAuthStatus(); 
+        // await checkAuthStatus(); 
         navigate("/");
       } else {
         console.log("No data received");
