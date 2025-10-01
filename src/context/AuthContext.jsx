@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     console.log(`checkAuthStatus`)
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
+    const role = localStorage.getItem("role")
     try {
       const fp = await getDeviceFingerprint();
       const response = await axios.post(
@@ -29,6 +30,7 @@ export const AuthProvider = ({ children }) => {
             businessId: "1",
             Authorization: `Bearer ${accessToken}`,
             refreshToken: refreshToken,
+            role: role
           },
           withCredentials: true,
         }
